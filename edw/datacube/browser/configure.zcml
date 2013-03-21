@@ -1,0 +1,23 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  i18n_domain="scoreboard.visualization">
+
+  <browser:resourceDirectory
+    name="edw.datacube.css"
+    directory="css/"
+    />
+
+  <browser:resourceDirectory
+    name="edw.datacube.js"
+    directory="js/"
+    />
+
+  <browser:page
+    name="datacube-view.html"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    template="templates/datacube-view.pt"
+    />
+
+</configure>

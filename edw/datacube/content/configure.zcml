@@ -1,0 +1,14 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:five="http://namespaces.zope.org/five"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  i18n_domain="edw">
+
+  <class class=".datacube.DataCube">
+    <require
+      permission="zope2.View"
+      interface="..interfaces.IDataCube"
+      />
+  </class>
+
+</configure>

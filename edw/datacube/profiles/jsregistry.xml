@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<object name="portal_javascripts">
+  <javascript id="++resource++edw.datacube.js/edit.js"
+    expression="python:here.restrictedTraverse('@@plone_interface_info').provides('edw.datacube.interfaces.IDataCube') and request.URL0.endswith('atct_edit')"
+    />
+  <javascript id="++resource++edw.datacube.js/view.js"
+    expression="python:here.restrictedTraverse('@@plone_interface_info').provides('edw.datacube.interfaces.IDataCube') and request.URL0.endswith('datacube-view.html')"
+    />
+</object>
