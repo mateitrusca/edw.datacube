@@ -20,4 +20,11 @@
     template="templates/view.pt"
     />
 
+  <browser:page
+    name="dataset-query"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".query.DatasetQueryView"
+    />
+
 </configure>

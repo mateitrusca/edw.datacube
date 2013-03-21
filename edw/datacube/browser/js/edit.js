@@ -24,30 +24,15 @@ scoreboard.datacube.edit = {
             if(!endpoint.val()){
                 alert('No endpoint defined!');
             }else{
-                self.renderDatasets(endpoint, datasetsBox);
+                jQuery(this).attr({'disabled': 'disabled'});
+                self.fetchDatasets(endpoint, datasetsBox);
             }
             return false;
         });
         datasetsBox.empty().append(fetchDatasetsButton);
     },
-    fetchDatasets: function(endpoint){
-        var data = [
-            {'uri': 'some-dataset-uri-1',
-             'title': 'Some dataset 1'},
-            {'uri': 'some-dataset-uri-2',
-             'title': 'Some dataset 2'},
-            {'uri': 'some-dataset-uri-3',
-             'title': 'Some dataset 3'},
-            {'uri': 'some-dataset-uri-4',
-             'title': 'Some dataset 4'},
-            {'uri': 'some-dataset-uri-5',
-             'title': 'Some dataset 5'}
-        ];
-        return data
-    },
-    renderDatasets: function(endpoint, datasetsBox){
+    renderDatasets: function(datasetsBox, datasetsJSON){
         var self = this;
-        var datasetsJSON = self.fetchDatasets(endpoint);
         datasetsBox.empty();
         jQuery.each(datasetsJSON, function(i, o){
             var label = jQuery('<label>');
@@ -62,7 +47,17 @@ scoreboard.datacube.edit = {
             field.bind('click', function(){
                 self.dataset.val(jQuery(this).val());
             });
-        })
+        });
+    },
+    fetchDatasets: function(endpoint, datasetsBox){
+        var self = this;
+        jQuery.ajax({
+            'url': '@@dataset-query',
+            'data': {'endpoint': endpoint.val()},
+            'success': function(datasetsJSON){
+                self.renderDatasets(datasetsBox, datasetsJSON);
+            }
+        });
 
     },
     registerTriggers: function(){
@@ -73,8 +68,8 @@ scoreboard.datacube.edit = {
                 self.renderDatasetsBoxLoadButton(self.endpoint, datasetsBox);
             }
         });
-        self.renderDatasets(self.endpoint, datasetsBox);
-    }
+        self.fetchDatasets(self.endpoint, datasetsBox);
+    },
 };
 
 jQuery(document).ready(function(){
