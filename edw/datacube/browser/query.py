@@ -15,14 +15,7 @@ class AjaxDataView(BrowserView):
         return json.dumps(data, indent=2, sort_keys=True)
 
     def all_datasets(self):
-        datasets = [
-            {'uri': 'some-dataset-uri-1', 'title': 'Some dataset 1'},
-            {'uri': 'some-dataset-uri-2', 'title': 'Some dataset 2'},
-            {'uri': 'some-dataset-uri-3', 'title': 'Some dataset 3'},
-            {'uri': 'some-dataset-uri-4', 'title': 'Some dataset 4'},
-            {'uri': 'some-dataset-uri-5', 'title': 'Some dataset 5'}
-        ]
-        return self.jsonify(datasets)
+        return self.jsonify(self.cube.get_datasets())
 
     def dimension_labels(self):
         form = dict(self.request.form)

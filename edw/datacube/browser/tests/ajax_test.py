@@ -16,6 +16,16 @@ def mock_cube(request):
     return MagicMock(spec=Cube)
 
 
+def test_all_datasets(mock_cube):
+    datasets = [
+        {'uri': 'dataset-one', 'title': 'One'},
+        {'uri': 'dataset-two', 'title': 'Two'},
+    ]
+    mock_cube.get_datasets.return_value = datasets
+    res = ajax(mock_cube, 'all_datasets', {})
+    assert res == datasets
+
+
 def test_dimension_all_indicator_values(mock_cube):
     mock_cube.get_dimension_options.return_value = [
         {'label': 'indicator one', 'notation': 'one'},
