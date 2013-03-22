@@ -45,6 +45,10 @@ class Cube(object):
         else:
             return rv
 
+    def get_datasets(self):
+        query = sparql_env.get_template('datasets.sparql').render()
+        return list(self._execute(query))
+
     def get_dimension_labels(self, dimension, value):
         query = sparql_env.get_template('dimension_label.sparql').render(**{
             'dataset': self.dataset,
