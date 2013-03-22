@@ -53,7 +53,7 @@ scoreboard.datacube.edit = {
         var self = this;
         if(endpoint.val()){
             jQuery.ajax({
-                'url': '@@all_datasets',
+                'url': '@@datasets',
                 'data': {'endpoint': endpoint.val()},
                 'success': function(data){
                     self.renderDatasets(datasetsBox, data['datasets']);

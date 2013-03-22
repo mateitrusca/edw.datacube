@@ -15,7 +15,7 @@ class AjaxDataView(BrowserView):
             header("Expires", "Sun, 17-Jan-2038 19:14:07 GMT")
         return json.dumps(data, indent=2, sort_keys=True)
 
-    def all_datasets(self):
+    def datasets(self):
         return self.jsonify({'datasets': self.cube.get_datasets()},
                             cache=False)
 

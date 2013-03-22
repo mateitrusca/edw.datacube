@@ -22,7 +22,7 @@ def test_all_datasets(mock_cube):
         {'uri': 'dataset-two', 'title': 'Two'},
     ]
     mock_cube.get_datasets.return_value = datasets
-    res = ajax(mock_cube, 'all_datasets', {})
+    res = ajax(mock_cube, 'datasets', {})
     assert res['datasets'] == datasets
 
 

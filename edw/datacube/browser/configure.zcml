@@ -22,11 +22,11 @@
     />
 
   <browser:page
-    name="all_datasets"
+    name="datasets"
     for="..interfaces.IDataCube"
     permission="zope2.View"
     class=".query.AjaxDataView"
-    attribute="all_datasets"
+    attribute="datasets"
     />
 
   <browser:page
