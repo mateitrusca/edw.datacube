@@ -8,14 +8,16 @@ class AjaxDataView(BrowserView):
         super(AjaxDataView, self).__init__(ctx, request)
         self.cube = ctx.get_cube()
 
-    def jsonify(self, data):
+    def jsonify(self, data, cache=True):
         header = self.request.RESPONSE.setHeader
         header("Content-Type", "application/json")
-        header("Expires", "Sun, 17-Jan-2038 19:14:07 GMT")
+        if cache:
+            header("Expires", "Sun, 17-Jan-2038 19:14:07 GMT")
         return json.dumps(data, indent=2, sort_keys=True)
 
     def all_datasets(self):
-        return self.jsonify({'datasets': self.cube.get_datasets()})
+        return self.jsonify({'datasets': self.cube.get_datasets()},
+                            cache=False)
 
     def dimension_labels(self):
         form = dict(self.request.form)
