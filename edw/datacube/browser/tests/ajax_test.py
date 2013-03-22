@@ -23,7 +23,7 @@ def test_all_datasets(mock_cube):
     ]
     mock_cube.get_datasets.return_value = datasets
     res = ajax(mock_cube, 'all_datasets', {})
-    assert res == datasets
+    assert res['datasets'] == datasets
 
 
 def test_dimension_all_indicator_values(mock_cube):

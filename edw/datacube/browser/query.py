@@ -15,7 +15,7 @@ class AjaxDataView(BrowserView):
         return json.dumps(data, indent=2, sort_keys=True)
 
     def all_datasets(self):
-        return self.jsonify(self.cube.get_datasets())
+        return self.jsonify({'datasets': self.cube.get_datasets()})
 
     def dimension_labels(self):
         form = dict(self.request.form)

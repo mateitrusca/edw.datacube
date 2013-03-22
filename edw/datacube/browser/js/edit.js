@@ -55,8 +55,8 @@ scoreboard.datacube.edit = {
             jQuery.ajax({
                 'url': '@@all_datasets',
                 'data': {'endpoint': endpoint.val()},
-                'success': function(datasetsJSON){
-                    self.renderDatasets(datasetsBox, datasetsJSON);
+                'success': function(data){
+                    self.renderDatasets(datasetsBox, data['datasets']);
                 }
             });
         }
