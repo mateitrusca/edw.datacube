@@ -22,7 +22,7 @@
     />
 
   <browser:page
-    name="dataset-query"
+    name="all_datasets"
     for="..interfaces.IDataCube"
     permission="zope2.View"
     class=".query.DatasetQueryView"
