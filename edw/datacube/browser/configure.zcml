@@ -28,4 +28,44 @@
     class=".query.DatasetQueryView"
     />
 
+  <browser:page
+    name="dimension_values"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="dimension_values"
+    permission="zope2.View"
+    />
+
+  <browser:page
+    name="dimension_labels"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="dimension_labels"
+    permission="zope2.View"
+    />
+
+  <browser:page
+    name="dimension_values_xy"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="dimension_values_xy"
+    permission="zope2.View"
+    />
+
+  <browser:page
+    name="datapoints"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="datapoints"
+    permission="zope2.View"
+    />
+
+  <browser:page
+    name="datapoints_xy"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="datapoints_xy"
+    permission="zope2.View"
+    />
+
 </configure>

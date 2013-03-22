@@ -1,0 +1,16 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+SELECT DISTINCT ?label, ?short_label WHERE {
+
+  ?dimension
+    qb:dataSet {{ dataset.n3() }} ;
+    dad-prop:{{ dimension }} ?dim .
+
+  ?dim
+    skos:notation "{{ value }}" ;
+    skos:prefLabel ?label ;
+    skos:altLabel ?short_label .
+
+}
+LIMIT 100

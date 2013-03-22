@@ -66,4 +66,8 @@ class DataCube(folder.ATFolder):
 
     # -*- Your ATSchema to Python Property Bridges Here ... -*-
 
+    def get_cube(self):
+        from ..data.cube import Cube
+        return Cube(self.getEndpoint(), self.getDataset())
+
 atapi.registerType(DataCube, PROJECTNAME)

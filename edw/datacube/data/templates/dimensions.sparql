@@ -1,0 +1,25 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+SELECT DISTINCT ?notation, ?group_notation WHERE {
+  ?dataset
+    a qb:DataSet ;
+    qb:structure ?structure .
+  ?structure
+    qb:component ?componentSpec .
+  ?componentSpec
+    qb:dimension ?dimension ;
+    qb:order ?componentSpecOrder .
+  ?dimension
+    skos:notation ?notation .
+  OPTIONAL {
+    ?dimension
+      dad-prop:grouped-using ?group .
+    ?group
+      skos:notation ?group_notation .
+  }
+  FILTER (
+    ?dataset = {{ dataset.n3() }}
+  )
+}
+ORDER BY ?componentSpecOrder
+LIMIT 100

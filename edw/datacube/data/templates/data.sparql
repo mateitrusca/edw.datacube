@@ -1,0 +1,24 @@
+{%- from 'bits.sparql' import one_filter, one_column with context -%}
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+SELECT DISTINCT {% for f in columns %} {%- set n = loop.index -%}
+                ?col{{n}}, ?col{{n}}_label, {% endfor -%} ?value WHERE {
+
+  ?observation
+    a qb:Observation ;
+    qb:dataSet {{ dataset.n3() }} ;
+    sdmx-measure:obsValue ?value .
+
+{%- for f_dimension_code, f_option_code in filters %}
+{{ one_filter('observation', 'filter_%d' % loop.index,
+              f_dimension_code, f_option_code) }}
+{%- endfor %}
+
+{%- for col in columns %}
+{{ one_column('observation', 'col%d' % loop.index, col) }}
+{%- endfor %}
+
+}
+LIMIT 1000

@@ -1,0 +1,17 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+SELECT DISTINCT ?group_notation WHERE {
+
+  ?observation
+    qb:dataSet {{ dataset.n3() }} ;
+    ?dimension ?value .
+
+  ?dimension
+    dad-prop:grouped-using ?group .
+
+  ?group
+    skos:notation ?group_notation .
+
+}
+LIMIT 100
