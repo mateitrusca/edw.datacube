@@ -25,7 +25,8 @@
     name="all_datasets"
     for="..interfaces.IDataCube"
     permission="zope2.View"
-    class=".query.DatasetQueryView"
+    class=".query.AjaxDataView"
+    attribute="all_datasets"
     />
 
   <browser:page
