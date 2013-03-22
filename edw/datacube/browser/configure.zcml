@@ -17,6 +17,7 @@
     name="datacube-view.html"
     for="..interfaces.IDataCube"
     permission="zope2.View"
+    class=".datacube.DataCubeView"
     template="templates/view.pt"
     />
 

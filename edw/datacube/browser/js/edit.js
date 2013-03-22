@@ -51,13 +51,15 @@ scoreboard.datacube.edit = {
     },
     fetchDatasets: function(endpoint, datasetsBox){
         var self = this;
-        jQuery.ajax({
-            'url': '@@dataset-query',
-            'data': {'endpoint': endpoint.val()},
-            'success': function(datasetsJSON){
-                self.renderDatasets(datasetsBox, datasetsJSON);
-            }
-        });
+        if(endpoint.val()){
+            jQuery.ajax({
+                'url': '@@dataset-query',
+                'data': {'endpoint': endpoint.val()},
+                'success': function(datasetsJSON){
+                    self.renderDatasets(datasetsBox, datasetsJSON);
+                }
+            });
+        }
 
     },
     registerTriggers: function(){

@@ -4,6 +4,7 @@
     <div tal:repeat="wid python:['endpoint', 'dataset']">
       <p><strong tal:content="python:here.schema[wid].widget.label"></strong>:
       <metal:field use-macro="python:here.widget(wid, mode='view')"/></p>
+      <span tal:replace="view/something"/>
     </div>
   </div>
 </html>
