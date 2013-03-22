@@ -1,0 +1,9 @@
+PREFIX dc: <http://purl.org/dc/terms/>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+SELECT DISTINCT * WHERE {
+  {{ dataset.n3() }}
+    dc:title ?title ;
+    dc:license ?license ;
+    dc:description ?description .
+}
+LIMIT 100

@@ -26,6 +26,20 @@ def test_all_datasets(mock_cube):
     assert res['datasets'] == datasets
 
 
+def test_dataset_metadata(mock_cube):
+    metadata = {
+        'title': "Teh Title",
+        'description': "Teh Description",
+        'license': "http://example.com/license",
+    }
+    mock_cube.get_dataset_metadata.return_value = metadata
+    res = ajax(mock_cube, 'dataset_metadata',
+               {'dataset': 'http://the-dataset'})
+    assert res == metadata
+    cube_call = mock_cube.get_dataset_metadata.mock_calls[0]
+    assert cube_call == call('http://the-dataset')
+
+
 def test_dimension_all_indicator_values(mock_cube):
     mock_cube.get_dimension_options.return_value = [
         {'label': 'indicator one', 'notation': 'one'},

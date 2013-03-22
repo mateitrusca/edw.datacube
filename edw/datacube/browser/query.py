@@ -19,6 +19,10 @@ class AjaxDataView(BrowserView):
         return self.jsonify({'datasets': self.cube.get_datasets()},
                             cache=False)
 
+    def dataset_metadata(self):
+        dataset = self.request.form['dataset']
+        return self.jsonify(self.cube.get_dataset_metadata(dataset))
+
     def dimension_labels(self):
         form = dict(self.request.form)
         dimension = form.pop('dimension')
