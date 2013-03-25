@@ -4,9 +4,10 @@ from Products.Five.browser import BrowserView
 
 class AjaxDataView(BrowserView):
 
-    def __init__(self, ctx, request):
-        super(AjaxDataView, self).__init__(ctx, request)
-        self.cube = ctx.get_cube()
+    def __init__(self, context, request):
+        super(AjaxDataView, self).__init__(context, request)
+        self.endpoint = self.request.get('endpoint', '')
+        self.cube = context.get_cube(self.endpoint)
 
     def jsonify(self, data, cache=True):
         header = self.request.RESPONSE.setHeader

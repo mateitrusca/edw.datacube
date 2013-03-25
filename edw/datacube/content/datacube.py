@@ -7,10 +7,9 @@ from Products.Archetypes import atapi
 from Products.ATContentTypes.content import folder
 from Products.ATContentTypes.content import schemata
 
-# -*- Message Factory Imported Here -*-
 from edw.datacube.interfaces import IDataCube
 from edw.datacube.config import PROJECTNAME, _
-
+from edw.datacube.data.cube import Cube
 
 
 DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
@@ -66,8 +65,8 @@ class DataCube(folder.ATFolder):
 
     # -*- Your ATSchema to Python Property Bridges Here ... -*-
 
-    def get_cube(self):
-        from ..data.cube import Cube
-        return Cube(self.getEndpoint(), self.getDataset())
+    def get_cube(self, endpoint=''):
+        endpoint = endpoint or self.getEndpoint()
+        return Cube(endpoint, self.getDataset())
 
 atapi.registerType(DataCube, PROJECTNAME)
