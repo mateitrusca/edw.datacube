@@ -2,9 +2,25 @@
   i18n:domain="plone">
   <div metal:fill-slot="content-core">
     <div tal:repeat="wid python:['endpoint', 'dataset']">
-      <p><strong tal:content="python:here.schema[wid].widget.label"></strong>:
-      <metal:field use-macro="python:here.widget(wid, mode='view')"/></p>
-      <span tal:replace="view/something"/>
+      <tal:block define="field python:here.getField(wid);
+                        label python:field.widget.label;
+                        value python:field.getAccessor(here)()">
+        <strong tal:content="label" />: <span tal:attributes="id string:${wid}-value" tal:content="value"/>
+      </tal:block>
     </div>
+    <h2>Dataset metadata</h2>
+    <dl id="dataset-metadata">
+      <dt></dt>
+      <dd></dd>
+    </dl>
+    <h2>Dataset dimensions</h2>
+    <ul id="dataset-dimensions">
+      <li>
+        <dl>
+          <dt></dt>
+          <dd></dd>
+        </dl>
+      </li>
+    </ul>
   </div>
 </html>

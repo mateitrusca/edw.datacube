@@ -38,6 +38,14 @@
     />
 
   <browser:page
+    name="dimensions"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="get_dimensions"
+    permission="zope2.View"
+    />
+
+  <browser:page
     name="dimension_values"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
