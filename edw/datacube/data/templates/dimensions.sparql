@@ -1,25 +1,34 @@
 PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
-SELECT DISTINCT ?notation, ?group_notation WHERE {
-  ?dataset
-    a qb:DataSet ;
+SELECT DISTINCT ?type_label, ?notation, ?label, ?comment, ?group_notation WHERE {
+  {{ dataset.n3() }}
     qb:structure ?structure .
   ?structure
     qb:component ?componentSpec .
+
   ?componentSpec
-    qb:dimension ?dimension ;
+    ?type ?dimension ;
     qb:order ?componentSpecOrder .
+
+  ?type
+    rdfs:label ?type_label .
+
   ?dimension
+    a ?qbprop ;
+    rdfs:label ?label ;
     skos:notation ?notation .
+
+  ?qbprop rdfs:subClassOf qb:ComponentProperty .
+
   OPTIONAL {
     ?dimension
-      dad-prop:grouped-using ?group .
+      dad-prop:grouped-using ?group ;
+      rdfs:comment ?comment .
     ?group
       skos:notation ?group_notation .
   }
-  FILTER (
-    ?dataset = {{ dataset.n3() }}
-  )
 }
 ORDER BY ?componentSpecOrder
 LIMIT 100

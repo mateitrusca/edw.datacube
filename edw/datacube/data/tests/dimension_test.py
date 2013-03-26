@@ -2,17 +2,6 @@ from .base import sparql_test, create_cube
 
 
 @sparql_test
-def test_dimensions_query():
-    cube = create_cube()
-    res = cube.get_dimensions()
-    dimensions = {d['notation']: d for d in res}
-    assert 'indicator' in dimensions
-    assert 'ref-area' in dimensions
-    assert dimensions['ref-area']['group_notation'] is None
-    assert dimensions['indicator']['group_notation'] == 'indicator-group'
-
-
-@sparql_test
 def test_get_group_dimensions():
     cube = create_cube()
     res = cube.get_group_dimensions()

@@ -2,6 +2,7 @@ import time
 import urllib2
 import os
 import logging
+from collections import defaultdict
 import jinja2
 import sparql
 
@@ -67,7 +68,14 @@ class Cube(object):
         query = sparql_env.get_template('dimensions.sparql').render(**{
             'dataset': self.dataset,
         })
-        return list(self._execute(query))
+        rv = defaultdict(list)
+        for row in self._execute(query):
+            rv[row['type_label']].append({
+                'label': row['label'],
+                'notation': row['notation'],
+                'comment': row['comment'],
+            })
+        return dict(rv)
 
     def get_group_dimensions(self):
         query = sparql_env.get_template('group_dimensions.sparql').render(**{

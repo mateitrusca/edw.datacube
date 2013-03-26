@@ -20,3 +20,15 @@ def test_dataset_metadata():
     assert res['title'] == "Digital Agenda Scoreboard Dataset"
     assert "You can also browse the data" in res['description']
     assert res['license'] == 'http://joinup.ec.europa.eu/software/page/eupl'
+
+
+@sparql_test
+def test_dataset_dimensions_metadata():
+    cube = create_cube()
+    res = cube.get_dimensions()
+    assert {'notation': 'ref-area',
+            'label': "Reference area",
+            'comment': None} in res['dimension']
+    dimensions = ['indicator', 'breakdown', 'unit-measure',
+                  'ref-area', 'time-period']
+    assert ([d['notation'] for d in res['dimension']] == dimensions)
