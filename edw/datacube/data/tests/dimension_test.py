@@ -38,6 +38,17 @@ def test_indicator_labels_query():
 
 
 @sparql_test
+def test_period_labels_query():
+    cube = create_cube()
+    [res] = cube.get_dimension_labels(dimension='time-period', value='2006')
+    expected = {
+        'short_label': None,
+        'label': 'British Year:2006'}
+    assert expected['short_label'] == res['short_label']
+    assert expected['label'] == res['label']
+
+
+@sparql_test
 def test_get_all_country_options():
     cube = create_cube()
     items = cube.get_dimension_options('ref-area')

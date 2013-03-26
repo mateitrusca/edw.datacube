@@ -9,8 +9,12 @@ SELECT DISTINCT ?label, ?short_label WHERE {
 
   ?dim
     skos:notation "{{ value }}" ;
-    skos:prefLabel ?label ;
+    skos:prefLabel ?label .
+
+OPTIONAL {
+  ?dim
     skos:altLabel ?short_label .
+}
 
 }
 LIMIT 100
