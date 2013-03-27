@@ -29,6 +29,6 @@ def test_dataset_dimensions_metadata():
     assert {'notation': 'ref-area',
             'label': "Reference area",
             'comment': None} in res['dimension']
-    dimensions = ['indicator', 'breakdown', 'unit-measure',
-                  'ref-area', 'time-period']
-    assert ([d['notation'] for d in res['dimension']] == dimensions)
+    notations = lambda type_label: [d['notation'] for d in res[type_label]]
+    assert notations('dimension') == ['indicator', 'breakdown', 'unit-measure',
+                                      'ref-area', 'time-period']
