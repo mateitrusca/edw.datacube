@@ -69,4 +69,7 @@ class DataCube(folder.ATFolder):
         endpoint = endpoint or self.getEndpoint()
         return Cube(endpoint, self.getDataset())
 
+    def displayContentsTab(self):
+        return False
+
 atapi.registerType(DataCube, PROJECTNAME)
