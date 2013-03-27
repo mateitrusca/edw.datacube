@@ -171,3 +171,13 @@ def test_get_indicator_metadata():
     assert res['short_label'] == "Regular internet users"
     assert res['note'] == ("Individuals aged 16-74, using the internet at "
                            "least once a week in the last 3 months.")
+
+
+@sparql_test
+def test_get_breakdown_metadata():
+    cube = create_cube()
+    res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
+    assert res['definition'] is None
+    assert res['label'] == "All Individuals"
+    assert res['short_label'] == "All"
+    assert res['note'] is None
