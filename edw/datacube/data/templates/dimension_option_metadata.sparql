@@ -1,0 +1,31 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+SELECT DISTINCT ?definition, ?label, ?short_label, ?note WHERE {
+
+  {{ dataset.n3() }}
+    qb:structure ?structure .
+
+  ?structure
+    qb:component [?type ?dimension] .
+
+  ?dimension
+    skos:notation {{ dimension_code.n3() }} ;
+    a ?qbprop ;
+    qb:codeList ?codelist .
+
+  ?qbprop
+    rdfs:subClassOf qb:ComponentProperty .
+
+  ?codelist
+    skos:hasTopConcept ?option .
+
+  ?option
+    skos:notation {{ option_code.n3() }} ;
+    skos:prefLabel ?label ;
+    skos:altLabel ?short_label ;
+    skos:notes ?note ;
+    skos:definition ?definition .
+
+}
+LIMIT 100

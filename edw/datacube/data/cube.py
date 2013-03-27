@@ -105,6 +105,15 @@ class Cube(object):
         })
         return list(self._execute(query))
 
+    def get_dimension_option_metadata(self, dimension, option):
+        tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
+        query = tmpl.render(**{
+            'dataset': self.dataset,
+            'dimension_code': sparql.Literal(dimension),
+            'option_code': sparql.Literal(option),
+        })
+        return list(self._execute(query))[0]
+
     def get_data(self, fields, filters):
         assert fields[-1] == 'value', "Last column must be 'value'"
         query = sparql_env.get_template('data.sparql').render(**{
