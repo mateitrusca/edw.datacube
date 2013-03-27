@@ -70,6 +70,14 @@
     />
 
   <browser:page
+    name="dimension_value_metadata"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="dimension_value_metadata"
+    permission="zope2.View"
+    />
+
+  <browser:page
     name="datapoints"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
