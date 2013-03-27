@@ -39,21 +39,47 @@ scoreboard.datacube.view = {
         });
     },
     renderDatasetDimensions: function(data){
-        var target = jQuery('#dataset-dimensions');
-        target.empty();
-        jQuery.each(data, function(i, o){
-            var li = jQuery('<li>');
-            var dl = jQuery('<dl>');
-            jQuery.each(o, function(label, value){
-                var dt = jQuery('<dt>').text(label);
-                var dd = jQuery('<dd>').text(value||'null');
-                dl.append(dt);
-                dl.append(dd);
+        var self = this;
+        var target = null;
+        jQuery.each(data, function(type, entries){
+            if(type == 'dimension' || type == 'group_dimension'){
+                target = jQuery('#dataset-dimensions tbody').empty();
+            };
+            if(type == 'attribute'){
+                target = jQuery('#dataset-attributes tbody').empty();
+            };
+            if(type == 'measure'){
+                target = jQuery('#dataset-measures tbody').empty();
+            };
+            jQuery.each(entries, function(i, o){
+                self.renderData(target, o);
             });
-            li.append(dl);
-            target.append(li);
         });
-    }
+    },
+    renderData: function(target, data){
+        var self = this;
+        var tr = jQuery('<tr>');
+        self.labelCells(tr, ['notation', 'label', 'comment']);
+        self.addDataToTarget(tr, data);
+        target.append(tr);
+    },
+    labelCells: function(tr, order){
+        jQuery.each(['notation', 'label', 'comment'], function(i, o){
+            var td = jQuery('<td>');
+            td.addClass(o);
+            tr.append(td);
+        });
+    },
+    addDataToTarget: function(target, data){
+        jQuery.each(data, function(name, value){
+            var td = jQuery('td.' + name, target);
+            if(value){
+                td.text(value);
+            }else {
+                td.text('None');
+            }
+        });
+    },
 };
 
 jQuery(document).ready(function(){

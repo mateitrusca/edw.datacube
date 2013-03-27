@@ -13,14 +13,56 @@
       <dt></dt>
       <dd></dd>
     </dl>
-    <h2>Dataset dimensions</h2>
-    <ul id="dataset-dimensions">
-      <li>
-        <dl>
-          <dt></dt>
-          <dd></dd>
-        </dl>
-      </li>
-    </ul>
+    <h2>Dimensions</h2>
+    <table id="dataset-dimensions">
+      <thead>
+        <tr>
+          <th>Notation</th>
+          <th>Label</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Attributes</h2>
+    <table id="dataset-attributes">
+      <thead>
+        <tr>
+          <th>Notation</th>
+          <th>Label</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Dimensions</h2>
+    <table id="dataset-measures">
+      <thead>
+        <tr>
+          <th>Notation</th>
+          <th>Label</th>
+          <th>Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </html>
