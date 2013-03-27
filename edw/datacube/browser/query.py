@@ -2,6 +2,14 @@ import simplejson as json
 from Products.Five.browser import BrowserView
 
 
+def jsonify(request, data, cache=True):
+    header = request.RESPONSE.setHeader
+    header("Content-Type", "application/json")
+    if cache:
+        header("Expires", "Sun, 17-Jan-2038 19:14:07 GMT")
+    return json.dumps(data, indent=2, sort_keys=True)
+
+
 class AjaxDataView(BrowserView):
 
     def __init__(self, context, request):
@@ -9,12 +17,8 @@ class AjaxDataView(BrowserView):
         self.endpoint = self.request.get('endpoint', '')
         self.cube = context.get_cube(self.endpoint)
 
-    def jsonify(self, data, cache=True):
-        header = self.request.RESPONSE.setHeader
-        header("Content-Type", "application/json")
-        if cache:
-            header("Expires", "Sun, 17-Jan-2038 19:14:07 GMT")
-        return json.dumps(data, indent=2, sort_keys=True)
+    def jsonify(self, *args, **kwargs):
+        return jsonify(self.request, *args, **kwargs)
 
     def datasets(self):
         return self.jsonify({'datasets': self.cube.get_datasets()},

@@ -22,6 +22,14 @@
     />
 
   <browser:page
+    name="relations"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".datacube.DataCubeView"
+    attribute="relations"
+    />
+
+  <browser:page
     name="datasets"
     for="..interfaces.IDataCube"
     permission="zope2.View"
