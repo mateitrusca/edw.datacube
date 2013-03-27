@@ -47,7 +47,7 @@
         </tr>
       </tbody>
     </table>
-    <h2>Dimensions</h2>
+    <h2>Measures</h2>
     <table id="dataset-measures">
       <thead>
         <tr>
@@ -64,5 +64,17 @@
         </tr>
       </tbody>
     </table>
+    <h2>Download Data</h2>
+    <strong>Formats suitable for human consumption</strong>
+    <ul>
+      <li><a href="@@html">HTML</a></li>
+      <li><a href="@@csv">CSV</a></li>
+      <li><a href="@@tsv">TSV</a></li>
+    </ul>
+    <strong>Formats suitable for machine-to-machine communication</strong>
+    <ul>
+      <li>Data: <a href="@@data-rdf">RDF</a></li>
+      <li>Metadata and codelists: <a href="@@metadata-rdf">CSV</a></li>
+    </ul>
   </div>
 </html>
