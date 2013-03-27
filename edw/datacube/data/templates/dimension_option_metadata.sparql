@@ -21,11 +21,12 @@ SELECT DISTINCT ?definition, ?label, ?short_label, ?note WHERE {
     skos:hasTopConcept ?option .
 
   ?option
-    skos:notation {{ option_code.n3() }} ;
-    skos:prefLabel ?label ;
-    skos:altLabel ?short_label ;
-    skos:notes ?note ;
-    skos:definition ?definition .
+    skos:notation {{ option_code.n3() }} .
+
+  OPTIONAL { ?option skos:prefLabel ?label }
+  OPTIONAL { ?option skos:altLabel ?short_label }
+  OPTIONAL { ?option skos:notes ?note }
+  OPTIONAL { ?option skos:definition ?definition }
 
 }
 LIMIT 100
