@@ -158,3 +158,26 @@ def test_get_years_for_xy_indicators():
     assert '2010' in years
     assert '2006' not in years
     assert '2004' not in years
+
+
+@sparql_test
+def test_get_indicator_metadata():
+    cube = create_cube()
+    res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
+    assert res['definition'] == ("% of population who are regular "
+                                 "internet users (at least once a week)")
+    assert res['label'] == ("In the last 3 months, I accessed the Internet, "
+                            "on average, at least once a week")
+    assert res['short_label'] == "Regular internet users"
+    assert res['note'] == ("Individuals aged 16-74, using the internet at "
+                           "least once a week in the last 3 months.")
+
+
+@sparql_test
+def test_get_breakdown_metadata():
+    cube = create_cube()
+    res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
+    assert res['definition'] is None
+    assert res['label'] == "All Individuals"
+    assert res['short_label'] == "All"
+    assert res['note'] is None

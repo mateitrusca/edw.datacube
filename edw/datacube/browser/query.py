@@ -59,6 +59,12 @@ class AjaxDataView(BrowserView):
                                                      x_filters, y_filters)
         return self.jsonify({'options': options})
 
+    def dimension_value_metadata(self):
+        dimension = self.request.form['dimension']
+        value = self.request.form['value']
+        res = self.cube.get_dimension_option_metadata(dimension, value)
+        return self.jsonify(res)
+
     def datapoints(self):
         form = dict(self.request.form)
         form.pop('rev', None)
