@@ -17,11 +17,14 @@ SELECT DISTINCT ?dimension, ?type_label, ?notation, ?label,
 
   ?dimension
     a ?qbprop ;
-    rdfs:label ?label ;
-    skos:notation ?notation .
+    rdfs:label ?label .
 
   ?qbprop rdfs:subClassOf qb:ComponentProperty .
 
+  OPTIONAL {
+    ?dimension
+      skos:notation ?notation .
+  }
   OPTIONAL {
     ?dimension
       rdfs:comment ?comment .

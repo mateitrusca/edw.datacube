@@ -30,9 +30,11 @@ def test_dataset_dimensions_metadata():
             'label': "Reference area",
             'comment': None} in res['dimension']
     notations = lambda type_label: [d['notation'] for d in res[type_label]]
-    assert sorted(res) == ['attribute', 'dimension', 'group dimension']
+    assert sorted(res) == ['attribute', 'dimension',
+                           'group dimension', 'measure']
     assert notations('dimension') == ['indicator', 'breakdown', 'unit-measure',
                                       'ref-area', 'time-period']
     assert notations('group dimension') == ['indicator-group',
                                             'breakdown-group']
     assert notations('attribute') == ['unit-measure', 'flag', 'note']
+    assert [d['label'] for d in res['measure']] == ['Observation']
