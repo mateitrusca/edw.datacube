@@ -13,6 +13,25 @@ from edw.datacube.data.cube import Cube
 
 
 DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
+    atapi.StringField(
+        'extended_title',
+        schemata="default",
+        widget=atapi.StringWidget(
+            label=_(u"Extended title"),
+            description = _(u"Used in special listings"),
+        )
+    ),
+    atapi.TextField(
+        'summary',
+        required=False,
+        searchable=True,
+        validators=('isTidyHtmlWithCleanup',),
+        default_output_type='text/x-html-safe',
+        widget=atapi.RichWidget(
+            label=_(u"Summary"),
+            description = _(u"Used in special listings"),
+            allow_file_upload=False)
+        ),
     atapi.TextField(
         'endpoint',
         schemata="default",
