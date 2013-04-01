@@ -9,6 +9,7 @@ class DataCubeView(BrowserView):
         for obj in self.context.getBRefs():
             url = obj.absolute_url()
             data.append({
+                'id': obj.getId(),
                 'portal_type': obj.portal_type,
                 'url': url,
                 'image': '%s/thumbnail/image_preview' % url,
