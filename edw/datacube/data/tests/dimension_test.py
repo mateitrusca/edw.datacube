@@ -32,7 +32,7 @@ def test_period_labels_query():
     [res] = cube.get_dimension_labels(dimension='time-period', value='2006')
     expected = {
         'short_label': None,
-        'label': 'British Year:2006'}
+        'label': 'Year:2006'}
     assert expected['short_label'] == res['short_label']
     assert expected['label'] == res['label']
 
