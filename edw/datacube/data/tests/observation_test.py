@@ -30,7 +30,7 @@ def test_get_data_by_time_period_with_dimension_filters():
     cube = create_cube()
     points = list(cube.get_data(columns, filters))
     assert {'time-period': '2011',
-            'time-period-label': 'British Year:2011',
+            'time-period-label': 'Year:2011',
             'value': 0.2222} in points
     assert len(points) == 5
 
@@ -46,12 +46,12 @@ def test_get_data_by_time_period_and_ref_area_with_dimension_filters():
     cube = create_cube()
     points = list(cube.get_data(columns, filters))
     assert {'time-period': '2011',
-            'time-period-label': 'British Year:2011',
+            'time-period-label': 'Year:2011',
             'ref-area': 'IE',
             'ref-area-label': 'Ireland',
             'value': 0.2222} in points
     assert {'time-period': '2010',
-            'time-period-label': 'British Year:2010',
+            'time-period-label': 'Year:2010',
             'ref-area': 'PT',
             'ref-area-label': 'Portugal',
             'value': 0.0609} in points
@@ -71,12 +71,12 @@ def test_get_data_by_time_period_and_ref_area_with_dimension_group_filters():
     cube = create_cube()
     points = list(cube.get_data(columns, filters))
     assert {'time-period': '2011',
-            'time-period-label': 'British Year:2011',
+            'time-period-label': 'Year:2011',
             'ref-area': 'IE',
             'ref-area-label': 'Ireland',
             'value': 0.2222} in points
     assert {'time-period': '2010',
-            'time-period-label': 'British Year:2010',
+            'time-period-label': 'Year:2010',
             'ref-area': 'PT',
             'ref-area-label': 'Portugal',
             'value': 0.0609} in points
