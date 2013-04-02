@@ -19,8 +19,7 @@ def test_dataset_metadata():
     res = cube.get_dataset_metadata(dataset)
     assert res['title'] == "Digital Agenda Scoreboard Dataset"
     assert "You can also browse the data" in res['description']
-    assert res['license'] == 'http://joinup.ec.europa.eu/software/page/eupl'
-
+    assert res['license'] == 'http://creativecommons.org/publicdomain/zero/1.0/'
 
 @sparql_test
 def test_dataset_dimensions_metadata():
