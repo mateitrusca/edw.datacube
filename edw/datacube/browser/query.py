@@ -111,5 +111,8 @@ class AjaxDataView(BrowserView):
         writer.writeheader()
         response.setHeader('Content-type', 'text/csv')
         for row in self.cube.dump():
-            writer.writerow(row)
+            encoded_row = {}
+            for k,v in row.iteritems():
+                encoded_row[k] = unicode(v).encode('utf-8')
+            writer.writerow(encoded_row)
         return response

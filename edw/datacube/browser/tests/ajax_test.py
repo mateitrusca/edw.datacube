@@ -38,7 +38,7 @@ def test_dump_csv(mock_cube):
 
 def test_dump_csv_response_content_type(mock_cube):
     dump = [ { 'indicator': 'i',
-               'breakdown': u'b',
+               'breakdown': u'bâ',
                'unit_measure': 'u-m',
                'time_period': 't',
                'ref_area': 'r',
