@@ -149,3 +149,6 @@ class Cube(object):
 
     def get_revision(self):
         return DATA_REVISION
+
+    def dump(self):
+        return

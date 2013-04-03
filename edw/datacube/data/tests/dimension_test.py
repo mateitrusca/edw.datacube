@@ -199,3 +199,8 @@ def test_get_indicator_source_metadata():
     assert res['source_url'] == (
         "http://epp.eurostat.ec.europa.eu/portal/page/"
         "portal/information_society/introduction")
+
+@sparql_test
+def test_dump_is_there():
+    cube = create_cube()
+    assert(getattr(cube, 'dump', False))
