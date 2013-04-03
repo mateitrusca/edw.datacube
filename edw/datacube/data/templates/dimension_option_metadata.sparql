@@ -1,7 +1,12 @@
+PREFIX dc: <http://purl.org/dc/terms/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
-SELECT DISTINCT ?definition, ?label, ?short_label, ?note WHERE {
+
+SELECT DISTINCT ?definition, ?label, ?short_label, ?note,
+                ?source_label, ?source_definition, ?source_notes, ?source_url
+WHERE {
 
   {{ dataset.n3() }}
     qb:structure ?structure .
@@ -27,6 +32,11 @@ SELECT DISTINCT ?definition, ?label, ?short_label, ?note WHERE {
   OPTIONAL { ?option skos:altLabel ?short_label }
   OPTIONAL { ?option skos:notes ?note }
   OPTIONAL { ?option skos:definition ?definition }
+  OPTIONAL { ?option dc:source [
+               skos:prefLabel ?source_label ;
+               skos:definition ?source_definition ;
+               skos:notes ?source_notes ;
+               foaf:page ?source_url ] }
 
 }
 LIMIT 100

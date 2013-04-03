@@ -181,3 +181,20 @@ def test_get_breakdown_metadata():
     assert res['label'] == "All Individuals"
     assert res['short_label'] == "All"
     assert res['note'] is None
+
+
+@sparql_test
+def test_get_indicator_source_metadata():
+    cube = create_cube()
+    res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
+    assert res['short_label'] == "Regular internet users"
+    assert res['source_label'] == "Eurostat - Households survey"
+    assert res['source_definition'] == (
+        "Eurostat - Community survey on ICT "
+        "usage in Households and by Individuals")
+    assert res['source_notes'] == (
+        u"Extraction from HH/Indiv comprehensive database "
+        u"(ACCESS) version\xa015\xa0MAY 2012")
+    assert res['source_url'] == (
+        "http://epp.eurostat.ec.europa.eu/portal/page/"
+        "portal/information_society/introduction")
