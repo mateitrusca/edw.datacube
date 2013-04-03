@@ -201,7 +201,20 @@ def test_get_indicator_source_metadata():
         "portal/information_society/introduction")
 
 @sparql_test
-def test_dump_is_there():
+def test_dump_has_output():
     cube = create_cube()
     res = cube.dump()
     assert(res.next())
+
+@sparql_test
+def test_dump_row_fields():
+    cube = create_cube()
+    res = cube.dump()
+    expected = set([
+        'unit_measure',
+        'indicator',
+        'time_period',
+        'value',
+        'ref_area',
+        'breakdown'])
+    assert expected.difference(set(res.next().keys())) == set([])

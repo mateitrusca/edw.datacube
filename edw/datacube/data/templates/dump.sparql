@@ -1,7 +1,15 @@
 PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
-SELECT DISTINCT * WHERE {
+SELECT DISTINCT ?breakdown, ?indicator, ?ref_area, ?time_period, ?unit_measure, ?value WHERE {
   ?observation
     a qb:Observation ;
-    qb:dataSet  <http://semantic.digital-agenda-data.eu/dataset/scoreboard> .
+    qb:dataSet  <http://semantic.digital-agenda-data.eu/dataset/scoreboard> ;
+    dad-prop:breakdown ?breakdown ;
+    dad-prop:indicator ?indicator ;
+    dad-prop:ref-area ?ref_area ;
+    dad-prop:time-period ?time_period ;
+    dad-prop:unit-measure ?unit_measure ;
+    sdmx-measure:obsValue ?value .
 }
