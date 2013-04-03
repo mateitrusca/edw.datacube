@@ -151,5 +151,7 @@ class Cube(object):
         return DATA_REVISION
 
     def dump(self):
-        query = sparql_env.get_template('dump.sparql').render()
+        query = sparql_env.get_template('dump.sparql').render(**{
+            'dataset': self.dataset,
+        })
         return self._execute(query)
