@@ -96,3 +96,20 @@ class AjaxDataView(BrowserView):
                                           x_filters=x_filters,
                                           y_filters=y_filters))
         return self.jsonify({'datapoints': rows})
+
+    def dump_csv(self):
+        import csv
+        response = self.request.response
+        headers = [
+            'indicator',
+            'breakdown',
+            'unit_measure',
+            'time_period',
+            'ref_area',
+            'value']
+        writer = csv.DictWriter(response, headers, restval='')
+        writer.writeheader()
+        response.setHeader('Content-type', 'text/csv')
+        for row in self.cube.dump():
+            writer.writerow(row)
+        return response

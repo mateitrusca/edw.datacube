@@ -1,6 +1,7 @@
 from mock import Mock, MagicMock, call
 import simplejson as json
 import pytest
+from edw.datacube.browser.query import AjaxDataView
 
 
 def ajax(cube, name, form):
@@ -14,6 +15,41 @@ def ajax(cube, name, form):
 def mock_cube(request):
     from edw.datacube.data.cube import Cube
     return MagicMock(spec=Cube)
+
+
+def test_dump_csv(mock_cube):
+    dump = [ { 'indicator': 'i',
+               'breakdown': u'b',
+               'unit_measure': 'u-m',
+               'time_period': 't',
+               'ref_area': 'r',
+               'value': 0.5 } ]
+    mock_cube.dump.return_value = iter(dump)
+
+    datasource = Mock(get_cube=Mock(return_value=mock_cube))
+    view = AjaxDataView(datasource, Mock(form={}))
+    res = view.dump_csv()
+    header_write_call = res.write.mock_calls[0]
+    row_write_call = res.write.mock_calls[1]
+    assert header_write_call == call('indicator,breakdown,unit_measure,' \
+                                     'time_period,ref_area,value\r\n')
+    assert row_write_call == call('i,b,u-m,t,r,0.5\r\n')
+
+
+def test_dump_csv_response_content_type(mock_cube):
+    dump = [ { 'indicator': 'i',
+               'breakdown': u'b',
+               'unit_measure': 'u-m',
+               'time_period': 't',
+               'ref_area': 'r',
+               'value': 0.5 } ]
+    mock_cube.dump.return_value = iter(dump)
+
+    datasource = Mock(get_cube=Mock(return_value=mock_cube))
+    view = AjaxDataView(datasource, Mock(form={}))
+    res = view.dump_csv()
+    setHeader_call = res.setHeader.mock_calls[0]
+    assert setHeader_call == call('Content-type', 'text/csv')
 
 
 def test_all_datasets(mock_cube):
