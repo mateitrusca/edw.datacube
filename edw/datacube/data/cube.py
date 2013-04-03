@@ -112,7 +112,8 @@ class Cube(object):
             'dimension_code': sparql.Literal(dimension),
             'option_code': sparql.Literal(option),
         })
-        return list(self._execute(query))[0]
+        rv = list(self._execute(query))[0]
+        return {k: rv[k] for k in rv if rv[k] is not None}
 
     def get_data(self, fields, filters):
         assert fields[-1] == 'value', "Last column must be 'value'"

@@ -177,10 +177,11 @@ def test_get_indicator_metadata():
 def test_get_breakdown_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
-    assert res['definition'] is None
     assert res['label'] == "All Individuals"
     assert res['short_label'] == "All"
-    assert res['note'] is None
+    assert 'definition' not in res
+    assert 'note' not in res
+    assert 'source_label' not in res
 
 
 @sparql_test
