@@ -49,7 +49,7 @@ def test_dump_csv_response_content_type(mock_cube):
     view = AjaxDataView(datasource, Mock(form={}))
     res = view.dump_csv()
     setHeader_call = res.setHeader.mock_calls[0]
-    assert setHeader_call == call('Content-type', 'text/csv')
+    assert setHeader_call == call('Content-type', 'text/csv; charset=utf-8')
 
 
 def test_all_datasets(mock_cube):
