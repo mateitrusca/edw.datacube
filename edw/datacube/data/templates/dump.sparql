@@ -1,0 +1,7 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+
+SELECT DISTINCT * WHERE {
+  ?observation
+    a qb:Observation ;
+    qb:dataSet  <http://semantic.digital-agenda-data.eu/dataset/scoreboard> .
+}

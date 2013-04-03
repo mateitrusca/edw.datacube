@@ -203,4 +203,5 @@ def test_get_indicator_source_metadata():
 @sparql_test
 def test_dump_is_there():
     cube = create_cube()
-    assert(getattr(cube, 'dump', False))
+    res = cube.dump()
+    assert(res.next())
