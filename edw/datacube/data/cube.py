@@ -152,5 +152,4 @@ class Cube(object):
 
     def dump(self):
         query = sparql_env.get_template('dump.sparql').render()
-        for row in self._execute(query):
-            yield row
+        return self._execute(query)
