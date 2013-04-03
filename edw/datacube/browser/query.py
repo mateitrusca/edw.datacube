@@ -1,3 +1,4 @@
+import csv
 import simplejson as json
 from Products.Five.browser import BrowserView
 
@@ -98,7 +99,6 @@ class AjaxDataView(BrowserView):
         return self.jsonify({'datapoints': rows})
 
     def dump_csv(self):
-        import csv
         response = self.request.response
         headers = [
             'indicator',
