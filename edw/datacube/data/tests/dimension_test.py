@@ -199,3 +199,44 @@ def test_get_indicator_source_metadata():
     assert res['source_url'] == (
         "http://epp.eurostat.ec.europa.eu/portal/page/"
         "portal/information_society/introduction")
+
+@sparql_test
+def test_dump_has_output():
+    cube = create_cube()
+    res = cube.dump()
+    assert(res.next())
+
+@sparql_test
+def test_dump_row_fields():
+    cube = create_cube()
+    res = cube.dump()
+    expected = set([
+        'unit_measure',
+        'indicator',
+        'time_period',
+        'value',
+        'ref_area',
+        'breakdown'])
+    assert expected.difference(set(res.next().keys())) == set([])
+
+@sparql_test
+def test_dump_row_content():
+    cube = create_cube()
+    res = cube.dump()
+    first_row = res.next()
+    import re
+
+    ibu_expr = re.compile('([a-zA-Z]{,5}_[a-zA-Z]{,10})')
+    expected_ind = ibu_expr.match(first_row['indicator']).group(0)
+    assert first_row['indicator'] == expected_ind
+    expected_brk = ibu_expr.match(first_row['breakdown']).group(0)
+    assert first_row['breakdown'] == expected_brk
+    expected_um = ibu_expr.match(first_row['unit_measure']).group(0)
+    assert first_row['unit_measure'] == expected_um
+    expected_tp = re.match('([0-9]{4})', first_row['time_period']).group(0)
+    assert first_row['time_period'] == expected_tp
+
+    expected_ra = re.match('([A-Z]{2})', first_row['ref_area']).group(0)
+    assert first_row['ref_area'] == expected_ra
+
+    assert type(first_row['value']) == type(float())

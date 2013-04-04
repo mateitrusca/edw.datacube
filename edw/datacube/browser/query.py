@@ -1,3 +1,4 @@
+import csv
 import simplejson as json
 from Products.Five.browser import BrowserView
 
@@ -96,3 +97,22 @@ class AjaxDataView(BrowserView):
                                           x_filters=x_filters,
                                           y_filters=y_filters))
         return self.jsonify({'datapoints': rows})
+
+    def dump_csv(self):
+        response = self.request.response
+        headers = [
+            'indicator',
+            'breakdown',
+            'unit_measure',
+            'time_period',
+            'ref_area',
+            'value']
+        writer = csv.DictWriter(response, headers, restval='')
+        writer.writeheader()
+        response.setHeader('Content-type', 'text/csv; charset=utf-8')
+        for row in self.cube.dump():
+            encoded_row = {}
+            for k,v in row.iteritems():
+                encoded_row[k] = unicode(v).encode('utf-8')
+            writer.writerow(encoded_row)
+        return response

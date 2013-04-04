@@ -38,6 +38,14 @@
     />
 
   <browser:page
+    name="csv"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".query.AjaxDataView"
+    attribute="dump_csv"
+    />
+
+  <browser:page
     name="dataset_metadata"
     for="..interfaces.IDataCube"
     permission="zope2.View"
