@@ -1,0 +1,28 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+
+SELECT DISTINCT ?groupName ?indicator ?notation ?longlabel ?altlabel ?definition ?sourcelabel ?sourcelink
+WHERE {
+    ?obs
+      a qb:Observation ;
+      qb:dataSet {{ dataset.n3() }} ;
+      dad-prop:indicator ?indicator .
+    ?indicator
+      skos:notation ?notation ;
+      skos:prefLabel ?longlabel ;
+      skos:altLabel ?altlabel ;
+      skos:definition ?definition ;
+      dad-prop:membership ?x ;
+      dcterms:source ?source .
+
+    ?x
+      dad-prop:member-of ?indicatorgroup.
+
+    ?indicatorgroup
+      skos:prefLabel ?groupName.
+
+    ?source
+      skos:prefLabel ?sourcelabel;
+      foaf:page ?sourcelink .
+}
