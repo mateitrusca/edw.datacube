@@ -54,6 +54,14 @@
     />
 
   <browser:page
+    name="dataset_details"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".query.AjaxDataView"
+    attribute="dataset_details"
+    />
+
+  <browser:page
     name="dimensions"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
