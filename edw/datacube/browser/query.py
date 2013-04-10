@@ -33,7 +33,8 @@ class AjaxDataView(BrowserView):
         return self.jsonify(self.cube.get_dataset_details())
 
     def get_dimensions(self):
-        dimensions = self.cube.get_dimensions()
+        flat = bool(self.request.form.get('flat'))
+        dimensions = self.cube.get_dimensions(flat=flat)
         return self.jsonify(dimensions)
 
     def dimension_labels(self):
