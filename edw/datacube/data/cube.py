@@ -70,18 +70,22 @@ class Cube(object):
         })
         return list(self._execute(query))
 
-    def get_dimensions(self):
+    def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
             'dataset': self.dataset,
         })
-        rv = defaultdict(list)
-        for row in self._execute(query):
-            rv[row['type_label']].append({
-                'label': row['label'],
-                'notation': row['notation'],
-                'comment': row['comment'],
-            })
-        return dict(rv)
+        result = self._execute(query)
+        if flat:
+            return list(result)
+        else:
+            rv = defaultdict(list)
+            for row in result:
+                rv[row['type_label']].append({
+                    'label': row['label'],
+                    'notation': row['notation'],
+                    'comment': row['comment'],
+                })
+            return dict(rv)
 
     def get_group_dimensions(self):
         query = sparql_env.get_template('group_dimensions.sparql').render(**{
