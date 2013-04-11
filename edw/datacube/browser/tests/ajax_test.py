@@ -141,7 +141,7 @@ def test_dimension_xy_filters_passed_on_to_query(mock_cube):
 
 def test_data_query_sends_filters_and_columns(mock_cube):
     ajax(mock_cube, 'datapoints', {
-        'fields': 'time-period,ref-area,value',
+        'columns': 'time-period,ref-area,value',
         'indicator': 'i_bfeu',
         'breakdown': 'IND_TOTAL',
         'unit-measure': 'pc_ind',
@@ -159,7 +159,7 @@ def test_data_query_returns_rows(mock_cube):
             {'time-period': '2010', 'ref-area': 'PT', 'value': 0.0609}]
     mock_cube.get_data.return_value = iter(rows)
     res = ajax(mock_cube, 'datapoints', {
-        'fields': 'time-period,ref-area,value',
+        'columns': 'time-period,ref-area,value',
         'indicator': 'i_bfeu',
         'breakdown': 'IND_TOTAL',
         'unit-measure': 'pc_ind',
