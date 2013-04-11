@@ -2,7 +2,7 @@
 <object name="DataCube"
    meta_type="Factory-based Type Information with dynamic views"
    i18n:domain="edw.datacube" xmlns:i18n="http://xml.zope.org/namespaces/i18n">
-  <property name="title" i18n:translate="">Daviz DataCube Source</property>
+  <property name="title" i18n:translate="">Data Cube dataset</property>
   <property name="description"
     i18n:translate=""></property>
   <property name="content_meta_type">DataCube</property>

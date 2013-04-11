@@ -13,12 +13,23 @@ from edw.datacube.data.cube import Cube
 
 
 DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
+    atapi.TextField(
+        'endpoint',
+        schemata="default",
+        default="http://virtuoso.scoreboardtest.edw.ro/sparql",
+        required=True,
+        default_content_type='text/plain',
+        allowable_content_types=('text/plain',),
+        languageIndependent=True,
+        widget=atapi.StringWidget(
+            label=_(u"SPARQL Endpoint"),
+        )
+    ),
     atapi.StringField(
         'extended_title',
         schemata="default",
         widget=atapi.StringWidget(
-            label=_(u"Extended title"),
-            description = _(u"Used in special listings"),
+            label=_(u"Title"),
         )
     ),
     atapi.TextField(
@@ -28,21 +39,9 @@ DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
         validators=('isTidyHtmlWithCleanup',),
         default_output_type='text/x-html-safe',
         widget=atapi.RichWidget(
-            label=_(u"Summary"),
-            description = _(u"Used in special listings"),
+            label=_(u"Description"),
             allow_file_upload=False)
         ),
-    atapi.TextField(
-        'endpoint',
-        schemata="default",
-        required=True,
-        default_content_type='text/plain',
-        allowable_content_types=('text/plain',),
-        languageIndependent=True,
-        widget=atapi.TextAreaWidget(
-            label=_(u"Endpoint"),
-        )
-    ),
     atapi.TextField(
         'dataset',
         schemata="default",
@@ -60,11 +59,19 @@ DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
 # they work well with the python bridge properties.
 
 DataCubeSchema['title'].storage = atapi.AnnotationStorage()
+DataCubeSchema['title'].widget.label = _(u'Identifier')
 DataCubeSchema['description'].storage = atapi.AnnotationStorage()
 DataCubeSchema['description'].widget.visible = {'view': 'invisible',
                                                 'edit': 'invisible'}
 DataCubeSchema['dataset'].widget.visible = {'view': 'invisible',
                                             'edit': 'hidden'}
+DataCubeSchema.moveField('endpoint', before='title')
+DataCubeSchema.moveField('extended_title', before='title')
+
+for field in DataCubeSchema.values():
+    if field.schemata != 'default':
+        field.schemata = 'default'
+        field.widget.visible = {'view': 'invisible', 'edit': 'invisible'}
 
 schemata.finalizeATCTSchema(
     DataCubeSchema,

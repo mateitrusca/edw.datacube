@@ -10,9 +10,9 @@ if(scoreboard.datacube === undefined){
 
 scoreboard.datacube.edit = {
     renderDatasetsBox: function(){
-        var fieldset = jQuery('fieldset#fieldset-default');
+        var self = this;
         var datasetsBox = jQuery('<div id="datasets-box">');
-        fieldset.append(datasetsBox);
+        self.endpoint.after(datasetsBox);
         return datasetsBox;
     },
     renderDatasetsBoxLoadButton: function(endpoint, datasetsBox){
@@ -46,6 +46,7 @@ scoreboard.datacube.edit = {
             datasetsBox.append(label);
             field.bind('click', function(){
                 self.dataset.val(jQuery(this).val());
+                self.fetchDatasetMetadata(self.endpoint, self.dataset);
             });
         });
     },
@@ -60,7 +61,31 @@ scoreboard.datacube.edit = {
                 }
             });
         }
-
+    },
+    fetchDatasetMetadata: function(endpoint, dataset){
+        var self = this;
+        jQuery.ajax({
+            'url': '@@dataset_metadata',
+            'data': {
+                'endpoint': endpoint.val(),
+                'dataset': dataset.val(),
+            },
+            'success': function(data){
+                jQuery('input#extended_title').val(data.title);
+                if(data.identifier){
+                    jQuery('input#title').val(data.identifier);
+                }else{
+                    var dataset_split = dataset.val().split('/');
+                    var identifier = dataset_split[dataset_split.length - 1];
+                    jQuery('input#title').val(identifier);
+                }
+                if(window.tinyMCE){
+                    tinyMCE.get('summary').setContent(data.description);
+                }else{
+                    jQuery('textarea#summary').val(data.description);
+                }
+            }
+        });
     },
     registerTriggers: function(){
         var self = this;
@@ -75,7 +100,7 @@ scoreboard.datacube.edit = {
 };
 
 jQuery(document).ready(function(){
-    scoreboard.datacube.edit['endpoint'] = jQuery('textarea[name="endpoint"]');
+    scoreboard.datacube.edit['endpoint'] = jQuery('input[name="endpoint"]');
     scoreboard.datacube.edit['dataset'] = jQuery('input[name="dataset"]');
     scoreboard.datacube.edit.registerTriggers();
 });

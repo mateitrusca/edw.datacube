@@ -5,5 +5,6 @@ SELECT DISTINCT * WHERE {
     dc:title ?title ;
     dc:license ?license ;
     dc:description ?description .
+    OPTIONAL { {{ dataset.n3() }} dc:identifier ?identifier}
 }
 LIMIT 100
