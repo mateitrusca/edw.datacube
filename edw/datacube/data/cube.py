@@ -125,22 +125,21 @@ class Cube(object):
         rv = list(self._execute(query))[0]
         return {k: rv[k] for k in rv if rv[k] is not None}
 
-    def get_data(self, fields, filters):
-        assert fields[-1] == 'value', "Last column must be 'value'"
+    def get_data(self, columns, filters):
+        assert columns[-1] == 'value', "Last column must be 'value'"
         query = sparql_env.get_template('data.sparql').render(**{
             'dataset': self.dataset,
-            'columns': [sparql.Literal(c) for c in fields[:-1]],
+            'columns': [sparql.Literal(c) for c in columns[:-1]],
             'filters': literal_pairs(filters),
             'group_dimensions': self.get_group_dimensions(),
         })
 
-        columns = []
-        for f in fields:
-            columns.append(f);
-            columns.append('%s-label' %f)
+        result_columns = []
+        for f in columns:
+            result_columns.extend([f, '%s-label' %f])
 
         for row in self._execute(query, as_dict=False):
-            yield dict(zip(columns, row))
+            yield dict(zip(result_columns, row))
 
     def get_data_xy(self, columns, xy_columns, filters, x_filters, y_filters):
         assert xy_columns == ['value']

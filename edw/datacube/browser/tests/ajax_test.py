@@ -148,7 +148,7 @@ def test_data_query_sends_filters_and_columns(mock_cube):
         'rev': '123',
     })
     cube_call = mock_cube.get_data.mock_calls[0]
-    assert cube_call == call(fields=['time-period', 'ref-area', 'value'],
+    assert cube_call == call(columns=['time-period', 'ref-area', 'value'],
                              filters=[('breakdown', 'IND_TOTAL'),
                                       ('indicator', 'i_bfeu'),
                                       ('unit-measure', 'pc_ind')])
@@ -165,7 +165,7 @@ def test_data_query_returns_rows(mock_cube):
         'unit-measure': 'pc_ind',
     })
     cube_call = mock_cube.get_data.mock_calls[0]
-    assert cube_call == call(fields=['time-period', 'ref-area', 'value'],
+    assert cube_call == call(columns=['time-period', 'ref-area', 'value'],
                              filters=[('breakdown', 'IND_TOTAL'),
                                       ('indicator', 'i_bfeu'),
                                       ('unit-measure', 'pc_ind')])
