@@ -46,7 +46,10 @@ scoreboard.datacube.edit = {
             datasetsBox.append(label);
             field.bind('click', function(){
                 self.dataset.val(jQuery(this).val());
-                self.fetchDatasetMetadata(self.endpoint, self.dataset);
+                if(document.location.href.indexOf('portal_factory') != -1){
+                    //auto-fill only on add
+                    self.fetchDatasetMetadata(self.endpoint, self.dataset);
+                }
             });
         });
     },
