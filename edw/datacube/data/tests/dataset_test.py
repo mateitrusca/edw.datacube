@@ -1,3 +1,4 @@
+from mock import ANY
 from .base import sparql_test, create_cube
 
 
@@ -26,8 +27,8 @@ def test_dataset_dimensions_metadata():
     cube = create_cube()
     res = cube.get_dimensions()
     assert {'notation': 'ref-area',
-            'label': "Reference area",
-            'comment': None} in res['dimension']
+            'label': "Country",
+            'comment': ANY} in res['dimension']
     notations = lambda type_label: [d['notation'] for d in res[type_label]]
     assert sorted(res) == ['attribute', 'dimension',
                            'group dimension', 'measure']
