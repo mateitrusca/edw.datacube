@@ -3,10 +3,8 @@
     font-weight: normal;
 }
 
-input[type="text"][name="extended_title"] {
-    width: 98%;
-}
-
+input[type="text"][name="extended_title"],
+#archetypes-fieldname-endpoint.field #endpoint,
 #archetypes-fieldname-title.field #title {
-    width: 30%;
+    width: 98%;
 }
