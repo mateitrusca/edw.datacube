@@ -53,6 +53,15 @@ DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
             label=_(u"Dataset"),
         )
     ),
+    atapi.ImageField(
+        'thumbnail',
+        schemata="default",
+        required=False,
+        languageIndependent=True,
+        widget=atapi.ImageWidget(
+            label=_(u"Thumbnail"),
+        )
+    ),
 ))
 
 # Set storage on fields copied from ATFolderSchema, making sure
