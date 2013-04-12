@@ -12,7 +12,7 @@ class DataCubeView(BrowserView):
                 'id': obj.getId(),
                 'portal_type': obj.portal_type,
                 'url': url,
-                'image': '%s/thumbnail/image_preview' % url,
+                'image': '%s/thumbnail' % url,
                 'title': obj.title_or_id(),
                 'description': obj.Description(),
             })
