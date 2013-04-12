@@ -1,3 +1,4 @@
+from mock import ANY
 from .base import sparql_test, create_cube
 
 
@@ -19,21 +20,21 @@ def test_dataset_metadata():
     res = cube.get_dataset_metadata(dataset)
     assert res['title'] == "Digital Agenda Scoreboard Dataset"
     assert "You can also browse the data" in res['description']
-    assert res['license'] == 'http://creativecommons.org/publicdomain/zero/1.0/'
+    assert res['license'].startswith('http://')
 
 @sparql_test
 def test_dataset_dimensions_metadata():
     cube = create_cube()
     res = cube.get_dimensions()
     assert {'notation': 'ref-area',
-            'label': "Reference area",
-            'comment': None} in res['dimension']
+            'label': "Country",
+            'comment': ANY} in res['dimension']
     notations = lambda type_label: [d['notation'] for d in res[type_label]]
     assert sorted(res) == ['attribute', 'dimension',
-                           'group dimension', 'measure']
+                           'dimension group', 'measure']
     assert notations('dimension') == ['indicator', 'breakdown', 'unit-measure',
                                       'ref-area', 'time-period']
-    assert notations('group dimension') == ['indicator-group',
+    assert notations('dimension group') == ['indicator-group',
                                             'breakdown-group']
     assert notations('attribute') == ['unit-measure', 'flag', 'note']
     assert [d['label'] for d in res['measure']] == ['Observation']
