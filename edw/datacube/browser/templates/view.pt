@@ -1,6 +1,18 @@
 <html metal:use-macro="here/main_template/macros/master"
   i18n:domain="plone">
-  <div metal:fill-slot="content-core">
+  <div metal:fill-slot="content-core"
+    tal:define="canModify python:checkPermission('Modify portal content', here);
+                state python:view.getItemState(here);">
+    <div class="dataset-manage bootstrap" tal:condition="canModify">
+      <a class="btn btn-mini btn-warning" tal:attributes="href string:${here/absolute_url}/edit"><i class="icon-edit icon-white"></i> Edit</a>
+      <a class="btn btn-mini btn-danger" tal:attributes="href string:${here/absolute_url}/delete_confirmation"><i class="icon-trash icon-white"></i> Delete</a>
+      <a class="btn btn-mini btn-success" tal:condition="python: state != 'published'"
+        tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=publish"><i class="icon-ok icon-white"></i> Publish</a>
+      <a class="btn btn-mini btn-inverse" tal:condition="python: state != 'private'"
+        tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=retract"><i class="icon-remove icon-white"></i> Unpublish</a>
+      <a class="btn btn-mini btn-primary" tal:attributes="href string:${here/absolute_url}/visualizations"><i class="icon-tasks icon-white"></i> Charts</a>
+    </div>
+    <br />
     <div tal:repeat="wid python:['endpoint', 'dataset']">
       <tal:block define="field python:here.getField(wid);
                         label python:field.widget.label;

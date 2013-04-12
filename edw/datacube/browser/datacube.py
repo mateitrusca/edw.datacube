@@ -1,4 +1,5 @@
 from Products.Five.browser import BrowserView
+from Products.CMFCore.utils import getToolByName
 from .query import jsonify
 
 
@@ -17,3 +18,9 @@ class DataCubeView(BrowserView):
                 'description': obj.Description(),
             })
         return jsonify(self.request, data)
+
+    def getItemState(self, obj):
+        """ Item state
+        """
+        wft = getToolByName(self.context, 'portal_workflow')
+        return wft.getInfoFor(obj, 'review_state', '')
