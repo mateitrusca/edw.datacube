@@ -4,15 +4,19 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?uri, ?notation, ?label, ?short_label WHERE {
 
+{%- set variable = '?option'
+    if dimension_code.value in group_dimensions
+    else '?uri' %}
+
   ?x_observation
     a qb:Observation ;
     qb:dataSet {{ dataset.n3() }} ;
-    ?dimension ?option .
+    ?dimension {{ variable }} .
 
   ?y_observation
     a qb:Observation ;
     qb:dataSet {{ dataset.n3() }} ;
-    ?dimension ?option .
+    ?dimension {{ variable }} .
 
 {%- for f_dimension_code, f_option_code in filters + x_filters %}
 {{ one_filter('x_observation', 'x_filter_%d' % loop.index,

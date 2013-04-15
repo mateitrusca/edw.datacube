@@ -20,10 +20,10 @@ def test_indicator_labels_query():
     cube = create_cube()
     [res] = cube.get_dimension_labels(dimension='indicator', value='i_iusnet')
     expected = {
-        'short_label': 'participating in social networks',
-        'label': 'Participating in social networks'}
-    assert expected['short_label'] in res['short_label']
-    assert expected['label'] in res['label']
+        'short_label': "Participating in social networks",
+        'label': "Internet use: participating in social networks (creating"}
+    assert res['short_label'] == expected['short_label']
+    assert res['label'].startswith(expected['label'])
 
 
 @sparql_test
@@ -164,11 +164,10 @@ def test_get_years_for_xy_indicators():
 def test_get_indicator_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
-    assert res['label'] == "Regular internet users"
-    assert res['short_label'] == ("% of population who are regular "
-                                 "internet users (at least once a week)")
-    assert res['definition'] == ("Individuals aged 16-74, using the internet "
-                                 "at least once a week in the last 3 months.")
+    assert res['label'].startswith("In the last 3 months, I accessed the ")
+    assert res['short_label'] == "Regular internet users"
+    assert res['definition'] == ("% of population who are regular internet "
+                                 "users (at least once a week)")
 
 
 @sparql_test
@@ -186,7 +185,7 @@ def test_get_breakdown_metadata():
 def test_get_indicator_source_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
-    assert res['label'] == "Regular internet users"
+    assert res['label'].startswith("In the last 3 months, I accessed the ")
     assert res['source_label'] == "Eurostat - Households survey"
     assert res['source_definition'] == (
         "Eurostat - Community survey on ICT "
