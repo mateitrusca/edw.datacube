@@ -1,3 +1,4 @@
+from zope.security import checkPermission
 from Products.Five.browser import BrowserView
 from Products.CMFCore.utils import getToolByName
 from zope.component import queryUtility
@@ -21,7 +22,9 @@ class DataCubeView(BrowserView):
 
     def relations(self):
         data = []
-        for obj in self.context.getBRefs():
+        relations = (relation for relation in self.context.getBRefs()
+                if checkPermission('zope2.View', relation))
+        for obj in relations:
             url = obj.absolute_url()
             thumbnail_field = obj.getField('thumbnail')
             thumbnail = thumbnail_field.getAccessor(obj)()
