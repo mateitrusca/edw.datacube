@@ -67,7 +67,6 @@
   }
 
   {%- else %}
-  FILTER(?option = ?uri)
   ?dimension
     skos:notation {{ dimension_code.n3() }} .
   ?uri
