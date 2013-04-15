@@ -1,7 +1,7 @@
-from zope.security import checkPermission
 from Products.Five.browser import BrowserView
 from Products.CMFCore.utils import getToolByName
 from zope.component import queryUtility
+from zope.component import getMultiAdapter
 from plone.registry.interfaces import IRegistry
 from edw.datacube.interfaces import IDataCubeSettings
 
@@ -22,9 +22,9 @@ class DataCubeView(BrowserView):
 
     def relations(self):
         data = []
-        relations = (relation for relation in self.context.getBRefs()
-                if checkPermission('zope2.View', relation))
-        for obj in relations:
+        view = getMultiAdapter((self.context, self.request), name=u'visualizations')
+        visualizations = view.visualizations()
+        for obj in visualizations:
             url = obj.absolute_url()
             thumbnail_field = obj.getField('thumbnail')
             thumbnail = thumbnail_field.getAccessor(obj)()
