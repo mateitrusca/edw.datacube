@@ -17,7 +17,7 @@
       <tal:block define="field python:here.getField(wid);
                         label python:field.widget.label;
                         value python:field.getAccessor(here)()">
-        <strong tal:content="label" />: <span tal:attributes="id string:${wid}-value" tal:content="value"/>
+        <strong tal:content="label" />: <a tal:attributes="href value;id string:${wid}-value" tal:content="value"/>
       </tal:block>
     </div>
     <h2>Dataset metadata</h2>

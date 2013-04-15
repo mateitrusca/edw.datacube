@@ -19,6 +19,10 @@ scoreboard.datacube.view = {
             }
         });
     },
+    replaceURLWithHTMLLinks: function(text) {
+        var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+        return text.replace(exp,"<a href='$1'>$1</a>");
+    },
     getDatasetDimensions: function(){
         var self = this;
         jQuery.ajax({
@@ -29,11 +33,12 @@ scoreboard.datacube.view = {
         });
     },
     renderDatasetMetadata: function(data){
+        var self = this;
         var target = jQuery('#dataset-metadata');
         target.empty();
         jQuery.each(data, function(label, value){
-            var dt = jQuery('<dt>').text(label);
-            var dd = jQuery('<dd>').text(value);
+            var dt = jQuery('<dt>').html(self.replaceURLWithHTMLLinks(label));
+            var dd = jQuery('<dd>').html(self.replaceURLWithHTMLLinks(value));
             target.append(dt);
             target.append(dd);
         });
@@ -71,10 +76,11 @@ scoreboard.datacube.view = {
         });
     },
     addDataToTarget: function(target, data){
+        var self = this;
         jQuery.each(data, function(name, value){
             var td = jQuery('td.' + name, target);
             if(value){
-                td.text(value);
+                td.html(self.replaceURLWithHTMLLinks(value));
             }else {
                 td.text('None');
             }
