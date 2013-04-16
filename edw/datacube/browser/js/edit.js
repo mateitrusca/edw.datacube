@@ -9,12 +9,6 @@ if(scoreboard.datacube === undefined){
 }
 
 scoreboard.datacube.edit = {
-    getURLParam: function(name){
-      var re = new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)');
-      var search = re.exec(location.search);
-      if(search)
-        return decodeURIComponent(search[1]);
-    },
     renderDatasetsBox: function(){
         var self = this;
         var datasetsBox = jQuery('<div id="datasets-box">');
@@ -106,20 +100,10 @@ scoreboard.datacube.edit = {
         });
         self.fetchDatasets(self.endpoint, datasetsBox);
     },
-    addFinalURLInput: function(){
-      var self = this;
-      var final_url = self.getURLParam('final_url');
-      if(final_url){
-        var final_url_input = jQuery('<input name="final_url" type="hidden">');
-        final_url_input.val(final_url);
-        jQuery('form[name="edit_form"]').append(final_url_input);
-      }
-    }
 };
 
 jQuery(document).ready(function(){
     scoreboard.datacube.edit['endpoint'] = jQuery('input[name="endpoint"]');
     scoreboard.datacube.edit['dataset'] = jQuery('input[name="dataset"]');
     scoreboard.datacube.edit.registerTriggers();
-    scoreboard.datacube.edit.addFinalURLInput();
 });

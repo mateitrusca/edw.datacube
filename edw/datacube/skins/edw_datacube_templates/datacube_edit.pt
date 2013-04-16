@@ -1,0 +1,10 @@
+<!-- atct_edit looks in ${portal_type}_edit (this file) for macros -->
+<metal:macro define-macro="body">
+    <metal:macro use-macro="here/edit_macros/macros/body">
+        <metal:slot fill-slot="extra_bottom" tal:define="final_url python:here.REQUEST.get('final_url', '')">
+          <tal:block condition="final_url">
+            <input type="hidden" name="final_url" tal:attributes="value final_url"/>
+          </tal:block>
+        </metal:slot>
+    </metal:macro>
+</metal:macro>
