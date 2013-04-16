@@ -237,3 +237,15 @@ def test_dump_row_content():
     assert first_row['ref_area'] == expected_ra
 
     assert type(first_row['value']) == type(float())
+
+
+@sparql_test
+def test_get_labels():
+    import sparql
+    cube = create_cube()
+    uri_list = ['http://reference.data.gov.uk/id/year/2009',
+                'http://reference.data.gov.uk/id/year/2007']
+    res = cube.get_labels(uri_list)
+    assert list(res) == uri_list
+    assert res[uri_list[0]]['notation'] == '2009'
+    assert res[uri_list[0]]['short_label'] == '2009'
