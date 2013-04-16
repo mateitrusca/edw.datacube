@@ -1,2 +1,1 @@
-<!-- atct_edit looks in ${portal_type}_edit (this file) for macros -->
 <metal:macro use-macro="here/base_edit/macros/master"></metal:macro>

@@ -5,5 +5,5 @@ title = Validate Content Integrity
 validators =
 
 [actions]
-action.success = redirect_to:python:object.portal_url.getPortalObject().absolute_url()
+action.success = redirect_to:python:object.REQUEST.get('final_url', '')
 action.failure = traverse_to:string:datacube_edit_controller
