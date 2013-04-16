@@ -2,7 +2,7 @@
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
-SELECT DISTINCT ?uri, ?notation, ?label, ?short_label WHERE {
+SELECT DISTINCT ?uri WHERE {
 
 {%- set variable = '?option'
     if dimension_code.value in group_dimensions

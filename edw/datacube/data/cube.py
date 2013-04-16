@@ -101,7 +101,9 @@ class Cube(object):
             'filters': literal_pairs(filters),
             'group_dimensions': self.get_group_dimensions(),
         })
-        return list(self._execute(query))
+        result = list(self._execute(query))
+        labels = self.get_labels([row['uri'] for row in result])
+        return [labels[row['uri']] for row in result]
 
     def get_dimension_options_xy(self, dimension,
                                  filters, x_filters, y_filters):
@@ -114,7 +116,16 @@ class Cube(object):
             'y_filters': literal_pairs(y_filters),
             'group_dimensions': self.get_group_dimensions(),
         })
-        return list(self._execute(query))
+        result = list(self._execute(query))
+        labels = self.get_labels([row['uri'] for row in result])
+        return [labels[row['uri']] for row in result]
+
+    def get_labels(self, uri_list):
+        tmpl = sparql_env.get_template('labels.sparql')
+        query = tmpl.render(**{
+            'uri_list': [sparql.IRI(uri) for uri in uri_list],
+        })
+        return {row['uri']: row for row in self._execute(query)}
 
     def get_dimension_option_metadata(self, dimension, option):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')

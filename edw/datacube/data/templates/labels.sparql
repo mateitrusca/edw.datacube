@@ -1,0 +1,23 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+SELECT DISTINCT ?uri, ?notation, ?label, ?short_label WHERE {
+
+  ?uri
+    skos:notation ?notation ;
+    skos:prefLabel ?label .
+OPTIONAL {
+  ?uri
+    skos:altLabel ?short_label .
+}
+
+FILTER (
+{%- for uri in uri_list %}
+  ?uri = {{ uri.n3() }}
+  {%- if not loop.last %} || {% endif %}
+{%- endfor %}
+)
+
+
+}
+LIMIT 100

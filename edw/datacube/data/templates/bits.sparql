@@ -4,9 +4,7 @@
   ?{{ observation }}
     ?{{ prefix }}_dimension ?{{ prefix }}_option_child .
   ?{{ prefix }}_dimension
-    dad-prop:grouped-using ?{{ prefix }}_dimension_group .
-  ?{{ prefix }}_dimension_group
-    skos:notation {{ dimension_code.n3() }} .
+    dad-prop:grouped-using dad-prop:{{ dimension_code.value }} .
   ?{{ prefix }}_option_child
     dad-prop:membership [
       dad-prop:member-of ?{{ prefix }}_option ] .
@@ -15,9 +13,7 @@
 
   {%- else %}
   ?{{ observation }}
-    ?{{ prefix }}_dimension ?{{ prefix }}_option .
-  ?{{ prefix }}_dimension
-    skos:notation {{ dimension_code.n3() }} .
+    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
   ?{{ prefix }}_option
     skos:notation {{ option_code.n3() }} .
 
@@ -27,9 +23,7 @@
 
 {% macro one_column(observation, prefix, dimension_code) %}
   ?{{ observation }}
-    ?{{ prefix }}_dimension ?{{ prefix }}_option .
-  ?{{ prefix }}_dimension
-    skos:notation {{ dimension_code.n3() }} .
+    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
   ?{{ prefix }}_option
     skos:notation ?{{ prefix }} .
   OPTIONAL{
@@ -41,11 +35,9 @@
 
 {% macro one_xy_column(x_observation, y_observation, prefix, dimension_code) %}
   ?{{ x_observation }}
-    ?{{ prefix }}_dimension ?{{ prefix }}_option .
+    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
   ?{{ y_observation }}
-    ?{{ prefix }}_dimension ?{{ prefix }}_option .
-  ?{{ prefix }}_dimension
-    skos:notation {{ dimension_code.n3() }} .
+    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
   ?{{ prefix }}_option
     skos:notation ?{{ prefix }} .
 {%- endmacro %}
@@ -54,30 +46,14 @@
 {% macro one_dimension(dimension_code) %}
   {%- if dimension_code.value in group_dimensions %}
   ?dimension
-    dad-prop:grouped-using ?dimension_group .
-  ?dimension_group
-    skos:notation {{ dimension_code.n3() }} .
+    dad-prop:grouped-using dad-prop:{{ dimension_code.value }} .
   ?option
     dad-prop:membership [
       dad-prop:member-of ?uri ] .
-  ?uri
-    skos:notation ?notation ;
-    skos:prefLabel ?label .
-  OPTIONAL {
-    ?uri
-      skos:altLabel ?short_label
-  }
 
   {%- else %}
   ?dimension
     skos:notation {{ dimension_code.n3() }} .
-  ?uri
-    skos:notation ?notation ;
-    skos:prefLabel ?label .
-  OPTIONAL {
-    ?uri
-      skos:altLabel ?short_label
-  }
 
   {%- endif %}
 {%- endmacro %}
