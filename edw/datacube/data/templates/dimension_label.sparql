@@ -1,18 +1,19 @@
+{%- from 'bits.sparql' import one_filter with context -%}
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?label, ?short_label WHERE {
 
   ?observation
-    qb:dataSet {{ dataset.n3() }} ;
-    dad-prop:{{ dimension }} ?dim .
+    qb:dataSet {{ dataset.n3() }} .
 
-  ?dim
-    skos:notation "{{ value }}" ;
+{{ one_filter('observation', 'filter', dimension, value) }}
+
+  ?filter_option
     skos:prefLabel ?label .
 
 OPTIONAL {
-  ?dim
+  ?filter_option
     skos:altLabel ?short_label .
 }
 
