@@ -1,0 +1,13 @@
+[default]
+title = ATContentTypes Edit
+
+[validators]
+validators = validate_atct
+validators..form_add =
+validators..cancel =
+
+[actions]
+action.success = traverse_to:string:datacube_edit_controller
+action.success..form_add = traverse_to:string:add_reference
+action.success..cancel = redirect_to:python:object.portal_url.getPortalObject().absolute_url()
+action.failure = traverse_to_action:string:edit

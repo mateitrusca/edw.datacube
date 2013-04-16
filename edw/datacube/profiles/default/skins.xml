@@ -1,0 +1,6 @@
+<object name="portal_skins">
+  <object name="edw_datacube_templates" meta_type="Filesystem Directory View" directory="edw.datacube:skins/edw_datacube_templates"/>
+  <skin-path name="*">
+    <layer name="edw_datacube_templates" insert-after="custom"/>
+  </skin-path>
+</object>
