@@ -65,8 +65,9 @@ class Cube(object):
     def get_dimension_labels(self, dimension, value):
         query = sparql_env.get_template('dimension_label.sparql').render(**{
             'dataset': self.dataset,
-            'dimension': dimension,
-            'value': value
+            'dimension': sparql.Literal(dimension),
+            'value': sparql.Literal(value),
+            'group_dimensions': self.get_group_dimensions(),
         })
         return list(self._execute(query))
 
