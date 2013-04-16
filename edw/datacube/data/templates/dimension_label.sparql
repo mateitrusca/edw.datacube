@@ -3,7 +3,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?label, ?short_label WHERE {
 
-  ?dimension
+  ?observation
     qb:dataSet {{ dataset.n3() }} ;
     dad-prop:{{ dimension }} ?dim .
 
