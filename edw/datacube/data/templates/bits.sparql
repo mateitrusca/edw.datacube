@@ -60,24 +60,10 @@
   ?option
     dad-prop:membership [
       dad-prop:member-of ?uri ] .
-  ?uri
-    skos:notation ?notation ;
-    skos:prefLabel ?label .
-  OPTIONAL {
-    ?uri
-      skos:altLabel ?short_label
-  }
 
   {%- else %}
   ?dimension
     skos:notation {{ dimension_code.n3() }} .
-  ?uri
-    skos:notation ?notation ;
-    skos:prefLabel ?label .
-  OPTIONAL {
-    ?uri
-      skos:altLabel ?short_label
-  }
 
   {%- endif %}
 {%- endmacro %}
