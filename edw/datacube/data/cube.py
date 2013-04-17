@@ -121,6 +121,8 @@ class Cube(object):
         return [labels[row['uri']] for row in result]
 
     def get_labels(self, uri_list):
+        if len(uri_list) < 1:
+            return {}
         tmpl = sparql_env.get_template('labels.sparql')
         query = tmpl.render(**{
             'uri_list': [sparql.IRI(uri) for uri in uri_list],
