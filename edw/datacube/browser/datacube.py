@@ -40,7 +40,7 @@ class DataCubeView(BrowserView):
                 'title': obj.title_or_id(),
                 'description': obj.Description(),
             })
-        return jsonify(self.request, data)
+        return jsonify(self.request, data, cache=False)
 
     def getItemState(self, obj):
         """ Item state
