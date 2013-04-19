@@ -64,6 +64,15 @@ def test_get_available_country_options_for_year():
 
 
 @sparql_test
+def test_group_notations(monkeypatch):
+    cube = create_cube()
+    items = cube.get_dimension_options('indicator', [
+        ('indicator-group', 'ict-skills'),
+    ])
+    assert items[0]['group_notation'] == 'ict-skills'
+
+
+@sparql_test
 def test_get_available_country_options_for_year_and_indicator():
     cube = create_cube()
     items = cube.get_dimension_options('ref-area', [
