@@ -2,11 +2,11 @@ if(window.scoreboard === undefined){
     var scoreboard = {
         version: '1.0'
     };
-};
+}
 
 if(scoreboard.datacube === undefined){
     scoreboard.datacube = {};
-};
+}
 
 scoreboard.datacube.view = {
     getDatasetMetadata: function(){
@@ -20,7 +20,7 @@ scoreboard.datacube.view = {
         });
     },
     replaceURLWithHTMLLinks: function(text) {
-        var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+        var exp = /(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/ig;
         return text.replace(exp,"<a href='$1'>$1</a>");
     },
     getDatasetDimensions: function(){
@@ -49,13 +49,13 @@ scoreboard.datacube.view = {
         jQuery.each(data, function(type, entries){
             if(type == 'dimension' || type == 'group_dimension'){
                 target = jQuery('#dataset-dimensions tbody').empty();
-            };
+            }
             if(type == 'attribute'){
                 target = jQuery('#dataset-attributes tbody').empty();
-            };
+            }
             if(type == 'measure'){
                 target = jQuery('#dataset-measures tbody').empty();
-            };
+            }
             jQuery.each(entries, function(i, o){
                 self.renderData(target, o);
             });
@@ -86,9 +86,17 @@ scoreboard.datacube.view = {
             }
         });
     },
+    addNavigation: function(){
+      var navigation = new Scoreboard.Views.DatasetNavigationView({
+          el: jQuery('#dataset-navigation'),
+          cube_url: window.location.href,
+          selected_url: window.location.href
+      });
+    }
 };
 
 jQuery(document).ready(function(){
     scoreboard.datacube.view.getDatasetMetadata();
     scoreboard.datacube.view.getDatasetDimensions();
+    scoreboard.datacube.view.addNavigation();
 });

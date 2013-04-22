@@ -17,6 +17,7 @@
       </tal:block>
       <a class="btn btn-mini btn-primary" tal:attributes="href string:${here/absolute_url}/visualizations"><i class="icon-tasks icon-white"></i> Charts</a>
     </div>
+    <div id="dataset-navigation" class="navigation-widget"></div>
     <br />
     <div tal:repeat="wid python:['endpoint', 'dataset']">
       <tal:block define="field python:here.getField(wid);
