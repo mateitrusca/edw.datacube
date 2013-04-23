@@ -26,6 +26,9 @@
         <strong tal:content="label" />: <a tal:attributes="href value;id string:${wid}-value" tal:content="value"/>
       </tal:block>
     </div>
+    <br />
+    <a tal:attributes="href string:${here/absolute_url}/indicators">
+      Consult the list of indicators, their definition and sources</a>
     <h2>Dataset metadata</h2>
     <dl id="dataset-metadata">
       <dt></dt>
