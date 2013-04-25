@@ -104,6 +104,10 @@ class AjaxDataView(BrowserView):
 
     def dump_csv(self):
         response = self.request.response
+        response.setHeader('Content-type', 'text/csv; charset=utf-8')
+        filename = self.context.getId() + '.csv'
+        response.setHeader('Content-Disposition',
+                           'attachment;filename=%s' % filename)
         headers = [
             'indicator',
             'breakdown',
@@ -113,7 +117,6 @@ class AjaxDataView(BrowserView):
             'value']
         writer = csv.DictWriter(response, headers, restval='')
         writer.writeheader()
-        response.setHeader('Content-type', 'text/csv; charset=utf-8')
         for row in self.cube.dump():
             encoded_row = {}
             for k,v in row.iteritems():
