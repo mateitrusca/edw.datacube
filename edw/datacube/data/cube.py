@@ -1,4 +1,5 @@
 import time
+import urllib
 import urllib2
 import os
 import logging
@@ -173,8 +174,15 @@ class Cube(object):
     def get_revision(self):
         return DATA_REVISION
 
-    def dump(self):
+    def dump(self, data_format=''):
         query = sparql_env.get_template('dump.sparql').render(**{
             'dataset': self.dataset,
         })
+        if data_format:
+            params = urllib.urlencode({
+                'query': query,
+                'format': data_format,
+            })
+            result = urllib2.urlopen(self.endpoint, data=params)
+            return result.read()
         return self._execute(query)

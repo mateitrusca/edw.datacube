@@ -123,3 +123,11 @@ class AjaxDataView(BrowserView):
                 encoded_row[k] = unicode(v).encode('utf-8')
             writer.writerow(encoded_row)
         return response
+
+    def dump_rdf(self):
+        response = self.request.response
+        response.setHeader('Content-type', 'application/rdf+xml; charset=utf-8')
+        filename = self.context.getId() + '.rdf'
+        response.setHeader('Content-Disposition',
+                           'attachment;filename=%s' % filename)
+        return self.cube.dump(data_format='application/rdf+xml')
