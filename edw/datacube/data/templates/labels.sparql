@@ -1,7 +1,7 @@
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
-SELECT DISTINCT ?uri, ?notation, ?label, ?short_label WHERE {
+SELECT DISTINCT ?uri, ?notation, ?label, ?short_label, ?group_notation WHERE {
 
   ?uri
     skos:notation ?notation ;
@@ -9,6 +9,14 @@ SELECT DISTINCT ?uri, ?notation, ?label, ?short_label WHERE {
 OPTIONAL {
   ?uri
     skos:altLabel ?short_label .
+}
+OPTIONAL {
+  ?uri
+    dad-prop:membership [
+      dad-prop:member-of [
+        skos:notation ?group_notation
+      ]
+    ] .
 }
 
 FILTER (
