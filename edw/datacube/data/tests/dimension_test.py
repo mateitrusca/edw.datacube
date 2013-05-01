@@ -170,6 +170,21 @@ def test_get_years_for_xy_indicators():
 
 
 @sparql_test
+def test_get_years_for_xyz_indicators():
+    cube = create_cube()
+    items = cube.get_dimension_options_xyz('time-period',
+        [('ref-area', 'ES')],
+        [('indicator', 'bb_dsl')],
+        [('indicator', 'bb_penet')],
+        [('indicator', 'bb_ne')]
+    )
+    years = [i['notation'] for i in items]
+    assert len(years) == 8
+    assert '2007' in years
+    assert '2012' not in years
+
+
+@sparql_test
 def test_get_indicator_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('indicator', 'i_iuse')

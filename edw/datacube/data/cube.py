@@ -121,6 +121,23 @@ class Cube(object):
         labels = self.get_labels([row['uri'] for row in result])
         return [labels[row['uri']] for row in result]
 
+    def get_dimension_options_xyz(self, dimension,
+                                 filters, x_filters, y_filters, z_filters):
+        result = []
+        for extra_filters in [x_filters, y_filters, z_filters]:
+            query = sparql_env.get_template('dimension_options.sparql').render(**{
+                'dataset': self.dataset,
+                'dimension_code': sparql.Literal(dimension),
+                'filters': literal_pairs(filters + extra_filters),
+                'group_dimensions': self.get_group_dimensions(),
+            })
+            result.append(set([item['uri'] for item in self._execute(query)]))
+        def find_common(memo, item):
+            return memo.intersection(item)
+        uris = [uri for uri in reduce(find_common, result)]
+        labels = self.get_labels(uris)
+        return [labels[uri] for uri in uris]
+
     def get_labels(self, uri_list):
         if len(uri_list) < 1:
             return {}
