@@ -104,7 +104,7 @@ class Cube(object):
         })
         result = list(self._execute(query))
         labels = self.get_labels([row['uri'] for row in result])
-        return [labels[row['uri']] for row in result]
+        return [labels.get(row['uri'], self.get_other_labels(row['uri'])) for row in result]
 
     def get_dimension_options_xy(self, dimension,
                                  filters, x_filters, y_filters):
@@ -119,7 +119,18 @@ class Cube(object):
         })
         result = list(self._execute(query))
         labels = self.get_labels([row['uri'] for row in result])
-        return [labels[row['uri']] for row in result]
+        return [labels.get(row['uri'], self.get_other_labels(row['uri'])) for row in result]
+
+    def get_other_labels(self, uri):
+        if '#' in uri:
+            uri_label = uri.split('#')[-1]
+        else:
+            uri_label = uri.split('/')[-1]
+        return { "group_notation": None,
+                 "label": uri_label,
+                 "notation": uri_label,
+                 "short_label": None,
+                 "uri": uri }
 
     def get_dimension_options_xyz(self, dimension,
                                  filters, x_filters, y_filters, z_filters):
