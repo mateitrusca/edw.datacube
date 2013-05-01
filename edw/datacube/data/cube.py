@@ -121,6 +121,23 @@ class Cube(object):
         labels = self.get_labels([row['uri'] for row in result])
         return [labels[row['uri']] for row in result]
 
+    def get_dimension_options_xyz(self, dimension,
+                                 filters, x_filters, y_filters, z_filters):
+        result = []
+        for extra_filters in [x_filters, y_filters, z_filters]:
+            query = sparql_env.get_template('dimension_options.sparql').render(**{
+                'dataset': self.dataset,
+                'dimension_code': sparql.Literal(dimension),
+                'filters': literal_pairs(filters + extra_filters),
+                'group_dimensions': self.get_group_dimensions(),
+            })
+            result.append(set([item['uri'] for item in self._execute(query)]))
+        def find_common(memo, item):
+            return memo.intersection(item)
+        uris = [uri for uri in reduce(find_common, result)]
+        labels = self.get_labels(uris)
+        return [labels[uri] for uri in uris]
+
     def get_labels(self, uri_list):
         if len(uri_list) < 1:
             return {}
@@ -152,7 +169,6 @@ class Cube(object):
         result_columns = []
         for f in columns:
             result_columns.extend([f, '%s-label' %f])
-
         for row in self._execute(query, as_dict=False):
             yield dict(zip(result_columns, row))
 
@@ -170,6 +186,39 @@ class Cube(object):
             out = dict(zip(columns, row))
             out['value'] = {'x': row[-2], 'y': row[-1]}
             yield out
+
+    def get_data_xyz(self, columns, xyz_columns, filters, x_filters, y_filters,
+                     z_filters):
+        assert xyz_columns == ['value']
+
+        raw_result = []
+        idx = 0
+        for extra_filters in [x_filters, y_filters, z_filters]:
+            query = sparql_env.get_template('data.sparql').render(**{
+                'dataset': self.dataset,
+                'columns': [sparql.Literal(c) for c in columns],
+                'filters': literal_pairs(filters + list(extra_filters)),
+                'group_dimensions': self.get_group_dimensions(),
+            })
+            container = {}
+            for row in self._execute(query, as_dict=False):
+                container[row[0]] = zip(columns + xyz_columns,
+                                        [row[0], row[-1]])
+            raw_result.append(container)
+        def find_common(memo, item):
+            inter_common = set(memo).intersection(set(item.keys()))
+            return inter_common
+        common = reduce(find_common, raw_result, raw_result[0].keys())
+
+        for item in common:
+            out = dict([raw_result[0][item][0]])
+            value = {
+                'x': raw_result[0][item][-1][-1],
+                'y': raw_result[1][item][-1][-1],
+                'z': raw_result[2][item][-1][-1]
+            }
+            out['value'] = value
+            yield dict(out)
 
     def get_revision(self):
         return DATA_REVISION

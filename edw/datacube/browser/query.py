@@ -68,6 +68,25 @@ class AjaxDataView(BrowserView):
                                                      x_filters, y_filters)
         return self.jsonify({'options': options})
 
+    def dimension_values_xyz(self):
+        form = dict(self.request.form)
+        form.pop('rev', None)
+        dimension = form.pop('dimension')
+        (filters, x_filters, y_filters, z_filters) = ([], [], [], [])
+        for k, v in sorted(form.items()):
+            if k.startswith('x-'):
+                x_filters.append((k[2:], v))
+            elif k.startswith('y-'):
+                y_filters.append((k[2:], v))
+            elif k.startswith('z-'):
+                z_filters.append((k[2:], v))
+            else:
+                filters.append((k, v))
+        options = self.cube.get_dimension_options_xyz(dimension, filters,
+                                                      x_filters, y_filters,
+                                                      z_filters)
+        return self.jsonify({'options': options})
+
     def dimension_value_metadata(self):
         dimension = self.request.form['dimension']
         value = self.request.form['value']
@@ -100,6 +119,29 @@ class AjaxDataView(BrowserView):
                                           filters=filters,
                                           x_filters=x_filters,
                                           y_filters=y_filters))
+        return self.jsonify({'datapoints': rows})
+
+    def datapoints_xyz(self):
+        form = dict(self.request.form)
+        form.pop('rev', None)
+        columns = form.pop('columns').split(',')
+        xyz_columns = form.pop('xyz_columns').split(',')
+        (filters, x_filters, y_filters, z_filters) = ([], [], [], [])
+        for k, v in sorted(form.items()):
+            if k.startswith('x-'):
+                x_filters.append((k[2:], v))
+            elif k.startswith('y-'):
+                y_filters.append((k[2:], v))
+            elif k.startswith('z-'):
+                z_filters.append((k[2:], v))
+            else:
+                filters.append((k, v))
+        rows = list(self.cube.get_data_xyz(columns=columns,
+                                          xyz_columns=xyz_columns,
+                                          filters=filters,
+                                          x_filters=x_filters,
+                                          y_filters=y_filters,
+                                          z_filters=z_filters))
         return self.jsonify({'datapoints': rows})
 
     def dump_csv(self):
