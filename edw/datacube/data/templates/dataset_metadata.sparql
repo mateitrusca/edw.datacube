@@ -3,8 +3,8 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 SELECT DISTINCT * WHERE {
   {{ dataset.n3() }}
     dc:title ?title ;
-    dc:license ?license ;
-    dc:description ?description .
-    OPTIONAL { {{ dataset.n3() }} dc:identifier ?identifier}
+    dc:description ?description ;
+	dc:identifier ?identifier .
+    OPTIONAL { {{ dataset.n3() }} dc:license ?license}
 }
 LIMIT 100
