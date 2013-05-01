@@ -2,6 +2,8 @@ import csv
 import simplejson as json
 from Products.Five.browser import BrowserView
 
+from eea.cache import cache as eeacache
+
 
 def jsonify(request, data, cache=True):
     header = request.RESPONSE.setHeader
@@ -10,6 +12,10 @@ def jsonify(request, data, cache=True):
         header("Expires", "Sun, 17-Jan-2038 19:14:07 GMT")
     return json.dumps(data, indent=2, sort_keys=True)
 
+def cacheKey(method, self, *args, **kwargs):
+    """ Generate unique cache id
+    """
+    return (self.context.absolute_url(1), dict(self.request.form))
 
 class AjaxDataView(BrowserView):
 
@@ -44,6 +50,7 @@ class AjaxDataView(BrowserView):
         [labels] = self.cube.get_dimension_labels(dimension, value)
         return self.jsonify(labels)
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_values(self):
         form = dict(self.request.form)
         form.pop('rev', None)
@@ -52,6 +59,7 @@ class AjaxDataView(BrowserView):
         options = self.cube.get_dimension_options(dimension, filters)
         return self.jsonify({'options': options})
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_values_xy(self):
         form = dict(self.request.form)
         form.pop('rev', None)
@@ -68,6 +76,7 @@ class AjaxDataView(BrowserView):
                                                      x_filters, y_filters)
         return self.jsonify({'options': options})
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_values_xyz(self):
         form = dict(self.request.form)
         form.pop('rev', None)
