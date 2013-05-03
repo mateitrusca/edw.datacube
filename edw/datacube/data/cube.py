@@ -179,7 +179,7 @@ class Cube(object):
 
         result_columns = []
         for f in columns:
-            result_columns.extend([f, '%s-label' %f])
+            result_columns.extend([f, '%s-label' %f, '%s-short-label' %f])
         for row in self._execute(query, as_dict=False):
             yield dict(zip(result_columns, row))
 

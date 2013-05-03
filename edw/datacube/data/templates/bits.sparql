@@ -30,6 +30,10 @@
     ?{{ prefix }}_option
       skos:prefLabel ?{{ prefix }}_label .
   }
+  OPTIONAL{
+    ?{{ prefix }}_option
+      skos:altLabel ?{{ prefix }}_short_label .
+  }
 {%- endmacro %}
 
 
