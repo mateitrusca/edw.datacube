@@ -90,7 +90,7 @@
         </tr>
       </tbody>
     </table>
-    <h2>Download Data</h2>
+    <h2 id="download">Download Data</h2>
     <strong>Formats suitable for human consumption</strong>
     <ul>
       <li><a href="@@html">HTML</a></li>
