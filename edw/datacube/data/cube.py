@@ -130,7 +130,7 @@ class Cube(object):
         return self.get_dimension_options_n(dimension, filters, n_filters)
 
     def get_dimension_options_n(self, dimension, filters, n_filters):
-        result = []
+        uris = None
         for extra_filters in n_filters:
             query = sparql_env.get_template('dimension_options.sparql').render(**{
                 'dataset': self.dataset,
@@ -138,10 +138,11 @@ class Cube(object):
                 'filters': literal_pairs(filters + extra_filters),
                 'group_dimensions': self.get_group_dimensions(),
             })
-            result.append(set([item['uri'] for item in self._execute(query)]))
-        def find_common(memo, item):
-            return memo.intersection(item)
-        uris = [uri for uri in reduce(find_common, result)]
+            result = set([item['uri'] for item in self._execute(query)])
+            if uris is None:
+                uris = result
+            else:
+                uris = uris & result
         labels = self.get_labels(uris)
         return [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
 
