@@ -27,6 +27,7 @@ def test_dump_csv(mock_cube):
     mock_cube.dump.return_value = iter(dump)
 
     datasource = Mock(get_cube=Mock(return_value=mock_cube))
+    datasource.getId.return_value = 'testcube'
     view = AjaxDataView(datasource, Mock(form={}))
     res = view.dump_csv()
     header_write_call = res.write.mock_calls[0]
@@ -46,6 +47,7 @@ def test_dump_csv_response_content_type(mock_cube):
     mock_cube.dump.return_value = iter(dump)
 
     datasource = Mock(get_cube=Mock(return_value=mock_cube))
+    datasource.getId.return_value = 'testcube'
     view = AjaxDataView(datasource, Mock(form={}))
     res = view.dump_csv()
     setHeader_call = res.setHeader.mock_calls[0]
