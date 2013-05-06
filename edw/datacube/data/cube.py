@@ -117,7 +117,8 @@ class Cube(object):
                  "label": uri_label,
                  "notation": uri_label,
                  "short_label": None,
-                 "uri": uri }
+                 "uri": uri,
+                 "order": None }
 
     def get_dimension_options_xyz(self, dimension,
                                   filters, x_filters, y_filters, z_filters):
@@ -139,7 +140,9 @@ class Cube(object):
             else:
                 uris = uris & result
         labels = self.get_labels(uris)
-        return [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
+        rv = [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
+        rv.sort(key=lambda item: int(item.pop('order') or '0'))
+        return rv
 
     def get_labels(self, uri_list):
         if len(uri_list) < 1:

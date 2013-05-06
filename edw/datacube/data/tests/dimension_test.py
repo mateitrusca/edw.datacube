@@ -251,3 +251,13 @@ def test_get_labels():
     assert sorted(res.keys()) == uri_list
     assert res[uri_list[1]]['notation'] == '2009'
     assert res[uri_list[1]]['short_label'] == '2009'
+
+
+@sparql_test
+def test_indicator_groups_are_sorted():
+    cube = create_cube()
+    res = cube.get_dimension_options(dimension='indicator-group')
+    codes = [y['notation'] for y in res]
+    assert codes == ['telecom', 'broadband', 'mobile', 'internet-usage',
+                     'internet-services', 'egovernment', 'ecommerce',
+                     'ebusiness', 'ict-skills', 'research-and-development']
