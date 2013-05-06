@@ -35,7 +35,9 @@ class Cube(object):
         if SPARQL_DEBUG:
             logger.info('Running query: \n%s', query)
         try:
-            res = sparql.query(self.endpoint, query)
+            query_object = sparql.Service(self.endpoint).createQuery()
+            query_object.method = 'POST'
+            res = query_object.query(query)
         except urllib2.HTTPError, e:
             if 400 <= e.code < 600:
                 raise QueryError(e.fp.read())
