@@ -78,18 +78,18 @@ def test_dataset_metadata(mock_cube):
     assert cube_call == call('http://the-dataset')
 
 
-def test_dimension_all_indicator_values(mock_cube):
+def test_dimension_all_indicator_options(mock_cube):
     mock_cube.get_dimension_options.return_value = [
         {'label': 'indicator one', 'notation': 'one'},
         {'label': 'indicator two', 'notation': 'two'},
     ]
-    res = ajax(mock_cube, 'dimension_values', {'dimension': 'indicator'})
+    res = ajax(mock_cube, 'dimension_options', {'dimension': 'indicator'})
     assert {'label': 'indicator one', 'notation': 'one'} in res['options']
     assert {'label': 'indicator two', 'notation': 'two'} in res['options']
 
 
 def test_dimension_single_filter_passed_on_to_query(mock_cube):
-    ajax(mock_cube, 'dimension_values', {
+    ajax(mock_cube, 'dimension_options', {
         'dimension': 'ref-area',
         'time-period': '2002',
         'rev': '123',
@@ -112,7 +112,7 @@ def test_dimension_labels_passed_on_to_query(mock_cube):
 
 
 def test_dimension_filters_passed_on_to_query(mock_cube):
-    ajax(mock_cube, 'dimension_values', {
+    ajax(mock_cube, 'dimension_options', {
         'dimension': 'ref-area',
         'time-period': '2002',
         'indicator': 'h_iacc',
@@ -125,7 +125,7 @@ def test_dimension_filters_passed_on_to_query(mock_cube):
 
 def test_dimension_xy_filters_passed_on_to_query(mock_cube):
     mock_cube.get_dimension_options_xy.return_value = ['something']
-    res = ajax(mock_cube, 'dimension_values_xy', {
+    res = ajax(mock_cube, 'dimension_options_xy', {
         'dimension': 'ref-area',
         'time-period': '2002',
         'breakdown': 'blahblah',

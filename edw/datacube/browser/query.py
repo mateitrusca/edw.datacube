@@ -52,7 +52,7 @@ class AjaxDataView(BrowserView):
         return self.jsonify(labels)
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
-    def dimension_values(self):
+    def dimension_options(self):
         form = dict(self.request.form)
         form.pop('rev', None)
         dimension = form.pop('dimension')
@@ -61,7 +61,7 @@ class AjaxDataView(BrowserView):
         return self.jsonify({'options': options})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
-    def dimension_values_xy(self):
+    def dimension_options_xy(self):
         form = dict(self.request.form)
         form.pop('rev', None)
         dimension = form.pop('dimension')
@@ -78,7 +78,7 @@ class AjaxDataView(BrowserView):
         return self.jsonify({'options': options})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
-    def dimension_values_xyz(self):
+    def dimension_options_xyz(self):
         form = dict(self.request.form)
         form.pop('rev', None)
         dimension = form.pop('dimension')

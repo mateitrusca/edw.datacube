@@ -78,10 +78,10 @@
     />
 
   <browser:page
-    name="dimension_values"
+    name="dimension_options"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
-    attribute="dimension_values"
+    attribute="dimension_options"
     permission="zope2.View"
     />
 
@@ -94,18 +94,18 @@
     />
 
   <browser:page
-    name="dimension_values_xy"
+    name="dimension_options_xy"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
-    attribute="dimension_values_xy"
+    attribute="dimension_options_xy"
     permission="zope2.View"
     />
 
   <browser:page
-    name="dimension_values_xyz"
+    name="dimension_options_xyz"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
-    attribute="dimension_values_xyz"
+    attribute="dimension_options_xyz"
     permission="zope2.View"
     />
 
