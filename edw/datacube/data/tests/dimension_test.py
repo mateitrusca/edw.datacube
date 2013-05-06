@@ -42,10 +42,10 @@ def test_get_all_country_options():
     cube = create_cube()
     items = cube.get_dimension_options('ref-area')
     codes = [y['notation'] for y in items]
-    assert len(codes) == 34
+    assert len(codes) == 45
     assert 'DE' in codes
     assert 'ES' in codes
-    assert 'IS' in codes
+    assert 'BG' in codes
     assert 'EU27' in codes
 
 
@@ -56,10 +56,10 @@ def test_get_available_country_options_for_year():
         ('time-period', '2002'),
     ])
     codes = [y['notation'] for y in items]
-    assert len(codes) == 17
+    assert len(codes) == 25
     assert 'DE' in codes
     assert 'ES' in codes
-    assert 'IS' not in codes
+    assert 'BG' not in codes
     assert 'EU27' not in codes
 
 
@@ -80,10 +80,10 @@ def test_get_available_country_options_for_year_and_indicator():
         ('indicator', 'h_iacc'),
     ])
     codes = [y['notation'] for y in items]
-    assert len(codes) == 15
+    assert len(codes) == 19
     assert 'DE' in codes
     assert 'ES' not in codes
-    assert 'IS' not in codes
+    assert 'BG' not in codes
     assert 'EU27' not in codes
 
 
@@ -92,7 +92,7 @@ def test_get_available_indicator_group_options():
     cube = create_cube()
     items = cube.get_dimension_options('indicator-group')
     codes = [y['notation'] for y in items]
-    assert len(codes) == 8
+    assert len(codes) == 10
     assert 'internet-usage' in codes
     assert 'ebusiness' in codes
 
@@ -105,7 +105,7 @@ def test_get_available_indicator_group_options_for_year_and_country():
         ('ref-area', 'DK'),
     ])
     codes = [y['notation'] for y in items]
-    assert len(codes) == 3
+    assert len(codes) == 4
     assert 'internet-usage' in codes
     assert 'ebusiness' not in codes
 
@@ -240,36 +240,14 @@ def test_dump_row_fields():
         'breakdown'])
     assert expected.difference(set(res.next().keys())) == set([])
 
-@sparql_test
-def test_dump_row_content():
-    cube = create_cube()
-    res = cube.dump()
-    first_row = res.next()
-    import re
-
-    ibu_expr = re.compile('([a-zA-Z]{,5}_[a-zA-Z]{,10})')
-    expected_ind = ibu_expr.match(first_row['indicator']).group(0)
-    assert first_row['indicator'] == expected_ind
-    expected_brk = ibu_expr.match(first_row['breakdown']).group(0)
-    assert first_row['breakdown'] == expected_brk
-    expected_um = ibu_expr.match(first_row['unit_measure']).group(0)
-    assert first_row['unit_measure'] == expected_um
-    expected_tp = re.match('([0-9]{4})', first_row['time_period']).group(0)
-    assert first_row['time_period'] == expected_tp
-
-    expected_ra = re.match('([A-Z]{2})', first_row['ref_area']).group(0)
-    assert first_row['ref_area'] == expected_ra
-
-    assert type(first_row['value']) == type(float())
-
 
 @sparql_test
 def test_get_labels():
     import sparql
     cube = create_cube()
-    uri_list = ['http://reference.data.gov.uk/id/year/2009',
-                'http://reference.data.gov.uk/id/year/2007']
+    uri_list = ['http://reference.data.gov.uk/id/gregorian-year/2007',
+                'http://reference.data.gov.uk/id/gregorian-year/2009']
     res = cube.get_labels(uri_list)
-    assert list(res) == uri_list
-    assert res[uri_list[0]]['notation'] == '2009'
-    assert res[uri_list[0]]['short_label'] == '2009'
+    assert sorted(res.keys()) == uri_list
+    assert res[uri_list[1]]['notation'] == '2009'
+    assert res[uri_list[1]]['short_label'] == '2009'
