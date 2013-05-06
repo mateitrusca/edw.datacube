@@ -110,18 +110,8 @@ class Cube(object):
 
     def get_dimension_options_xy(self, dimension,
                                  filters, x_filters, y_filters):
-        tmpl = sparql_env.get_template('dimension_options_xy.sparql')
-        query = tmpl.render(**{
-            'dataset': self.dataset,
-            'dimension_code': sparql.Literal(dimension),
-            'filters': literal_pairs(filters),
-            'x_filters': literal_pairs(x_filters),
-            'y_filters': literal_pairs(y_filters),
-            'group_dimensions': self.get_group_dimensions(),
-        })
-        result = list(self._execute(query))
-        labels = self.get_labels([row['uri'] for row in result])
-        return [labels.get(row['uri'], self.get_other_labels(row['uri'])) for row in result]
+        n_filters = [x_filters, y_filters]
+        return self.get_dimension_options_n(dimension, filters, n_filters)
 
     def get_other_labels(self, uri):
         if '#' in uri:
@@ -135,21 +125,26 @@ class Cube(object):
                  "uri": uri }
 
     def get_dimension_options_xyz(self, dimension,
-                                 filters, x_filters, y_filters, z_filters):
-        result = []
-        for extra_filters in [x_filters, y_filters, z_filters]:
+                                  filters, x_filters, y_filters, z_filters):
+        n_filters = [x_filters, y_filters, z_filters]
+        return self.get_dimension_options_n(dimension, filters, n_filters)
+
+    def get_dimension_options_n(self, dimension, filters, n_filters):
+        uris = None
+        for extra_filters in n_filters:
             query = sparql_env.get_template('dimension_options.sparql').render(**{
                 'dataset': self.dataset,
                 'dimension_code': sparql.Literal(dimension),
                 'filters': literal_pairs(filters + extra_filters),
                 'group_dimensions': self.get_group_dimensions(),
             })
-            result.append(set([item['uri'] for item in self._execute(query)]))
-        def find_common(memo, item):
-            return memo.intersection(item)
-        uris = [uri for uri in reduce(find_common, result)]
+            result = set([item['uri'] for item in self._execute(query)])
+            if uris is None:
+                uris = result
+            else:
+                uris = uris & result
         labels = self.get_labels(uris)
-        return [labels[uri] for uri in uris]
+        return [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
 
     def get_labels(self, uri_list):
         if len(uri_list) < 1:
