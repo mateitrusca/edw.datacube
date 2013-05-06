@@ -1,0 +1,15 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT DISTINCT ?uri, ?namespace, ?notation WHERE {
+
+  ?observation
+    qb:dataSet {{ dataset.n3() }} ;
+    ?namespace_uri ?uri .
+
+  ?namespace_uri
+    skos:notation ?namespace .
+
+  ?uri
+    skos:notation ?notation .
+
+}

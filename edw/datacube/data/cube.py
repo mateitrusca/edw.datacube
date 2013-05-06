@@ -25,11 +25,41 @@ def literal_pairs(pairs):
     return [(sparql.Literal(a), sparql.Literal(b)) for a, b in pairs]
 
 
+class NotationMap(object):
+
+    def __init__(self, cube):
+        self.has_data = False
+        self.cube = cube
+
+    def _update(self):
+        if self.has_data:
+            return
+        query = sparql_env.get_template('notations.sparql').render(**{
+            'dataset': self.cube.dataset,
+        })
+        by_notation = defaultdict(dict)
+        self.by_uri = {}
+        for row in self.cube._execute(query):
+            by_notation[row['namespace']][row['notation']] = row
+            self.by_uri[row['uri']] = row
+        self.by_notation = dict(by_notation)
+        self.has_data = True
+
+    def lookup_notation(self, namespace, notation):
+        self._update()
+        return self.by_notation.get(namespace, {}).get(notation)
+
+    def lookup_uri(self, uri):
+        self._update()
+        return self.by_uri.get(uri)
+
+
 class Cube(object):
 
     def __init__(self, endpoint, dataset):
         self.endpoint = endpoint
         self.dataset = sparql.IRI(dataset)
+        self.notations = NotationMap(self)
 
     def _execute(self, query, as_dict=True):
         if SPARQL_DEBUG:
