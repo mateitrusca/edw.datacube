@@ -98,15 +98,10 @@ class Cube(object):
         return sorted([r['group_notation'] for r in self._execute(query)])
 
     def get_dimension_options(self, dimension, filters=[]):
-        query = sparql_env.get_template('dimension_options.sparql').render(**{
-            'dataset': self.dataset,
-            'dimension_code': sparql.Literal(dimension),
-            'filters': literal_pairs(filters),
-            'group_dimensions': self.get_group_dimensions(),
-        })
-        result = list(self._execute(query))
-        labels = self.get_labels([row['uri'] for row in result])
-        return [labels.get(row['uri'], self.get_other_labels(row['uri'])) for row in result]
+        # fake an n-dimensional query, with a single dimension, that has no
+        # specific filters
+        n_filters = [[]]
+        return self.get_dimension_options_n(dimension, filters, n_filters)
 
     def get_dimension_options_xy(self, dimension,
                                  filters, x_filters, y_filters):
@@ -122,7 +117,8 @@ class Cube(object):
                  "label": uri_label,
                  "notation": uri_label,
                  "short_label": None,
-                 "uri": uri }
+                 "uri": uri,
+                 "order": None }
 
     def get_dimension_options_xyz(self, dimension,
                                   filters, x_filters, y_filters, z_filters):
@@ -144,7 +140,9 @@ class Cube(object):
             else:
                 uris = uris & result
         labels = self.get_labels(uris)
-        return [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
+        rv = [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
+        rv.sort(key=lambda item: int(item.pop('order') or '0'))
+        return rv
 
     def get_labels(self, uri_list):
         if len(uri_list) < 1:
