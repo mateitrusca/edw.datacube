@@ -195,21 +195,24 @@ class Cube(object):
 
     def get_data_xyz(self, columns, xyz_columns, filters, x_filters, y_filters,
                      z_filters):
-        assert xyz_columns == ['value']
+        n_filters = [x_filters, y_filters, z_filters]
+        return self.get_data_n(columns + xyz_columns, filters, n_filters)
+
+    def get_data_n(self, columns, filters, n_filters):
+        assert columns[-1] == 'value'
 
         raw_result = []
         idx = 0
-        for extra_filters in [x_filters, y_filters, z_filters]:
+        for extra_filters in n_filters:
             query = sparql_env.get_template('data.sparql').render(**{
                 'dataset': self.dataset,
-                'columns': [sparql.Literal(c) for c in columns],
+                'columns': [sparql.Literal(c) for c in columns[:-1]],
                 'filters': literal_pairs(filters + list(extra_filters)),
                 'group_dimensions': self.get_group_dimensions(),
             })
             container = {}
             for row in self._execute(query, as_dict=False):
-                container[row[0]] = zip(columns + xyz_columns,
-                                        [row[0], row[-1]])
+                container[row[0]] = zip(columns, [row[0], row[-1]])
             raw_result.append(container)
         def find_common(memo, item):
             inter_common = set(memo).intersection(set(item.keys()))
