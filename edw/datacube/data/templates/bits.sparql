@@ -37,16 +37,6 @@
 {%- endmacro %}
 
 
-{% macro one_xy_column(x_observation, y_observation, prefix, dimension_code) %}
-  ?{{ x_observation }}
-    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
-  ?{{ y_observation }}
-    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
-  ?{{ prefix }}_option
-    skos:notation ?{{ prefix }} .
-{%- endmacro %}
-
-
 {% macro one_dimension(dimension_code) %}
   {%- if dimension_code.value in group_dimensions %}
   ?dimension

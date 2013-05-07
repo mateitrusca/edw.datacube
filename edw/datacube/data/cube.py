@@ -179,19 +179,8 @@ class Cube(object):
             yield dict(zip(result_columns, row))
 
     def get_data_xy(self, columns, xy_columns, filters, x_filters, y_filters):
-        assert xy_columns == ['value']
-        query = sparql_env.get_template('data_xy.sparql').render(**{
-            'dataset': self.dataset,
-            'filters': literal_pairs(filters),
-            'x_filters': literal_pairs(x_filters),
-            'y_filters': literal_pairs(y_filters),
-            'columns': [sparql.Literal(c) for c in columns],
-            'group_dimensions': self.get_group_dimensions(),
-        })
-        for row in self._execute(query, as_dict=False):
-            out = dict(zip(columns, row))
-            out['value'] = {'x': row[-2], 'y': row[-1]}
-            yield out
+        n_filters = [x_filters, y_filters]
+        return self.get_data_n(columns + xy_columns, filters, n_filters)
 
     def get_data_xyz(self, columns, xyz_columns, filters, x_filters, y_filters,
                      z_filters):
@@ -219,14 +208,11 @@ class Cube(object):
             return inter_common
         common = reduce(find_common, raw_result, raw_result[0].keys())
 
+        dimensions = ['x', 'y', 'z']
         for item in common:
             out = dict([raw_result[0][item][0]])
-            value = {
-                'x': raw_result[0][item][-1][-1],
-                'y': raw_result[1][item][-1][-1],
-                'z': raw_result[2][item][-1][-1]
-            }
-            out['value'] = value
+            out['value'] = {dimensions[n]: raw_result[n][item][-1][-1]
+                            for n in range(len(raw_result))}
             yield dict(out)
 
     def get_revision(self):

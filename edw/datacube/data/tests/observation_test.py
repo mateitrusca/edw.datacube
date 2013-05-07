@@ -104,7 +104,7 @@ def test_get_same_observation_in_two_dimensions():
         ('ref-area', 'IE'),
     ]
     cube = create_cube()
-    points = list(cube.get_data_xy((), xy_columns, filters, (), ()))
+    points = list(cube.get_data_xy([], xy_columns, filters, [], []))
     assert len(points) == 1
     assert points[0] == {'value': {'x': 0.2222, 'y': 0.2222}}
 
