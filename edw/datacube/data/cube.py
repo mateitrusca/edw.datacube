@@ -12,6 +12,7 @@ SPARQL_DEBUG = bool(os.environ.get('SPARQL_DEBUG') == 'on')
 logger = logging.getLogger(__name__)
 
 sparql_env = jinja2.Environment(loader=jinja2.PackageLoader(__name__))
+sparql_env.globals['sparql'] = sparql
 
 # DATA_REVISION should be the time of last database modification
 DATA_REVISION = str(int(time.time()))
@@ -101,6 +102,7 @@ class Cube(object):
             'dimension': sparql.Literal(dimension),
             'value': sparql.Literal(value),
             'group_dimensions': self.get_group_dimensions(),
+            'notations': self.notations,
         })
         return list(self._execute(query))
 
@@ -163,6 +165,7 @@ class Cube(object):
                 'dimension_code': sparql.Literal(dimension),
                 'filters': literal_pairs(filters + extra_filters),
                 'group_dimensions': self.get_group_dimensions(),
+                'notations': self.notations,
             })
             result = set([item['uri'] for item in self._execute(query)])
             if uris is None:
@@ -200,6 +203,7 @@ class Cube(object):
             'columns': [sparql.Literal(c) for c in columns[:-1]],
             'filters': literal_pairs(filters),
             'group_dimensions': self.get_group_dimensions(),
+            'notations': self.notations,
         })
 
         result_columns = []
@@ -228,6 +232,7 @@ class Cube(object):
                 'columns': [sparql.Literal(c) for c in columns[:-1]],
                 'filters': literal_pairs(filters + list(extra_filters)),
                 'group_dimensions': self.get_group_dimensions(),
+                'notations': self.notations,
             })
             container = {}
             for row in self._execute(query, as_dict=False):

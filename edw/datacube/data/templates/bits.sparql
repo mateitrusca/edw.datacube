@@ -1,5 +1,6 @@
 {% macro one_filter(observation, prefix, dimension_code, option_code) %}
 
+  {%- set option_uri = notations.lookup_notation(dimension_code.value, option_code.value)['uri'] %}
   {%- if dimension_code.value in group_dimensions %}
   ?{{ observation }}
     ?{{ prefix }}_dimension ?{{ prefix }}_option_child .
@@ -7,15 +8,11 @@
     dad-prop:grouped-using dad-prop:{{ dimension_code.value }} .
   ?{{ prefix }}_option_child
     dad-prop:membership [
-      dad-prop:member-of ?{{ prefix }}_option ] .
-  ?{{ prefix }}_option
-    skos:notation {{ option_code.n3() }} .
+      dad-prop:member-of {{ sparql.IRI(option_uri).n3() }} ] .
 
   {%- else %}
   ?{{ observation }}
-    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
-  ?{{ prefix }}_option
-    skos:notation {{ option_code.n3() }} .
+    dad-prop:{{ dimension_code.value }} {{ sparql.IRI(option_uri).n3() }} .
 
   {%- endif %}
 {%- endmacro %}
