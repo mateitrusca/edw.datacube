@@ -86,4 +86,7 @@ def run_benchmarks():
 
 
 if __name__ == '__main__':
+    import logging
+    logging.getLogger().addHandler(logging.StreamHandler())
+    logging.getLogger().setLevel(logging.INFO)
     run_benchmarks()
