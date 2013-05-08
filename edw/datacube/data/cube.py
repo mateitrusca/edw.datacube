@@ -17,9 +17,6 @@ sparql_env.filters.update({
     'uri_n3': lambda value: sparql.IRI(value).n3(),
 })
 
-# DATA_REVISION should be the time of last database modification
-DATA_REVISION = str(int(time.time()))
-
 
 class QueryError(Exception):
     pass
@@ -250,7 +247,8 @@ class Cube(object):
             yield dict(out)
 
     def get_revision(self):
-        return DATA_REVISION
+        query = sparql_env.get_template('last_modified.sparql').render()
+        return unicode(next(self._execute(query))['modified'])
 
     def dump(self, data_format=''):
         query = sparql_env.get_template('dump.sparql').render(**{

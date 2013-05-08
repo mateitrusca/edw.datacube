@@ -1,0 +1,8 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT * WHERE {
+
+  ?uri dcterms:modified ?modified .
+
+}
+ORDER BY DESC(?modified)
+LIMIT 1
