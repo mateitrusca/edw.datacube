@@ -4,6 +4,7 @@ import urllib2
 import os
 import logging
 from collections import defaultdict
+import threading
 import jinja2
 import sparql
 
@@ -22,33 +23,56 @@ class QueryError(Exception):
     pass
 
 
+class DataCache(object):
+
+    timeout = 300  # 5 minutes
+
+    def __init__(self):
+        self.data = {}
+        self.lock = threading.Lock()
+
+    def get(self, key, update):
+        with self.lock:
+            (value, timestamp) = self.data.get(key, (None, 0))
+            if time.time() - timestamp > self.timeout:
+                value = update()
+                self.data[key] = (value, time.time())
+        return value
+
+
+data_cache = DataCache()
+
+
 class NotationMap(object):
 
     def __init__(self, cube):
-        self.has_data = False
         self.cube = cube
 
-    def _update(self):
-        if self.has_data:
-            return
+    def update(self):
         query = sparql_env.get_template('notations.sparql').render(**{
             'dataset': self.cube.dataset,
         })
         by_notation = defaultdict(dict)
-        self.by_uri = {}
+        by_uri = {}
         for row in self.cube._execute(query):
             by_notation[row['namespace']][row['notation']] = row
-            self.by_uri[row['uri']] = row
-        self.by_notation = dict(by_notation)
-        self.has_data = True
+            by_uri[row['uri']] = row
+        return {
+            'by_notation': dict(by_notation),
+            'by_uri': by_uri,
+        }
+
+    def get(self):
+        cache_key = (self.cube.endpoint, self.cube.dataset)
+        return data_cache.get(cache_key, self.update)
 
     def lookup_notation(self, namespace, notation):
-        self._update()
-        return self.by_notation.get(namespace, {}).get(notation)
+        by_notation = self.get()['by_notation']
+        return by_notation.get(namespace, {}).get(notation)
 
     def lookup_uri(self, uri):
-        self._update()
-        return self.by_uri.get(uri)
+        by_uri = self.get()['by_uri']
+        return by_uri.get(uri)
 
 
 class Cube(object):
