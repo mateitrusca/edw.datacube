@@ -4,7 +4,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?dimension, ?type_label, ?notation, ?label,
                 ?comment, ?group_notation WHERE {
-  {{ dataset.n3() }}
+  {{ dataset|uri_n3 }}
     qb:structure ?structure .
   ?structure
     qb:component ?componentSpec .

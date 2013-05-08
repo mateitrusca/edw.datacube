@@ -5,12 +5,12 @@ PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?uri WHERE {
 
 {%- set variable = '?option'
-    if dimension_code.value in group_dimensions
+    if dimension_code in group_dimensions
     else '?uri' %}
 
   ?observation
     a qb:Observation ;
-    qb:dataSet {{ dataset.n3() }} ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
     ?dimension {{ variable }} .
 
 {%- for f_dimension_code, f_option_code in filters %}

@@ -12,7 +12,10 @@ SPARQL_DEBUG = bool(os.environ.get('SPARQL_DEBUG') == 'on')
 logger = logging.getLogger(__name__)
 
 sparql_env = jinja2.Environment(loader=jinja2.PackageLoader(__name__))
-sparql_env.globals['sparql'] = sparql
+sparql_env.filters.update({
+    'literal_n3': lambda value: sparql.Literal(value).n3(),
+    'uri_n3': lambda value: sparql.IRI(value).n3(),
+})
 
 # DATA_REVISION should be the time of last database modification
 DATA_REVISION = str(int(time.time()))
@@ -20,10 +23,6 @@ DATA_REVISION = str(int(time.time()))
 
 class QueryError(Exception):
     pass
-
-
-def literal_pairs(pairs):
-    return [(sparql.Literal(a), sparql.Literal(b)) for a, b in pairs]
 
 
 class NotationMap(object):
@@ -59,7 +58,7 @@ class Cube(object):
 
     def __init__(self, endpoint, dataset):
         self.endpoint = endpoint
-        self.dataset = sparql.IRI(dataset)
+        self.dataset = dataset
         self.notations = NotationMap(self)
 
     def _execute(self, query, as_dict=True):
@@ -86,21 +85,21 @@ class Cube(object):
 
     def get_dataset_metadata(self, dataset):
         query = sparql_env.get_template('dataset_metadata.sparql').render(**{
-            'dataset': sparql.IRI(dataset),
+            'dataset': dataset,
         })
         return list(self._execute(query))[0]
 
     def get_dataset_details(self):
         query = sparql_env.get_template('dataset_details.sparql').render(**{
-            'dataset': sparql.IRI(self.dataset),
+            'dataset': self.dataset,
         })
         return list(self._execute(query))
 
     def get_dimension_labels(self, dimension, value):
         query = sparql_env.get_template('dimension_label.sparql').render(**{
             'dataset': self.dataset,
-            'dimension': sparql.Literal(dimension),
-            'value': sparql.Literal(value),
+            'dimension': dimension,
+            'value': value,
             'group_dimensions': self.get_group_dimensions(),
             'notations': self.notations,
         })
@@ -162,8 +161,8 @@ class Cube(object):
         for extra_filters in n_filters:
             query = sparql_env.get_template('dimension_options.sparql').render(**{
                 'dataset': self.dataset,
-                'dimension_code': sparql.Literal(dimension),
-                'filters': literal_pairs(filters + extra_filters),
+                'dimension_code': dimension,
+                'filters': filters + extra_filters,
                 'group_dimensions': self.get_group_dimensions(),
                 'notations': self.notations,
             })
@@ -182,7 +181,7 @@ class Cube(object):
             return {}
         tmpl = sparql_env.get_template('labels.sparql')
         query = tmpl.render(**{
-            'uri_list': [sparql.IRI(uri) for uri in uri_list],
+            'uri_list': uri_list,
         })
         return {row['uri']: row for row in self._execute(query)}
 
@@ -190,8 +189,8 @@ class Cube(object):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
         query = tmpl.render(**{
             'dataset': self.dataset,
-            'dimension_code': sparql.Literal(dimension),
-            'option_code': sparql.Literal(option),
+            'dimension_code': dimension,
+            'option_code': option,
         })
         rv = list(self._execute(query))[0]
         return {k: rv[k] for k in rv if rv[k] is not None}
@@ -200,8 +199,8 @@ class Cube(object):
         assert columns[-1] == 'value', "Last column must be 'value'"
         query = sparql_env.get_template('data.sparql').render(**{
             'dataset': self.dataset,
-            'columns': [sparql.Literal(c) for c in columns[:-1]],
-            'filters': literal_pairs(filters),
+            'columns': columns[:-1],
+            'filters': filters,
             'group_dimensions': self.get_group_dimensions(),
             'notations': self.notations,
         })
@@ -229,8 +228,8 @@ class Cube(object):
         for extra_filters in n_filters:
             query = sparql_env.get_template('data.sparql').render(**{
                 'dataset': self.dataset,
-                'columns': [sparql.Literal(c) for c in columns[:-1]],
-                'filters': literal_pairs(filters + list(extra_filters)),
+                'columns': columns[:-1],
+                'filters': filters + list(extra_filters),
                 'group_dimensions': self.get_group_dimensions(),
                 'notations': self.notations,
             })

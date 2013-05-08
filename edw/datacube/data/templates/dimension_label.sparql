@@ -4,18 +4,18 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?label, ?short_label WHERE {
 
-{%- set option_uri = notations.lookup_notation(dimension.value, value.value)['uri'] %}
+{%- set option_uri = notations.lookup_notation(dimension, value)['uri'] %}
 
   ?observation
-    qb:dataSet {{ dataset.n3() }} .
+    qb:dataSet {{ dataset|uri_n3 }} .
 
 {{ one_filter('observation', 'filter', dimension, value) }}
 
-  {{ sparql.IRI(option_uri).n3() }}
+  {{ option_uri|uri_n3 }}
     skos:prefLabel ?label .
 
 OPTIONAL {
-  {{ sparql.IRI(option_uri).n3() }}
+  {{ option_uri|uri_n3 }}
     skos:altLabel ?short_label .
 }
 
