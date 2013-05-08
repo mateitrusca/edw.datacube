@@ -39,4 +39,4 @@ WHERE {
                foaf:page ?source_url ] }
 
 }
-LIMIT 100
+LIMIT 1000

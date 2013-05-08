@@ -14,4 +14,4 @@ SELECT DISTINCT ?group_notation WHERE {
     skos:notation ?group_notation .
 
 }
-LIMIT 100
+LIMIT 1000

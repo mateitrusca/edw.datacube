@@ -7,4 +7,4 @@ SELECT DISTINCT * WHERE {
 	dc:identifier ?identifier .
     OPTIONAL { {{ dataset|uri_n3 }} dc:license ?license}
 }
-LIMIT 100
+LIMIT 1000

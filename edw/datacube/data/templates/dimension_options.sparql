@@ -21,4 +21,4 @@ SELECT DISTINCT ?uri WHERE {
 {{ one_dimension(dimension_code) }}
 
 }
-LIMIT 100
+LIMIT 1000

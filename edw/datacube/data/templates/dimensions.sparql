@@ -41,4 +41,4 @@ SELECT DISTINCT ?dimension, ?type_label, ?notation, ?label,
   }
 }
 ORDER BY ?componentSpecOrder
-LIMIT 100
+LIMIT 1000

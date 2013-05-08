@@ -5,4 +5,4 @@ SELECT DISTINCT ?uri, ?title WHERE {
     a qb:DataSet ;
     dc:title ?title .
 }
-LIMIT 100
+LIMIT 1000
