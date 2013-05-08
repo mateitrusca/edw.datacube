@@ -8,14 +8,14 @@ SELECT DISTINCT ?definition, ?label, ?short_label, ?note,
                 ?source_label, ?source_definition, ?source_notes, ?source_url
 WHERE {
 
-  {{ dataset.n3() }}
+  {{ dataset|uri_n3 }}
     qb:structure ?structure .
 
   ?structure
     qb:component [?type ?dimension] .
 
   ?dimension
-    skos:notation {{ dimension_code.n3() }} ;
+    skos:notation {{ dimension_code|literal_n3 }} ;
     a ?qbprop ;
     qb:codeList ?codelist .
 
@@ -26,7 +26,7 @@ WHERE {
     skos:hasTopConcept ?option .
 
   ?option
-    skos:notation {{ option_code.n3() }} .
+    skos:notation {{ option_code|literal_n3 }} .
 
   OPTIONAL { ?option skos:prefLabel ?label }
   OPTIONAL { ?option skos:altLabel ?short_label }

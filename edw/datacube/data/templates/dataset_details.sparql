@@ -6,7 +6,7 @@ SELECT DISTINCT ?groupName ?indicator ?notation ?longlabel ?altlabel ?definition
 WHERE {
   ?obs
     a qb:Observation ;
-    qb:dataSet {{ dataset.n3() }} ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
     dad-prop:indicator ?indicator .
   OPTIONAL {
     ?indicator

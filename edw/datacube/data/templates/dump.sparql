@@ -5,7 +5,7 @@ PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?breakdown, ?indicator, ?ref_area, ?time_period, ?unit_measure, ?value WHERE {
   ?observation
     a qb:Observation ;
-    qb:dataSet {{ dataset.n3() }} ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
     dad-prop:breakdown ?breakdown_uri ;
     dad-prop:indicator ?indicator_uri ;
     dad-prop:ref-area ?ref_area_uri ;

@@ -1,21 +1,18 @@
 {% macro one_filter(observation, prefix, dimension_code, option_code) %}
 
-  {%- if dimension_code.value in group_dimensions %}
+  {%- set option_uri = notations.lookup_notation(dimension_code, option_code)['uri'] %}
+  {%- if dimension_code in group_dimensions %}
   ?{{ observation }}
     ?{{ prefix }}_dimension ?{{ prefix }}_option_child .
   ?{{ prefix }}_dimension
-    dad-prop:grouped-using dad-prop:{{ dimension_code.value }} .
+    dad-prop:grouped-using dad-prop:{{ dimension_code }} .
   ?{{ prefix }}_option_child
     dad-prop:membership [
-      dad-prop:member-of ?{{ prefix }}_option ] .
-  ?{{ prefix }}_option
-    skos:notation {{ option_code.n3() }} .
+      dad-prop:member-of {{ option_uri|uri_n3 }} ] .
 
   {%- else %}
   ?{{ observation }}
-    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
-  ?{{ prefix }}_option
-    skos:notation {{ option_code.n3() }} .
+    dad-prop:{{ dimension_code }} {{ option_uri|uri_n3 }} .
 
   {%- endif %}
 {%- endmacro %}
@@ -23,7 +20,7 @@
 
 {% macro one_column(observation, prefix, dimension_code) %}
   ?{{ observation }}
-    dad-prop:{{ dimension_code.value }} ?{{ prefix }}_option .
+    dad-prop:{{ dimension_code }} ?{{ prefix }}_option .
   ?{{ prefix }}_option
     skos:notation ?{{ prefix }} .
   OPTIONAL{
@@ -38,16 +35,16 @@
 
 
 {% macro one_dimension(dimension_code) %}
-  {%- if dimension_code.value in group_dimensions %}
+  {%- if dimension_code in group_dimensions %}
   ?dimension
-    dad-prop:grouped-using dad-prop:{{ dimension_code.value }} .
+    dad-prop:grouped-using dad-prop:{{ dimension_code }} .
   ?option
     dad-prop:membership [
       dad-prop:member-of ?uri ] .
 
   {%- else %}
   ?dimension
-    skos:notation {{ dimension_code.n3() }} .
+    skos:notation {{ dimension_code|literal_n3 }} .
 
   {%- endif %}
 {%- endmacro %}

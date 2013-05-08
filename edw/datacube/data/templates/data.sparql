@@ -8,7 +8,7 @@ SELECT DISTINCT {% for f in columns %} {%- set n = loop.index -%}
 
   ?observation
     a qb:Observation ;
-    qb:dataSet {{ dataset.n3() }} ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
     sdmx-measure:obsValue ?value .
 
 {%- for f_dimension_code, f_option_code in filters %}

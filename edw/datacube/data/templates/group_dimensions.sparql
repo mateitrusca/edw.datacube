@@ -4,7 +4,7 @@ PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?group_notation WHERE {
 
   ?observation
-    qb:dataSet {{ dataset.n3() }} ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
     ?dimension ?value .
 
   ?dimension

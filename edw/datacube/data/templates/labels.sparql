@@ -26,7 +26,7 @@ OPTIONAL {
 
 FILTER (
 {%- for uri in uri_list %}
-  ?uri = {{ uri.n3() }}
+  ?uri = {{ uri|uri_n3 }}
   {%- if not loop.last %} || {% endif %}
 {%- endfor %}
 )

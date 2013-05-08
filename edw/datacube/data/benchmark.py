@@ -25,6 +25,9 @@ def measure(name):
 def run_benchmarks():
     cube = create_cube()
 
+    with measure('load notations mapping'):
+        cube.notations._update()
+
     with measure('dimension values (all indicators)'):
         list(cube.get_dimension_options('indicator'))
 
