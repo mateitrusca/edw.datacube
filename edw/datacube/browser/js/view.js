@@ -87,10 +87,11 @@ scoreboard.datacube.view = {
         });
     },
     addNavigation: function(){
+      var cube_url = window.location.href.split('#')[0];
       var navigation = new Scoreboard.Views.DatasetNavigationView({
           el: jQuery('#dataset-navigation'),
-          cube_url: window.location.href,
-          selected_url: window.location.href
+          cube_url: cube_url,
+          selected_url: cube_url
       });
     }
 };
