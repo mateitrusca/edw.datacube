@@ -174,3 +174,5 @@ def test_get_observations_with_all_attributes():
     result = list(cube.get_observations(filters))
     assert len(result) == 1
     assert result[0]['value'] == 0.304
+    assert result[0]['indicator-label'].startswith('Broadband take-up')
+    assert result[0]['indicator-short-label'].startswith('Fixed broadband')

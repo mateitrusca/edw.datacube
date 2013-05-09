@@ -249,10 +249,29 @@ class Cube(object):
             'group_dimensions': self.get_group_dimensions(),
             'notations': self.notations,
         })
-        for row in self._execute(query, as_dict=False):
-            yield dict(zip(
-                [item['notation'] for item in columns] + ['value'],
-                row))
+        result = list(self._execute(query, as_dict=False))
+        def reducer(memo, item):
+            return memo.union(set([uri for uri in item[:-1] if uri]))
+        uris = reduce(reducer, result, set())
+        labels = self.get_labels(uris)
+
+        result_columns = []
+        for f in columns:
+            n = f['notation']
+            result_columns.extend([n, '%s-label' %n, '%s-short-label' %n])
+
+        for row in result:
+            result_row = []
+            value = row.pop(-1)
+            for item in row:
+                result_row.extend(
+                    [labels.get(item, {}).get('notation', None),
+                    labels.get(item, {}).get('label', None),
+                    labels.get(item, {}).get('short_label', None)]
+                )
+            result_columns.append('value')
+            result_row.append(value)
+            yield dict(zip(result_columns, result_row))
 
     def get_data_xy(self, columns, xy_columns, filters, x_filters, y_filters):
         n_filters = [x_filters, y_filters]
