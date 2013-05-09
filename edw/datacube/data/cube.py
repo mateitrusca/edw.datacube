@@ -232,6 +232,28 @@ class Cube(object):
         for row in self._execute(query, as_dict=False):
             yield dict(zip(result_columns, row))
 
+    def get_observations(self, filters):
+        def mapper(item):
+            if not item['type_label'] in ['measure', 'dimension group']:
+                is_attr = True if item['type_label'] == 'attribute' else False
+                return { "uri": item['dimension'],
+                         "optional": is_attr,
+                         "notation": item['notation'],
+                         "name": item['notation']}
+        columns = filter(lambda item: True if item else False,
+                         map(mapper, self.get_dimensions(flat=True)))
+        query = sparql_env.get_template('data_and_attributes.sparql').render(**{
+            'dataset': self.dataset,
+            'columns': columns,
+            'filters': filters,
+            'group_dimensions': self.get_group_dimensions(),
+            'notations': self.notations,
+        })
+        for row in self._execute(query, as_dict=False):
+            yield dict(zip(
+                [item['notation'] for item in columns] + ['value'],
+                row))
+
     def get_data_xy(self, columns, xy_columns, filters, x_filters, y_filters):
         n_filters = [x_filters, y_filters]
         return self.get_data_n(columns + xy_columns, filters, n_filters)

@@ -17,6 +17,13 @@
   {%- endif %}
 {%- endmacro %}
 
+{% macro one_attribute(observation, name, dimension_code) %}
+  ?{{ observation }}
+    dad-prop:{{ dimension_code }} ?{{ name }}_option .
+  ?{{ name }}_option
+    skos:notation ?{{ name }} .
+{%- endmacro %}
+
 
 {% macro one_column(observation, prefix, dimension_code) %}
   ?{{ observation }}

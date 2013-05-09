@@ -161,3 +161,16 @@ def test_get_xyz_observations_for_3_countries_all_years():
                                 filters, x_filters, y_filters, z_filters))
     assert len(pts) == 5
     assert {'time-period': '2008', 'value': {'x': 0.1707, 'y': 0.1976, 'z': 0.2447}} in pts
+
+
+@sparql_test
+def test_get_observations_with_all_attributes():
+    cube = create_cube()
+    filters = [
+        ('indicator', 'bb_penet'),
+        ('time-period', '2009'),
+        ('ref-area', 'FR'),
+    ]
+    result = list(cube.get_observations(filters))
+    assert len(result) == 1
+    assert result[0]['value'] == 0.304
