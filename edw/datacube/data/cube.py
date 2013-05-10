@@ -258,21 +258,17 @@ class Cube(object):
         uris = reduce(reducer, result, set())
         labels = self.get_labels(uris)
 
-        result_columns = []
-        for f in columns:
-            n = f['notation']
-            result_columns.extend([n, '%s-label' %n, '%s-short-label' %n])
+        result_columns = [item['notation'] for item in columns] + ['value']
 
         for row in result:
             result_row = []
             value = row.pop(-1)
             for item in row:
-                result_row.extend(
-                    [labels.get(item, {}).get('notation', None),
-                    labels.get(item, {}).get('label', None),
-                    labels.get(item, {}).get('short_label', None)]
+                result_row.append(
+                    {'notation': labels.get(item, {}).get('notation', None),
+                     'label': labels.get(item, {}).get('label', None),
+                     'short-label': labels.get(item, {}).get('short_label', None)}
                 )
-            result_columns.append('value')
             result_row.append(value)
             yield dict(zip(result_columns, result_row))
 
