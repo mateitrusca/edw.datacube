@@ -109,7 +109,7 @@ class AjaxDataView(BrowserView):
         form.pop('rev', None)
         columns = form.pop('columns', form.pop('fields', '')).split(',')
         filters = sorted(form.items())
-        rows = list(self.cube.get_data(columns=columns, filters=filters))
+        rows = list(self.cube.get_observations(filters=filters))
         return self.jsonify({'datapoints': rows})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
