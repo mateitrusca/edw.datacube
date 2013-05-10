@@ -251,7 +251,10 @@ class Cube(object):
         })
         result = list(self._execute(query, as_dict=False))
         def reducer(memo, item):
-            return memo.union(set([uri for uri in item[:-1] if uri]))
+            def uri_filter(uri):
+                if uri:
+                    return True if uri.startswith('http://') else False
+            return memo.union(set(filter(uri_filter, item[:-1])))
         uris = reduce(reducer, result, set())
         labels = self.get_labels(uris)
 

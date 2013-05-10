@@ -166,13 +166,13 @@ def test_get_xyz_observations_for_3_countries_all_years():
 @sparql_test
 def test_get_observations_with_all_attributes():
     cube = create_cube()
-    filters = [
-        ('indicator', 'bb_penet'),
-        ('time-period', '2009'),
-        ('ref-area', 'FR'),
-    ]
+    filters = [ ('breakdown', 'TOTAL'),
+                ('indicator', 'bb_dsl'),
+                ('indicator-group', 'broadband'),
+                ('ref-area', 'EU27'),
+                ('unit-measure', 'pc_lines')]
     result = list(cube.get_observations(filters))
-    assert len(result) == 1
-    assert result[0]['value'] == 0.304
+    assert len(result) == 8
+    assert result[0]['value'] == 0.7706
     assert result[0]['indicator-label'].startswith('Broadband take-up')
-    assert result[0]['indicator-short-label'].startswith('Fixed broadband')
+    assert result[0]['indicator-short-label'].startswith('DSL lines')
