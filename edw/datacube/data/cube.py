@@ -239,7 +239,7 @@ class Cube(object):
         for row in self._execute(query, as_dict=False):
             yield dict(zip(result_columns, row))
 
-    def get_observations(self, filters):
+    def get_columns(self):
         def mapper(item):
             if not item['type_label'] in ['measure', 'dimension group']:
                 is_attr = True if item['type_label'] == 'attribute' else False
@@ -249,6 +249,10 @@ class Cube(object):
                          "name": item['notation']}
         columns = filter(lambda item: True if item else False,
                          map(mapper, self.get_dimensions(flat=True)))
+        return columns
+
+    def get_observations(self, filters):
+        columns = self.get_columns()
         query = sparql_env.get_template('data_and_attributes.sparql').render(**{
             'dataset': self.dataset,
             'columns': columns,
@@ -309,7 +313,6 @@ class Cube(object):
             inter_common = set(memo).intersection(set(item.keys()))
             return inter_common
         common = reduce(find_common, raw_result, raw_result[0].keys())
-
         dimensions = ['x', 'y', 'z']
         for item in common:
             out = dict([raw_result[0][item][0]])
