@@ -283,17 +283,17 @@ class Cube(object):
             result_row.append(value)
             yield dict(zip(result_columns, result_row))
 
-    def get_data_xy(self, columns, xy_columns, filters, x_filters, y_filters):
+    def get_data_xy(self, join_by, filters, x_filters, y_filters):
         n_filters = [x_filters, y_filters]
-        return self.get_data_n(columns + xy_columns, filters, n_filters)
+        return self.get_data_n(join_by, filters, n_filters)
 
-    def get_data_xyz(self, columns, xyz_columns, filters, x_filters, y_filters,
+    def get_data_xyz(self, join_by, filters, x_filters, y_filters,
                      z_filters):
         n_filters = [x_filters, y_filters, z_filters]
-        return self.get_data_n(columns + xyz_columns, filters, n_filters)
+        return self.get_data_n(join_by, filters, n_filters)
 
-    def get_data_n(self, columns, filters, n_filters):
-        assert columns[-1] == 'value'
+    def get_data_n(self, join_by, filters, n_filters):
+        columns = [join_by, 'value']
 
         raw_result = []
         idx = 0
