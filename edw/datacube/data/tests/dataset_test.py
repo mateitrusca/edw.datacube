@@ -9,7 +9,7 @@ def test_all_datasets_query_returns_the_dataset():
     dataset = {
         'uri': ('http://semantic.digital-agenda-data.eu/'
                 'dataset/digital-agenda-scoreboard-key-indicators'),
-        'title': 'Digital Agenda Key Indicators',
+        'title': 'Digital Agenda Scoreboard Dataset',
     }
     assert dataset in res
 
@@ -18,7 +18,7 @@ def test_all_datasets_query_returns_the_dataset():
 def test_dataset_metadata():
     cube = create_cube()
     res = cube.get_dataset_metadata(cube.dataset)
-    assert res['title'] == "Digital Agenda Key Indicators"
+    assert res['title'] == "Digital Agenda Scoreboard Dataset"
     #assert "You can also browse the data" in res['description']
     #assert res['license'].startswith('http://')
 

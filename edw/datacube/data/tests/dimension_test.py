@@ -139,9 +139,9 @@ def test_get_altlabel_for_group_dimension():
     cube = create_cube()
     items = cube.get_dimension_options('breakdown-group')
     label = [it['short_label'] for it in items
-                if it['notation'] == 'byage'
+                if it['notation'] == 'byage3classes'
             ][0]
-    assert u'Age' == label
+    assert u'Age (3 classes)' == label
 
 
 @sparql_test
@@ -151,7 +151,7 @@ def test_get_altlabel_for_not_group_dimension():
     label = [it['short_label'] for it in items
                 if it['notation'] == 'pc_ind'
             ][0]
-    assert u'% ind' == label
+    assert u'% of individuals' == label
 
 
 @sparql_test
@@ -188,18 +188,18 @@ def test_get_years_for_xyz_indicators():
 def test_get_indicator_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
-    assert res['label'].startswith("% of population who are regular ")
+    assert res['label'].startswith("Individuals who are regular")
     assert res['short_label'] == "Regular internet users"
-    assert res['definition'] == ("In the last 3 months, I accessed the "
-                                 "Internet, on average, at least once a week")
+    assert res['definition'] == ("Individuals using the internet at least "
+                                 "once a week in the last 3 months.")
 
 
 @sparql_test
 def test_get_breakdown_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
-    assert res['label'] == "All Individuals"
-    assert res['short_label'] == "All"
+    assert res['label'] == "All individuals (aged 16-74)"
+    assert res['short_label'] == "All individuals"
     assert 'definition' not in res
     assert 'note' not in res
     assert 'source_label' not in res
@@ -209,14 +209,14 @@ def test_get_breakdown_metadata():
 def test_get_indicator_source_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
-    assert res['label'].startswith("% of population who are regular ")
-    assert res['source_label'] == "Eurostat - Households survey"
+    assert res['label'].startswith("Individuals who are regular ")
+    assert res['source_label'] == "Eurostat - ICT Households survey"
     assert res['source_definition'] == (
         "Eurostat - Community survey on ICT "
         "usage in Households and by Individuals")
     assert res['source_notes'] == (
         u"Extraction from HH/Indiv comprehensive database "
-        u"(ACCESS) version\xa015\xa0MAY 2012")
+        u"(ACCESS) version\xa029 April 2013")
     assert res['source_url'] == (
         "http://epp.eurostat.ec.europa.eu/portal/page/"
         "portal/information_society/introduction")
