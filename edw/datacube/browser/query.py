@@ -1,9 +1,13 @@
+""" Query
+"""
 import csv
-import simplejson as json
+import json
+import logging
+from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
-
 from eea.cache import cache as eeacache
 
+logger = logging.getLogger('edw.datacube')
 
 def jsonify(request, data, cache=True):
     header = request.RESPONSE.setHeader
@@ -97,11 +101,70 @@ class AjaxDataView(BrowserView):
                                                       z_filters)
         return self.jsonify({'options': options})
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    def dimension_options_cp(self):
+        subtype = self.request.form.pop('subtype', 'table')
+        options = self.dimension_options()
+
+        if self.request.form.get('dimension', '') != 'ref-area':
+            return options
+
+        if subtype == u'table':
+            return options
+
+        # Get EU countries
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'european-union.json')
+        eu = view.eu if view else {}
+
+        options = json.loads(options)
+
+        rows = []
+        for option in options.get('options', []):
+            if option.get('notation', '') not in eu:
+                continue
+            rows.append(option)
+        return self.jsonify({'options': rows})
+
+
     def dimension_value_metadata(self):
         dimension = self.request.form['dimension']
         value = self.request.form['value']
         res = self.cube.get_dimension_option_metadata(dimension, value)
         return self.jsonify(res)
+
+    def country_value(self, uid, datapoints):
+        """ Get value for given uid
+        """
+        for point in datapoints:
+            key = (
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation']
+            )
+            if uid == key:
+                res = point['value']
+                try:
+                    res = float(res)
+                except Exception, err:
+                    logger.exception(err)
+                    return 0
+                else:
+                    return res
+        return 0
+
+    def blacklisted(self, point, blacklist):
+        """ Check to see if point is blacklisted
+        """
+        for black in blacklist:
+            match = True
+            for key, value in black.items():
+                if point.get(key, {}).get('notation', u'') != value:
+                    match = False
+                    break
+            if match:
+                return True
+        return False
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints(self):
@@ -110,6 +173,122 @@ class AjaxDataView(BrowserView):
         columns = form.pop('columns', form.pop('fields', '')).split(',')
         filters = sorted(form.items())
         rows = list(self.cube.get_observations(filters=filters))
+        return self.jsonify({'datapoints': rows})
+
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    def datapoints_cp(self):
+        """ Datapoints for country profile
+        """
+        # Get datapoints
+        datapoints = json.loads(self.datapoints())
+
+        # Get EU countries
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'european-union.json')
+        eu = view.eu if view else {}
+
+        # Get blacklisted items
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'blacklist.json')
+        blacklist = view.blacklist if view else []
+
+        # Get all datapoints
+        countryName = self.request.form.pop('ref-area', '')
+        all_datapoints = json.loads(self.datapoints())
+
+        # Compute new values
+        mapping = {}
+        for point in all_datapoints['datapoints']:
+            if self.blacklisted(point, blacklist):
+                continue
+
+            key = (
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation']
+            )
+
+            try:
+                point['value'] = float(point['value'])
+            except Exception, err:
+                logger.exception(err)
+                continue
+
+            countryValue = self.country_value(key, datapoints['datapoints'])
+            if not mapping.get(key):
+                mapping[key] = {
+                    'min': {'value': countryValue, 'ref-area': countryName},
+                    'max': {'value': countryValue, 'ref-area': countryName},
+                    'med': {'value': countryValue, 'ref-area': countryName},
+                    'rank': {'value': 0, 'ref-area': countryName}
+            }
+
+            # Update med
+            if point['ref-area']['notation'] == 'EU27':
+                mapping[key]['med']['value'] = point['value']
+                mapping[key]['med']['ref-area'] = point['ref-area']['notation']
+
+            # Update min / max only for EU27 countries
+            if point['ref-area']['notation'] not in eu:
+                continue
+
+            # Update min
+            oldValue = mapping[key]['min']['value']
+            newValue = min(point['value'], oldValue);
+            if newValue != oldValue:
+                mapping[key]['min']['value'] = newValue
+                mapping[key]['min']['ref-area'] = point['ref-area']['notation']
+
+            # Update max
+            oldValue = mapping[key]['max']['value']
+            newValue = max(point['value'], oldValue)
+            if newValue != oldValue:
+                mapping[key]['max']['value'] = newValue
+                mapping[key]['max']['ref-area'] = point['ref-area']['notation'];
+
+            # Update rank onlu for EU27 countries
+            if countryName not in eu:
+                continue
+
+            if not mapping[key]['rank']['value']:
+                mapping[key]['rank']['value'] = 1
+            if point['value'] > countryValue:
+                mapping[key]['rank']['value'] += 1
+
+        # Update points
+        rows = []
+        for point in datapoints['datapoints']:
+            if self.blacklisted(point, blacklist):
+                continue
+
+            key =  (
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation']
+            )
+
+            try:
+                point['value'] = float(point['value'])
+            except Exception, err:
+                logger.exception(err)
+                continue
+
+            val = point['value']
+            minVal = mapping[key]['min']['value']
+            maxVal = mapping[key]['max']['value']
+            medVal = mapping[key]['med']['value']
+            rank = mapping[key]['rank']['value']
+
+            point['original'] = val
+            point['eu'] = medVal
+            point['rank'] = rank
+
+            if val <= medVal:
+                point['value'] = (val - minVal) / (medVal - minVal)
+            else:
+                point['value'] = 1 + (val - medVal) / (maxVal - medVal)
+            rows.append(point)
+
         return self.jsonify({'datapoints': rows})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])

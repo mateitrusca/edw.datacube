@@ -110,6 +110,14 @@
     />
 
   <browser:page
+    name="dimension_options_cp"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="dimension_options_cp"
+    permission="zope2.View"
+    />
+
+  <browser:page
     name="dimension_value_metadata"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
@@ -138,6 +146,14 @@
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
     attribute="datapoints_xyz"
+    permission="zope2.View"
+    />
+
+  <browser:page
+    name="datapoints_cp"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="datapoints_cp"
     permission="zope2.View"
     />
 
