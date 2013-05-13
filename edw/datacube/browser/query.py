@@ -295,8 +295,7 @@ class AjaxDataView(BrowserView):
     def datapoints_xy(self):
         form = dict(self.request.form)
         form.pop('rev', None)
-        columns = form.pop('columns').split(',')
-        xy_columns = form.pop('xy_columns').split(',')
+        join_by = form.pop('join_by')
         (filters, x_filters, y_filters) = ([], [], [])
         for k, v in sorted(form.items()):
             if k.startswith('x-'):
@@ -305,8 +304,7 @@ class AjaxDataView(BrowserView):
                 y_filters.append((k[2:], v))
             else:
                 filters.append((k, v))
-        rows = list(self.cube.get_data_xy(columns=columns,
-                                          xy_columns=xy_columns,
+        rows = list(self.cube.get_data_xy(join_by=join_by,
                                           filters=filters,
                                           x_filters=x_filters,
                                           y_filters=y_filters))
@@ -316,8 +314,7 @@ class AjaxDataView(BrowserView):
     def datapoints_xyz(self):
         form = dict(self.request.form)
         form.pop('rev', None)
-        columns = form.pop('columns').split(',')
-        xyz_columns = form.pop('xyz_columns').split(',')
+        join_by = form.pop('join_by')
         (filters, x_filters, y_filters, z_filters) = ([], [], [], [])
         for k, v in sorted(form.items()):
             if k.startswith('x-'):
@@ -328,8 +325,7 @@ class AjaxDataView(BrowserView):
                 z_filters.append((k[2:], v))
             else:
                 filters.append((k, v))
-        rows = list(self.cube.get_data_xyz(columns=columns,
-                                          xyz_columns=xyz_columns,
+        rows = list(self.cube.get_data_xyz(join_by=join_by,
                                           filters=filters,
                                           x_filters=x_filters,
                                           y_filters=y_filters,
