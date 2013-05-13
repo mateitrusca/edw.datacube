@@ -135,8 +135,12 @@ def test_get_xy_observations_for_2_countries_all_years():
     cube = create_cube()
     pts = list(cube.get_data_xy('time-period', filters, x_filters, y_filters))
     assert len(pts) == 5
-    assert {'time-period': '2011', 'value': {'x': 0.2222, 'y': 0.2795}} in pts
-    assert {'time-period': '2012', 'value': {'x': 0.2811, 'y': 0.2892}} in pts
+    assert filter(
+               lambda item: item['time-period'].endswith('2011'),
+               pts)[0]['value'] == {'x': 0.2222, 'y': 0.2795}
+    assert filter(
+               lambda item: item['time-period'].endswith('2012'),
+               pts)[0]['value'] == {'x': 0.2811, 'y': 0.2892}
 
 
 @sparql_test
@@ -152,7 +156,9 @@ def test_get_xyz_observations_for_3_countries_all_years():
     cube = create_cube()
     pts = list(cube.get_data_xyz('time-period', filters, x_filters, y_filters, z_filters))
     assert len(pts) == 5
-    assert {'time-period': '2008', 'value': {'x': 0.1707, 'y': 0.1976, 'z': 0.2447}} in pts
+    assert filter(
+               lambda item: item['time-period'].endswith('2008'),
+               pts)[0]['value'] == {'x': 0.1707, 'y': 0.1976, 'z': 0.2447}
 
 
 @sparql_test

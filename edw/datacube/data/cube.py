@@ -293,31 +293,33 @@ class Cube(object):
         return self.get_data_n(join_by, filters, n_filters)
 
     def get_data_n(self, join_by, filters, n_filters):
-        columns = [join_by, 'value']
-
-        raw_result = []
+        columns = self.get_columns()
+        columns_names = [item['notation'] for item in columns] + ['value']
+        raw_data = []
         idx = 0
         for extra_filters in n_filters:
-            query = sparql_env.get_template('data.sparql').render(**{
+            query = sparql_env.get_template('data_and_attributes.sparql').render(**{
                 'dataset': self.dataset,
-                'columns': columns[:-1],
+                'columns': columns,
                 'filters': filters + list(extra_filters),
                 'group_dimensions': self.get_group_dimensions(),
                 'notations': self.notations,
             })
             container = {}
             for row in self._execute(query, as_dict=False):
-                container[row[0]] = zip(columns, [row[0], row[-1]])
-            raw_result.append(container)
+                result_row = dict(zip(columns_names, row))
+                container[result_row[join_by]] = result_row
+            raw_data.append(container)
+
         def find_common(memo, item):
             inter_common = set(memo).intersection(set(item.keys()))
             return inter_common
-        common = reduce(find_common, raw_result, raw_result[0].keys())
+        common = reduce(find_common, raw_data, raw_data[0].keys())
         dimensions = ['x', 'y', 'z']
         for item in common:
-            out = dict([raw_result[0][item][0]])
-            out['value'] = {dimensions[n]: raw_result[n][item][-1][-1]
-                            for n in range(len(raw_result))}
+            out = raw_data[0][item]
+            out['value'] = {dimensions[n]: raw_data[n][item]['value']
+                            for n in range(len(raw_data))}
             yield dict(out)
 
     def get_revision(self):
