@@ -218,9 +218,10 @@ class Cube(object):
 
     def get_dimension_option_metadata(self, dimension, option):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
+        uri = self.notations.lookup_notation(dimension, option)['uri']
         query = tmpl.render(**{
             'dataset': self.dataset,
-            'option': self.notations.lookup_notation(dimension, option)['uri'],
+            'uri_list': [uri],
         })
         rv = list(self._execute(query))[0]
         return {k: rv[k] for k in rv if rv[k] is not None}
