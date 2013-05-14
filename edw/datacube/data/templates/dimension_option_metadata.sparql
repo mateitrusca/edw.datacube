@@ -8,31 +8,11 @@ SELECT DISTINCT ?definition, ?label, ?short_label, ?note,
                 ?source_label, ?source_definition, ?source_notes, ?source_url
 WHERE {
 
-  {{ dataset|uri_n3 }}
-    qb:structure ?structure .
-
-  ?structure
-    qb:component [?type ?dimension] .
-
-  ?dimension
-    skos:notation {{ dimension_code|literal_n3 }} ;
-    a ?qbprop ;
-    qb:codeList ?codelist .
-
-  ?qbprop
-    rdfs:subClassOf qb:ComponentProperty .
-
-  ?codelist
-    skos:hasTopConcept ?option .
-
-  ?option
-    skos:notation {{ option_code|literal_n3 }} .
-
-  OPTIONAL { ?option skos:prefLabel ?label }
-  OPTIONAL { ?option skos:altLabel ?short_label }
-  OPTIONAL { ?option skos:notes ?note }
-  OPTIONAL { ?option skos:definition ?definition }
-  OPTIONAL { ?option dc:source [
+  OPTIONAL { {{ option|uri_n3 }} skos:prefLabel ?label }
+  OPTIONAL { {{ option|uri_n3 }} skos:altLabel ?short_label }
+  OPTIONAL { {{ option|uri_n3 }} skos:notes ?note }
+  OPTIONAL { {{ option|uri_n3 }} skos:definition ?definition }
+  OPTIONAL { {{ option|uri_n3 }} dc:source [
                skos:prefLabel ?source_label ;
                skos:definition ?source_definition ;
                skos:notes ?source_notes ;
