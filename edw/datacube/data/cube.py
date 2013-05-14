@@ -216,15 +216,18 @@ class Cube(object):
         })
         return {row['uri']: row for row in self._execute(query)}
 
-    def get_dimension_option_metadata(self, dimension, option):
+    def get_dimension_option_metadata_list(self, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
-        uri = self.notations.lookup_notation(dimension, option)['uri']
         query = tmpl.render(**{
             'dataset': self.dataset,
-            'uri_list': [uri],
+            'uri_list': uri_list,
         })
-        rv = list(self._execute(query))[0]
-        return {k: rv[k] for k in rv if rv[k] is not None}
+        res = list(self._execute(query))
+        return [{k: row[k] for k in row if row[k] is not None} for row in res]
+
+    def get_dimension_option_metadata(self, dimension, option):
+        uri = self.notations.lookup_notation(dimension, option)['uri']
+        return self.get_dimension_option_metadata_list([uri])[0]
 
     def get_data(self, columns, filters):
         assert columns[-1] == 'value', "Last column must be 'value'"
