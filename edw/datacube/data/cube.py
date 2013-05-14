@@ -359,8 +359,16 @@ class Cube(object):
         # EXTRACT COMMON ROWS
         dimensions = ['x', 'y', 'z']
         for obs_list in by_category.values():
-            out = obs_list[0]
-            for key, uri in obs_list[0].items():
+            idx = 0
+            out = {}
+            for obs in obs_list:
+                keys = ['_'.join([key, dimensions[idx]]) for key in obs.keys()]
+                values = obs.values()
+                tmp = dict(zip(keys, values))
+                tmp.pop('_'.join(['value', dimensions[idx]]))
+                out.update(tmp)
+                idx += 1
+            for key, uri in out.items():
                 uri_labels = labels.get(uri, None)
                 if uri_labels:
                     out[key] = uri_labels
