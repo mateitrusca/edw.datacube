@@ -177,8 +177,16 @@ class AjaxDataView(BrowserView):
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints_cp(self):
-        """ Datapoints for country profile
+        """ Datapoints for country profile chart
         """
+        subtype = self.request.form.pop('subtype', 'table')
+        if subtype == 'table':
+            return self.datapoints_cpt()
+        else:
+            return self.datapoints_cpc()
+
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    def datapoints_cpc(self):
         # Get datapoints
         datapoints = json.loads(self.datapoints())
 
@@ -220,7 +228,7 @@ class AjaxDataView(BrowserView):
                     'min': {'value': countryValue, 'ref-area': countryName},
                     'max': {'value': countryValue, 'ref-area': countryName},
                     'med': {'value': countryValue, 'ref-area': countryName},
-                    'rank': {'value': 0, 'ref-area': countryName}
+                    #'rank': {'value': 0, 'ref-area': countryName}
             }
 
             # Update med
@@ -246,14 +254,14 @@ class AjaxDataView(BrowserView):
                 mapping[key]['max']['value'] = newValue
                 mapping[key]['max']['ref-area'] = point['ref-area']['notation'];
 
-            # Update rank onlu for EU27 countries
-            if countryName not in eu:
-                continue
+            ## Update rank only for EU27 countries
+            #if countryName not in eu:
+                #continue
 
-            if not mapping[key]['rank']['value']:
-                mapping[key]['rank']['value'] = 1
-            if point['value'] > countryValue:
-                mapping[key]['rank']['value'] += 1
+            #if not mapping[key]['rank']['value']:
+                #mapping[key]['rank']['value'] = 1
+            #if point['value'] > countryValue:
+                #mapping[key]['rank']['value'] += 1
 
         # Update points
         rows = []
@@ -277,11 +285,11 @@ class AjaxDataView(BrowserView):
             minVal = mapping[key]['min']['value']
             maxVal = mapping[key]['max']['value']
             medVal = mapping[key]['med']['value']
-            rank = mapping[key]['rank']['value']
+            #rank = mapping[key]['rank']['value']
 
             point['original'] = val
             point['eu'] = medVal
-            point['rank'] = rank
+            #point['rank'] = rank
 
             if val <= medVal:
                 point['value'] = (val - minVal) / (medVal - minVal)
@@ -290,6 +298,152 @@ class AjaxDataView(BrowserView):
             rows.append(point)
 
         return self.jsonify({'datapoints': rows})
+
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    def datapoints_cpt(self):
+        """ Datapoints for country profile table
+
+        return_json = {
+          'datapoints' {
+            'latest': 2012,
+            'has-rank': true,
+            'ref-area': {
+              'label': 'Romania',
+              'short-label': null,
+              'notation': 'RO'
+            },
+           'table': {
+             'indicator-1,breakdown-1,unit-measure-1': {
+               'name': ('Indicator-1-short-label by '
+                        'breakdown-1-label in '
+                        'unit-measure-1-label'),
+               'rank': 15,
+               'eu': 0.67,
+               '2012': 0.55,
+               '2011': 0.46,
+               '2010': 0.33,
+               '2009': 0.09,
+               '2008': 0.01
+             },
+             'indicator-2,breakdown-2,unit-measure-2': {
+               'name': ('Indicator-2-short-label by '
+                        'breakdown-2-label in '
+                        'unit-measure-2-label'),
+               'rank': 2,
+               'eu': 0.78,
+               '2012': 0.15,
+               '2011': 0.46,
+               '2010': 0.89
+             }
+           }
+          }
+        }
+        """
+        # Get datapoints
+        datapoints = json.loads(self.datapoints())
+        latestYear = 1970
+        mapping = {
+            'latest': latestYear,
+            'has-rank': False,
+            #ref-area: {'notation': 'RO', 'label': 'Romania', short-label: None},
+            'table': {}
+        }
+        table = mapping['table']
+
+        for point in datapoints['datapoints']:
+            # Selected country
+            mapping.setdefault('ref-area', point['ref-area'])
+
+            # Indicator unique identifier
+            key = u','.join((
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation']
+            ))
+
+            try:
+                point['value'] = float(point['value'])
+            except Exception, err:
+                logger.exception(err)
+                continue
+
+            table.setdefault(key, {})
+            if not table[key].get('name', ''):
+                name = point['indicator']['short-label']
+                if point['breakdown']['label']:
+                    name += u' by ' + point['breakdown']['label']
+                if point['unit-measure']['label']:
+                    name += u' in ' + point['unit-measure']['label']
+                table[key]['name'] = name
+
+            year = point['time-period']['notation']
+            try:
+                year = int(year)
+            except Exception, err:
+                logger.exception(err)
+                continue
+
+            latestYear = max(latestYear, year)
+            mapping['latest'] = latestYear
+            table[key][year] = point['value']
+            table[key].setdefault('rank', 0)
+
+
+        # Get EU countries
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'european-union.json')
+        eu = view.eu if view else {}
+
+        # Get all datapoints
+        countryName = self.request.form.pop('ref-area', '')
+        all_datapoints = json.loads(self.datapoints())
+
+        # Compute rank amoung EU27 countries
+        for point in all_datapoints['datapoints']:
+            key = u','.join((
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation']
+            ))
+
+            year = point['time-period']['notation']
+            try:
+                year = int(year)
+            except Exception, err:
+                logger.exception(err)
+                continue
+
+            # Skip old values
+            if year != latestYear:
+                continue
+
+            try:
+                point['value'] = float(point['value'])
+            except Exception, err:
+                logger.exception(err)
+                continue
+
+            if point['ref-area']['notation'] == 'EU27':
+                if table.get(key):
+                    table[key]['eu'] = point['value']
+
+            # Update rank only for EU27 countries
+            if countryName not in eu:
+                continue
+
+            # Skip non-EU countries from rank computation
+            if point['ref-area']['notation'] not in eu:
+                continue
+
+            myValue = table.get(key, {}).get(year, None)
+            if myValue is not None:
+                mapping['has-rank'] = True
+                if not table[key].get('rank'):
+                    table[key]['rank'] = 1
+                if point['value'] > myValue:
+                    table[key]['rank'] += 1
+
+        return self.jsonify({'datapoints': mapping})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints_xy(self):
