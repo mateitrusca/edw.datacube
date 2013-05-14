@@ -6,7 +6,7 @@ SELECT DISTINCT ?groupName ?indicator ?notation ?longlabel ?altlabel ?definition
 WHERE {
   ?obs
     a qb:Observation ;
-    qb:dataSet <http://semantic.digital-agenda-data.eu/dataset/HH-2013> ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
     dad-prop:indicator ?indicator .
   OPTIONAL {?indicator skos:notation ?notation }
   OPTIONAL {?indicator skos:prefLabel ?longlabel }
