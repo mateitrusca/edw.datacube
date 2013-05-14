@@ -25,19 +25,22 @@ class QueryError(Exception):
 
 class DataCache(object):
 
-    timeout = 300  # 5 minutes
-
     def __init__(self):
         self.data = {}
+        self.timestamp = None
         self.lock = threading.Lock()
+
+    def ping(self, timestamp):
+        with self.lock:
+            if timestamp != self.timestamp:
+                self.data.clear()
+                self.timestamp = timestamp
 
     def get(self, key, update):
         with self.lock:
-            (value, timestamp) = self.data.get(key, (None, 0))
-            if time.time() - timestamp > self.timeout:
-                value = update()
-                self.data[key] = (value, time.time())
-        return value
+            if key not in self.data:
+                self.data[key] = update()
+            return self.data[key]
 
 
 data_cache = DataCache()
@@ -272,7 +275,9 @@ class Cube(object):
 
     def get_revision(self):
         query = sparql_env.get_template('last_modified.sparql').render()
-        return unicode(next(self._execute(query))['modified'])
+        timestamp = unicode(next(self._execute(query))['modified'])
+        data_cache.ping(timestamp)
+        return timestamp
 
     def dump(self, data_format=''):
         query = sparql_env.get_template('dump.sparql').render(**{
