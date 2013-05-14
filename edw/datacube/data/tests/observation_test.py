@@ -107,6 +107,19 @@ def test_get_same_observation_in_two_dimensions():
     assert len(points) == 1
     assert points[0]['value'] == {'x': 0.2222, 'y': 0.2222}
 
+@sparql_test
+def test_get_observations_with_labels_xy():
+    filters = [
+        ('time-period', '2011'),
+        ('indicator', 'i_bfeu'),
+        ('breakdown', 'IND_TOTAL'),
+        ('unit-measure', 'pc_ind'),
+    ]
+    cube = create_cube()
+    points = list(cube.get_data_xy('ref-area', filters, [], []))
+    assert points[0]['indicator']['label'].startswith(
+        'Individuals ordering goods')
+
 
 @sparql_test
 def test_get_same_observation_in_xyz_dimensions():
@@ -136,10 +149,10 @@ def test_get_xy_observations_for_2_countries_all_years():
     pts = list(cube.get_data_xy('time-period', filters, x_filters, y_filters))
     assert len(pts) == 5
     assert filter(
-               lambda item: item['time-period'].endswith('2011'),
+               lambda item: item['time-period']['notation'] == '2011',
                pts)[0]['value'] == {'x': 0.2222, 'y': 0.2795}
     assert filter(
-               lambda item: item['time-period'].endswith('2012'),
+               lambda item: item['time-period']['notation'] == '2012',
                pts)[0]['value'] == {'x': 0.2811, 'y': 0.2892}
 
 
@@ -157,7 +170,7 @@ def test_get_xyz_observations_for_3_countries_all_years():
     pts = list(cube.get_data_xyz('time-period', filters, x_filters, y_filters, z_filters))
     assert len(pts) == 5
     assert filter(
-               lambda item: item['time-period'].endswith('2008'),
+               lambda item: item['time-period']['notation'] == '2008',
                pts)[0]['value'] == {'x': 0.1707, 'y': 0.1976, 'z': 0.2447}
 
 

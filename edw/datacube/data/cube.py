@@ -293,8 +293,11 @@ class Cube(object):
         return self.get_data_n(join_by, filters, n_filters)
 
     def get_data_n(self, join_by, filters, n_filters):
+        # GET COLUMNS AND COLUMNS NAMES
         columns = self.get_columns()
         columns_names = [item['notation'] for item in columns] + ['value']
+
+        # GET DATA AND ATTRIBUTES
         raw_data = []
         idx = 0
         for extra_filters in n_filters:
@@ -306,21 +309,48 @@ class Cube(object):
                 'notations': self.notations,
             })
             container = {}
-            for row in self._execute(query, as_dict=False):
-                result_row = dict(zip(columns_names, row))
-                container[result_row[join_by]] = result_row
-            raw_data.append(container)
+            data = self._execute(query, as_dict=False)
+            dict_data = []
+            for item in data:
+                dict_data.append(
+                        dict(zip(columns_names, item)))
+            raw_data.append(dict_data)
 
+        # JOIN DATA
         def find_common(memo, item):
-            inter_common = set(memo).intersection(set(item.keys()))
-            return inter_common
-        common = reduce(find_common, raw_data, raw_data[0].keys())
+            join_set = [it[join_by] for it in item]
+            temp_common = set(memo).intersection(set(join_set))
+            return temp_common
+        common = reduce(find_common, raw_data, [it[join_by] for it in raw_data[0]])
+
+        # EXTRACT UNIQUE URIS FROM DATA
+        by_category = defaultdict(list)
+        uri_set = set()
+        for obs_set in raw_data:
+            for obs in obs_set:
+                if obs[join_by] in common:
+                    by_category[obs[join_by]].append(obs)
+                    for key, value in obs.items():
+                        if isinstance(value, basestring) and value.startswith('http://'):
+                            uri_set.add(value)
+
+        # GET LABELS FOR URIS
+        labels = self.get_labels(uri_set)
+
+        filtered_data = []
+        # EXTRACT COMMON ROWS
         dimensions = ['x', 'y', 'z']
-        for item in common:
-            out = raw_data[0][item]
-            out['value'] = {dimensions[n]: raw_data[n][item]['value']
-                            for n in range(len(raw_data))}
-            yield dict(out)
+        for obs_list in by_category.values():
+            out = obs_list[0]
+            for key, uri in obs_list[0].items():
+                uri_labels = labels.get(uri, None)
+                if uri_labels:
+                    out[key] = uri_labels
+            out['value'] = {dimensions[n]: obs_list[n]['value']
+                            for n in range(len(obs_list))}
+            filtered_data.append(out)
+        return filtered_data
+
 
     def get_revision(self):
         query = sparql_env.get_template('last_modified.sparql').render()
