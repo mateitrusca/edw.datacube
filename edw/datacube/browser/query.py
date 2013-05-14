@@ -341,18 +341,23 @@ class AjaxDataView(BrowserView):
         """
         # Get datapoints
         datapoints = json.loads(self.datapoints())
-        latestYear = 1970
+        countryName = self.request.form.pop('ref-area', '')
+        latestYear = 2000
         mapping = {
             'latest': latestYear,
             'has-rank': False,
-            #ref-area: {'notation': 'RO', 'label': 'Romania', short-label: None},
+            'ref-area': {
+                'notation': countryName,
+                'label': countryName,
+                'short-label': None
+            },
             'table': {}
         }
         table = mapping['table']
 
         for point in datapoints['datapoints']:
             # Selected country
-            mapping.setdefault('ref-area', point['ref-area'])
+            mapping['ref-area'].update(point['ref-area'])
 
             # Indicator unique identifier
             key = u','.join((
@@ -395,7 +400,6 @@ class AjaxDataView(BrowserView):
         eu = view.eu if view else {}
 
         # Get all datapoints
-        countryName = self.request.form.pop('ref-area', '')
         all_datapoints = json.loads(self.datapoints())
 
         # Compute rank amoung EU27 countries
