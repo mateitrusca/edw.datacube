@@ -71,7 +71,10 @@ class NotationMap(object):
 
     def lookup_notation(self, namespace, notation):
         by_notation = self.get()['by_notation']
-        return by_notation.get(namespace, {}).get(notation)
+        rv = by_notation.get(namespace, {}).get(notation)
+        if rv is None:
+            print 'lookup failure', (namespace, notation)
+        return rv
 
     def lookup_uri(self, uri):
         by_uri = self.get()['by_uri']
@@ -117,7 +120,19 @@ class Cube(object):
         query = sparql_env.get_template('dataset_details.sparql').render(**{
             'dataset': self.dataset,
         })
-        return list(self._execute(query))
+        res = list(self._execute(query))
+        res_by_uri = {row['indicator']: row for row in res}
+        meta_list = self.get_dimension_option_metadata_list(list(res_by_uri))
+        for meta in meta_list:
+            uri = meta.pop('uri')
+            meta['altlabel'] = meta.pop('short_label', None)
+            meta['sourcelabel'] = meta.pop('source_label', None)
+            meta['sourcelink'] = meta.pop('source_url', None)
+            meta['sourcenotes'] = meta.pop('source_notes', None)
+            meta['notes'] = meta.pop('note', None)
+            meta['longlabel'] = meta.pop('label', None)
+            res_by_uri[uri].update(meta)
+        return res
 
     def get_dimension_labels(self, dimension, value):
         query = sparql_env.get_template('dimension_label.sparql').render(**{
@@ -213,15 +228,18 @@ class Cube(object):
         })
         return {row['uri']: row for row in self._execute(query)}
 
-    def get_dimension_option_metadata(self, dimension, option):
+    def get_dimension_option_metadata_list(self, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
         query = tmpl.render(**{
             'dataset': self.dataset,
-            'dimension_code': dimension,
-            'option_code': option,
+            'uri_list': uri_list,
         })
-        rv = list(self._execute(query))[0]
-        return {k: rv[k] for k in rv if rv[k] is not None}
+        res = list(self._execute(query))
+        return [{k: row[k] for k in row if row[k] is not None} for row in res]
+
+    def get_dimension_option_metadata(self, dimension, option):
+        uri = self.notations.lookup_notation(dimension, option)['uri']
+        return self.get_dimension_option_metadata_list([uri])[0]
 
     def get_data(self, columns, filters):
         assert columns[-1] == 'value', "Last column must be 'value'"

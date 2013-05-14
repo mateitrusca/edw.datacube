@@ -4,39 +4,27 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
-SELECT DISTINCT ?definition, ?label, ?short_label, ?note,
+SELECT DISTINCT ?uri, ?notation, ?definition, ?label, ?short_label, ?note,
                 ?source_label, ?source_definition, ?source_notes, ?source_url
 WHERE {
 
-  {{ dataset|uri_n3 }}
-    qb:structure ?structure .
-
-  ?structure
-    qb:component [?type ?dimension] .
-
-  ?dimension
-    skos:notation {{ dimension_code|literal_n3 }} ;
-    a ?qbprop ;
-    qb:codeList ?codelist .
-
-  ?qbprop
-    rdfs:subClassOf qb:ComponentProperty .
-
-  ?codelist
-    skos:hasTopConcept ?option .
-
-  ?option
-    skos:notation {{ option_code|literal_n3 }} .
-
-  OPTIONAL { ?option skos:prefLabel ?label }
-  OPTIONAL { ?option skos:altLabel ?short_label }
-  OPTIONAL { ?option skos:notes ?note }
-  OPTIONAL { ?option skos:definition ?definition }
-  OPTIONAL { ?option dc:source [
+  OPTIONAL { ?uri skos:notation ?notation }
+  OPTIONAL { ?uri skos:prefLabel ?label }
+  OPTIONAL { ?uri skos:altLabel ?short_label }
+  OPTIONAL { ?uri skos:notes ?note }
+  OPTIONAL { ?uri skos:definition ?definition }
+  OPTIONAL { ?uri dc:source [
                skos:prefLabel ?source_label ;
                skos:definition ?source_definition ;
                skos:notes ?source_notes ;
                foaf:page ?source_url ] }
+
+FILTER (
+{%- for uri in uri_list %}
+  ?uri = {{ uri|uri_n3 }}
+  {%- if not loop.last %} || {% endif %}
+{%- endfor %}
+)
 
 }
 LIMIT 1000
