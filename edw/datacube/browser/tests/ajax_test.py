@@ -89,6 +89,7 @@ def test_dimension_all_indicator_options(mock_cube):
 
 
 def test_dimension_single_filter_passed_on_to_query(mock_cube):
+    mock_cube.get_dimension_options.return_value = {}
     ajax(mock_cube, 'dimension_options', {
         'dimension': 'ref-area',
         'time-period': '2002',
@@ -112,6 +113,7 @@ def test_dimension_labels_passed_on_to_query(mock_cube):
 
 
 def test_dimension_filters_passed_on_to_query(mock_cube):
+    mock_cube.get_dimension_options.return_value = {}
     ajax(mock_cube, 'dimension_options', {
         'dimension': 'ref-area',
         'time-period': '2002',
@@ -141,17 +143,15 @@ def test_dimension_xy_filters_passed_on_to_query(mock_cube):
     assert res == {'options': ['something']}
 
 
-def test_data_query_sends_filters_and_columns(mock_cube):
+def test_data_query_sends_filters(mock_cube):
     ajax(mock_cube, 'datapoints', {
-        'columns': 'time-period,ref-area,value',
         'indicator': 'i_bfeu',
         'breakdown': 'IND_TOTAL',
         'unit-measure': 'pc_ind',
         'rev': '123',
     })
-    cube_call = mock_cube.get_data.mock_calls[0]
-    assert cube_call == call(columns=['time-period', 'ref-area', 'value'],
-                             filters=[('breakdown', 'IND_TOTAL'),
+    cube_call = mock_cube.get_observations.mock_calls[0]
+    assert cube_call == call(filters=[('breakdown', 'IND_TOTAL'),
                                       ('indicator', 'i_bfeu'),
                                       ('unit-measure', 'pc_ind')])
 
@@ -159,37 +159,33 @@ def test_data_query_sends_filters_and_columns(mock_cube):
 def test_data_query_returns_rows(mock_cube):
     rows = [{'time-period': '2011', 'ref-area': 'IE', 'value': 0.2222},
             {'time-period': '2010', 'ref-area': 'PT', 'value': 0.0609}]
-    mock_cube.get_data.return_value = iter(rows)
+    mock_cube.get_observations.return_value = iter(rows)
     res = ajax(mock_cube, 'datapoints', {
-        'columns': 'time-period,ref-area,value',
         'indicator': 'i_bfeu',
         'breakdown': 'IND_TOTAL',
         'unit-measure': 'pc_ind',
     })
-    cube_call = mock_cube.get_data.mock_calls[0]
-    assert cube_call == call(columns=['time-period', 'ref-area', 'value'],
-                             filters=[('breakdown', 'IND_TOTAL'),
+    cube_call = mock_cube.get_observations.mock_calls[0]
+    assert cube_call == call(filters=[('breakdown', 'IND_TOTAL'),
                                       ('indicator', 'i_bfeu'),
                                       ('unit-measure', 'pc_ind')])
     assert res == {'datapoints': rows}
 
 
-def test_data_xy_query_sends_filters_and_columns(mock_cube):
+def test_data_xy_query_sends_filters(mock_cube):
     mock_cube.get_data_xy.return_value = ['something']
     res = ajax(mock_cube, 'datapoints_xy', {
         'x-indicator': 'i_iuse',
         'y-indicator': 'i_iu3g',
         'unit-measure': 'pc_ind',
         'breakdown': 'IND_TOTAL',
-        'columns': 'time-period,ref-area',
-        'xy_columns': 'value',
+        'join_by': 'ref-area',
         'rev': '123',
     })
     cube_call = mock_cube.get_data_xy.mock_calls[0]
-    assert cube_call == call(columns=['time-period', 'ref-area'],
-                             xy_columns=['value'],
-                             filters=[('breakdown', 'IND_TOTAL'),
+    assert cube_call == call(filters=[('breakdown', 'IND_TOTAL'),
                                       ('unit-measure', 'pc_ind')],
+                             join_by='ref-area',
                              x_filters=[('indicator', 'i_iuse')],
                              y_filters=[('indicator', 'i_iu3g')])
     assert res == {'datapoints': ['something']}

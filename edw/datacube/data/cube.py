@@ -257,43 +257,118 @@ class Cube(object):
         for row in self._execute(query, as_dict=False):
             yield dict(zip(result_columns, row))
 
-    def get_data_xy(self, columns, xy_columns, filters, x_filters, y_filters):
-        n_filters = [x_filters, y_filters]
-        return self.get_data_n(columns + xy_columns, filters, n_filters)
+    def get_columns(self):
+        def mapper(item):
+            if not item['type_label'] in ['measure', 'dimension group']:
+                is_attr = True if item['type_label'] == 'attribute' else False
+                return { "uri": item['dimension'],
+                         "optional": is_attr,
+                         "notation": item['notation'],
+                         "name": item['notation']}
+        columns = filter(lambda item: True if item else False,
+                         map(mapper, self.get_dimensions(flat=True)))
+        return columns
 
-    def get_data_xyz(self, columns, xyz_columns, filters, x_filters, y_filters,
+    def get_observations(self, filters):
+        columns = self.get_columns()
+        query = sparql_env.get_template('data_and_attributes.sparql').render(**{
+            'dataset': self.dataset,
+            'columns': columns,
+            'filters': filters,
+            'group_dimensions': self.get_group_dimensions(),
+            'notations': self.notations,
+        })
+        result = list(self._execute(query, as_dict=False))
+        def reducer(memo, item):
+            def uri_filter(uri):
+                if uri:
+                    return True if uri.startswith('http://') else False
+            return memo.union(set(filter(uri_filter, item[:-1])))
+        uris = reduce(reducer, result, set())
+        labels = self.get_labels(uris)
+
+        result_columns = [item['notation'] for item in columns] + ['value']
+
+        for row in result:
+            result_row = []
+            value = row.pop(-1)
+            for item in row:
+                result_row.append(
+                    {'notation': labels.get(item, {}).get('notation', None),
+                     'label': labels.get(item, {}).get('label', None),
+                     'short-label': labels.get(item, {}).get('short_label', None)}
+                )
+            result_row.append(value)
+            yield dict(zip(result_columns, result_row))
+
+    def get_data_xy(self, join_by, filters, x_filters, y_filters):
+        n_filters = [x_filters, y_filters]
+        return self.get_data_n(join_by, filters, n_filters)
+
+    def get_data_xyz(self, join_by, filters, x_filters, y_filters,
                      z_filters):
         n_filters = [x_filters, y_filters, z_filters]
-        return self.get_data_n(columns + xyz_columns, filters, n_filters)
+        return self.get_data_n(join_by, filters, n_filters)
 
-    def get_data_n(self, columns, filters, n_filters):
-        assert columns[-1] == 'value'
+    def get_data_n(self, join_by, filters, n_filters):
+        # GET COLUMNS AND COLUMNS NAMES
+        columns = self.get_columns()
+        columns_names = [item['notation'] for item in columns] + ['value']
 
-        raw_result = []
+        # GET DATA AND ATTRIBUTES
+        raw_data = []
         idx = 0
         for extra_filters in n_filters:
-            query = sparql_env.get_template('data.sparql').render(**{
+            query = sparql_env.get_template('data_and_attributes.sparql').render(**{
                 'dataset': self.dataset,
-                'columns': columns[:-1],
+                'columns': columns,
                 'filters': filters + list(extra_filters),
                 'group_dimensions': self.get_group_dimensions(),
                 'notations': self.notations,
             })
             container = {}
-            for row in self._execute(query, as_dict=False):
-                container[row[0]] = zip(columns, [row[0], row[-1]])
-            raw_result.append(container)
-        def find_common(memo, item):
-            inter_common = set(memo).intersection(set(item.keys()))
-            return inter_common
-        common = reduce(find_common, raw_result, raw_result[0].keys())
+            data = self._execute(query, as_dict=False)
+            dict_data = []
+            for item in data:
+                dict_data.append(
+                        dict(zip(columns_names, item)))
+            raw_data.append(dict_data)
 
+        # JOIN DATA
+        def find_common(memo, item):
+            join_set = [it[join_by] for it in item]
+            temp_common = set(memo).intersection(set(join_set))
+            return temp_common
+        common = reduce(find_common, raw_data, [it[join_by] for it in raw_data[0]])
+
+        # EXTRACT UNIQUE URIS FROM DATA
+        by_category = defaultdict(list)
+        uri_set = set()
+        for obs_set in raw_data:
+            for obs in obs_set:
+                if obs[join_by] in common:
+                    by_category[obs[join_by]].append(obs)
+                    for key, value in obs.items():
+                        if isinstance(value, basestring) and value.startswith('http://'):
+                            uri_set.add(value)
+
+        # GET LABELS FOR URIS
+        labels = self.get_labels(uri_set)
+
+        filtered_data = []
+        # EXTRACT COMMON ROWS
         dimensions = ['x', 'y', 'z']
-        for item in common:
-            out = dict([raw_result[0][item][0]])
-            out['value'] = {dimensions[n]: raw_result[n][item][-1][-1]
-                            for n in range(len(raw_result))}
-            yield dict(out)
+        for obs_list in by_category.values():
+            out = obs_list[0]
+            for key, uri in obs_list[0].items():
+                uri_labels = labels.get(uri, None)
+                if uri_labels:
+                    out[key] = uri_labels
+            out['value'] = {dimensions[n]: obs_list[n]['value']
+                            for n in range(len(obs_list))}
+            filtered_data.append(out)
+        return filtered_data
+
 
     def get_revision(self):
         query = sparql_env.get_template('last_modified.sparql').render()
