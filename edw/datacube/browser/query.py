@@ -170,7 +170,6 @@ class AjaxDataView(BrowserView):
     def datapoints(self):
         form = dict(self.request.form)
         form.pop('rev', None)
-        columns = form.pop('columns', form.pop('fields', '')).split(',')
         filters = sorted(form.items())
         rows = list(self.cube.get_observations(filters=filters))
         return self.jsonify({'datapoints': rows})
