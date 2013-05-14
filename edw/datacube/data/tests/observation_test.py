@@ -126,12 +126,17 @@ def test_get_xy_observations_with_all_breakpoints():
     filters = [
         ('time-period', '2011'),
         ('indicator', 'i_bfeu'),
-        ('breakdown', 'IND_TOTAL'),
         ('unit-measure', 'pc_ind'),
     ]
+    x_filters = [
+        ('breakdown', 'IND_TOTAL'),
+    ]
+    y_filters = [
+        ('breakdown', 'IND_TOTAL'),
+    ]
     cube = create_cube()
-    points = list(cube.get_data_xy('ref-area', filters, [], []))
-    assert points[0]['indicator_x']['label'].startswith(
+    points = list(cube.get_data_xy('ref-area', filters, x_filters, y_filters))
+    assert points[0]['indicator']['label'].startswith(
         'Individuals ordering goods')
 
 

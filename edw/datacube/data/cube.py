@@ -358,22 +358,26 @@ class Cube(object):
         filtered_data = []
         # EXTRACT COMMON ROWS
         dimensions = ['x', 'y', 'z']
+        single_keys = [f[0] for f in filters] + [join_by]
         for obs_list in by_category.values():
             idx = 0
-            out = {}
+            out = defaultdict(dict)
             for obs in obs_list:
-                keys = ['_'.join([key, dimensions[idx]]) for key in obs.keys()]
-                values = obs.values()
-                tmp = dict(zip(keys, values))
-                tmp.pop('_'.join(['value', dimensions[idx]]))
-                out.update(tmp)
-                idx += 1
-            for key, uri in out.items():
-                uri_labels = labels.get(uri, None)
-                if uri_labels:
-                    out[key] = uri_labels
-            out['value'] = {dimensions[n]: obs_list[n]['value']
-                            for n in range(len(obs_list))}
+                for key in columns_names:
+                    if key not in single_keys:
+                        out[key][dimensions[idx]] = obs[key]
+                    else:
+                        out[key] = obs[key]
+                for k, v in out.items():
+                    if k not in single_keys:
+                        uri_labels = labels.get(v[dimensions[idx]], None)
+                        if uri_labels:
+                            out[k][dimensions[idx]] = uri_labels
+                    else:
+                        uri_labels = labels.get(v, None)
+                        if uri_labels:
+                            out[k] = uri_labels
+                idx+=1
             filtered_data.append(out)
         return filtered_data
 
