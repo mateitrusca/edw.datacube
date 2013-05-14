@@ -146,11 +146,15 @@ class Cube(object):
                 })
             return dict(rv)
 
-    def get_group_dimensions(self):
+    def load_group_dimensions(self):
         query = sparql_env.get_template('group_dimensions.sparql').render(**{
             'dataset': self.dataset,
         })
         return sorted([r['group_notation'] for r in self._execute(query)])
+    
+    def get_group_dimensions(self):
+        cache_key = (self.endpoint, self.dataset, 'get_group_dimensions')
+        return data_cache.get(cache_key, self.load_group_dimensions)
 
     def get_dimension_options(self, dimension, filters=[]):
         # fake an n-dimensional query, with a single dimension, that has no
