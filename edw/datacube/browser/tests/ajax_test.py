@@ -89,6 +89,7 @@ def test_dimension_all_indicator_options(mock_cube):
 
 
 def test_dimension_single_filter_passed_on_to_query(mock_cube):
+    mock_cube.get_dimension_options.return_value = {}
     ajax(mock_cube, 'dimension_options', {
         'dimension': 'ref-area',
         'time-period': '2002',
@@ -112,6 +113,7 @@ def test_dimension_labels_passed_on_to_query(mock_cube):
 
 
 def test_dimension_filters_passed_on_to_query(mock_cube):
+    mock_cube.get_dimension_options.return_value = {}
     ajax(mock_cube, 'dimension_options', {
         'dimension': 'ref-area',
         'time-period': '2002',
