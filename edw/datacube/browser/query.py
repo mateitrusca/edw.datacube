@@ -62,7 +62,8 @@ class AjaxDataView(BrowserView):
         dimension = form.pop('dimension')
         filters = sorted(form.items())
         options = self.cube.get_dimension_options(dimension, filters)
-        return self.jsonify({'options': options})
+        filtered_options = filter(lambda it: it['notation'] != "", options)
+        return self.jsonify({'options': filtered_options})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_options_xy(self):
