@@ -25,19 +25,22 @@ class QueryError(Exception):
 
 class DataCache(object):
 
-    timeout = 300  # 5 minutes
-
     def __init__(self):
         self.data = {}
+        self.timestamp = None
         self.lock = threading.Lock()
+
+    def ping(self, timestamp):
+        with self.lock:
+            if timestamp != self.timestamp:
+                self.data.clear()
+                self.timestamp = timestamp
 
     def get(self, key, update):
         with self.lock:
-            (value, timestamp) = self.data.get(key, (None, 0))
-            if time.time() - timestamp > self.timeout:
-                value = update()
-                self.data[key] = (value, time.time())
-        return value
+            if key not in self.data:
+                self.data[key] = update()
+            return self.data[key]
 
 
 data_cache = DataCache()
@@ -143,11 +146,15 @@ class Cube(object):
                 })
             return dict(rv)
 
-    def get_group_dimensions(self):
+    def load_group_dimensions(self):
         query = sparql_env.get_template('group_dimensions.sparql').render(**{
             'dataset': self.dataset,
         })
         return sorted([r['group_notation'] for r in self._execute(query)])
+    
+    def get_group_dimensions(self):
+        cache_key = (self.endpoint, self.dataset, 'get_group_dimensions')
+        return data_cache.get(cache_key, self.load_group_dimensions)
 
     def get_dimension_options(self, dimension, filters=[]):
         # fake an n-dimensional query, with a single dimension, that has no
@@ -312,7 +319,9 @@ class Cube(object):
 
     def get_revision(self):
         query = sparql_env.get_template('last_modified.sparql').render()
-        return unicode(next(self._execute(query))['modified'])
+        timestamp = unicode(next(self._execute(query))['modified'])
+        data_cache.ping(timestamp)
+        return timestamp
 
     def dump(self, data_format=''):
         query = sparql_env.get_template('dump.sparql').render(**{
