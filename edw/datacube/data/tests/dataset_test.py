@@ -56,3 +56,18 @@ def test_dataset_dimensions_flat_list():
         'ref-area',
         'time-period',
     ]
+
+@sparql_test
+def test_get_dataset_details():
+    cube = create_cube()
+    res = cube.get_dataset_details()
+    by_notation = {r['notation']: r for r in res}
+    i_iusell = by_notation['i_iusell']
+    assert "Selling online" in i_iusell['altlabel']
+    assert "in the last 3 months" in i_iusell['definition']
+    assert i_iusell['groupName'] == "eCommerce"
+    assert i_iusell['sourcelabel'] == "Eurostat - ICT Households survey"
+    assert "Extraction from HH/Indiv" in i_iusell['sourcenotes']
+    assert i_iusell['sourcelink'] == (
+            'http://epp.eurostat.ec.europa.eu/portal'
+            '/page/portal/information_society/introduction')
