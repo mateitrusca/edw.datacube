@@ -71,7 +71,10 @@ class NotationMap(object):
 
     def lookup_notation(self, namespace, notation):
         by_notation = self.get()['by_notation']
-        return by_notation.get(namespace, {}).get(notation)
+        rv = by_notation.get(namespace, {}).get(notation)
+        if rv is None:
+            print 'lookup failure', (namespace, notation)
+        return rv
 
     def lookup_uri(self, uri):
         by_uri = self.get()['by_uri']
