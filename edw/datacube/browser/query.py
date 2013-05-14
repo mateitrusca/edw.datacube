@@ -3,6 +3,7 @@
 import csv
 import json
 import logging
+from datetime import datetime
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 from eea.cache import cache as eeacache
@@ -338,10 +339,16 @@ class AjaxDataView(BrowserView):
           }
         }
         """
+        latestYear = self.request.form.pop('time-period',
+                                           datetime.now().year - 1)
+        try:
+            latestYear = int(latestYear)
+        except Exception, err:
+            latestYear = datetime.now().year - 1
+
         # Get datapoints
         datapoints = json.loads(self.datapoints())
         countryName = self.request.form.pop('ref-area', '')
-        latestYear = 2000
         mapping = {
             'latest': latestYear,
             'has-rank': False,
@@ -387,8 +394,6 @@ class AjaxDataView(BrowserView):
                 logger.exception(err)
                 continue
 
-            latestYear = max(latestYear, year)
-            mapping['latest'] = latestYear
             table[key][year] = point['value']
             table[key].setdefault('rank', 0)
 
