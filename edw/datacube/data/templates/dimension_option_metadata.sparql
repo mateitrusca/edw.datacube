@@ -4,10 +4,11 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
-SELECT DISTINCT ?uri, ?definition, ?label, ?short_label, ?note,
+SELECT DISTINCT ?uri, ?notation, ?definition, ?label, ?short_label, ?note,
                 ?source_label, ?source_definition, ?source_notes, ?source_url
 WHERE {
 
+  OPTIONAL { ?uri skos:notation ?notation }
   OPTIONAL { ?uri skos:prefLabel ?label }
   OPTIONAL { ?uri skos:altLabel ?short_label }
   OPTIONAL { ?uri skos:notes ?note }

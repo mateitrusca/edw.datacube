@@ -120,7 +120,19 @@ class Cube(object):
         query = sparql_env.get_template('dataset_details.sparql').render(**{
             'dataset': self.dataset,
         })
-        return list(self._execute(query))
+        res = list(self._execute(query))
+        res_by_uri = {row['indicator']: row for row in res}
+        meta_list = self.get_dimension_option_metadata_list(list(res_by_uri))
+        for meta in meta_list:
+            uri = meta.pop('uri')
+            meta['altlabel'] = meta.pop('short_label', None)
+            meta['sourcelabel'] = meta.pop('source_label', None)
+            meta['sourcelink'] = meta.pop('source_url', None)
+            meta['sourcenotes'] = meta.pop('source_notes', None)
+            meta['notes'] = meta.pop('note', None)
+            meta['longlabel'] = meta.pop('label', None)
+            res_by_uri[uri].update(meta)
+        return res
 
     def get_dimension_labels(self, dimension, value):
         query = sparql_env.get_template('dimension_label.sparql').render(**{
