@@ -122,6 +122,20 @@ def test_get_observations_with_labels_xy():
 
 
 @sparql_test
+def test_get_observations_with_notes():
+    filters = [
+        ('indicator-group', 'broadband'),
+        ('indicator', 'bb_dsl'),
+        ('breakdown-group', 'total'),
+        ('breakdown', 'TOTAL',),
+        ('unit-measure', 'pc_lines'),
+        ('time-period', '2004'),
+    ]
+    cube = create_cube()
+    points = list(cube.get_observations(filters))
+    assert points[18]['note'] == 'BG and RO not included'
+
+@sparql_test
 def test_get_xy_observations_with_all_breakdowns():
     filters = [
         ('time-period', '2011'),

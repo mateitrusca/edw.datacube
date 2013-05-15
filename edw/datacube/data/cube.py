@@ -293,11 +293,14 @@ class Cube(object):
             result_row = []
             value = row.pop(-1)
             for item in row:
-                result_row.append(
-                    {'notation': labels.get(item, {}).get('notation', None),
-                     'label': labels.get(item, {}).get('label', None),
-                     'short-label': labels.get(item, {}).get('short_label', None)}
-                )
+                if item not in uris:
+                    result_row.append(item)
+                else:
+                    result_row.append(
+                        {'notation': labels.get(item, {}).get('notation', None),
+                         'label': labels.get(item, {}).get('label', None),
+                         'short-label': labels.get(item, {}).get('short_label', None)}
+                    )
             result_row.append(value)
             yield dict(zip(result_columns, result_row))
 
