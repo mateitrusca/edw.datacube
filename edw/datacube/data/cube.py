@@ -373,7 +373,7 @@ class Cube(object):
                         out[key] = obs[key]
                 for k, v in out.items():
                     if k not in single_keys:
-                        uri_labels = labels.get(v[dimensions[idx]], None)
+                        uri_labels = labels.get(v[dimensions[idx]], v[dimensions[idx]])
                         if uri_labels:
                             out[k][dimensions[idx]] = uri_labels
                     else:
