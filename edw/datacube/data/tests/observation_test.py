@@ -122,16 +122,53 @@ def test_get_observations_with_labels_xy():
 
 
 @sparql_test
-def test_get_xy_observations_with_all_breakpoints():
+def test_get_observations_with_notes_single_dimension():
+    filters = [
+        ('indicator-group', 'broadband'),
+        ('indicator', 'bb_dsl'),
+        ('breakdown-group', 'total'),
+        ('breakdown', 'TOTAL',),
+        ('unit-measure', 'pc_lines'),
+        ('time-period', '2004'),
+    ]
+    cube = create_cube()
+    points = list(cube.get_observations(filters))
+    assert points[18]['note'] == 'BG and RO not included'
+
+
+@sparql_test
+def test_get_observations_with_notes_multidimension():
+    filters = [
+        ('indicator-group', 'broadband'),
+        ('indicator', 'bb_dsl'),
+        ('breakdown-group', 'total'),
+        ('breakdown', 'TOTAL',),
+        ('unit-measure', 'pc_lines'),
+        ('time-period', '2004'),
+    ]
+    cube = create_cube()
+    points = list(cube.get_data_xyz('ref-area', filters, [], [], []))
+    assert points[7]['note']['x'] == 'BG and RO not included'
+    assert points[7]['note']['y'] == 'BG and RO not included'
+    assert points[7]['note']['z'] == 'BG and RO not included'
+
+
+@sparql_test
+def test_get_xy_observations_with_all_breakdowns():
     filters = [
         ('time-period', '2011'),
         ('indicator', 'i_bfeu'),
-        ('breakdown', 'IND_TOTAL'),
         ('unit-measure', 'pc_ind'),
     ]
+    x_filters = [
+        ('breakdown', 'IND_TOTAL'),
+    ]
+    y_filters = [
+        ('breakdown', 'IND_TOTAL'),
+    ]
     cube = create_cube()
-    points = list(cube.get_data_xy('ref-area', filters, [], []))
-    assert points[0]['indicator_x']['label'].startswith(
+    points = list(cube.get_data_xy('ref-area', filters, x_filters, y_filters))
+    assert points[0]['indicator']['label'].startswith(
         'Individuals ordering goods')
 
 
