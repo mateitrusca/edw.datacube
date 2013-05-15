@@ -122,7 +122,7 @@ def test_get_observations_with_labels_xy():
 
 
 @sparql_test
-def test_get_xy_observations_with_all_breakpoints():
+def test_get_xy_observations_with_all_breakdowns():
     filters = [
         ('time-period', '2011'),
         ('indicator', 'i_bfeu'),
