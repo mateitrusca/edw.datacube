@@ -404,6 +404,7 @@ class AjaxDataView(BrowserView):
         eu = view.eu if view else {}
 
         # Get all datapoints
+        self.request.form['time-period'] = unicode(latestYear)
         all_datapoints = json.loads(self.datapoints())
 
         # Compute rank amoung EU27 countries
@@ -419,10 +420,6 @@ class AjaxDataView(BrowserView):
                 year = int(year)
             except Exception, err:
                 logger.exception(err)
-                continue
-
-            # Skip old values
-            if year != latestYear:
                 continue
 
             try:
