@@ -368,9 +368,9 @@ class AjaxDataView(BrowserView):
 
             # Indicator unique identifier
             key = u','.join((
-                point['indicator']['notation'],
-                point['breakdown']['notation'],
-                point['unit-measure']['notation']
+                point['indicator']['notation'] or '-',
+                point['breakdown']['notation'] or '-',
+                point['unit-measure']['notation'] or '-'
             ))
 
             try:
