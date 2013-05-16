@@ -411,9 +411,9 @@ class AjaxDataView(BrowserView):
         # Compute rank amoung EU27 countries
         for point in all_datapoints['datapoints']:
             key = u','.join((
-                point['indicator']['notation'],
-                point['breakdown']['notation'],
-                point['unit-measure']['notation']
+                point['indicator']['notation'] or '-',
+                point['breakdown']['notation'] or '-',
+                point['unit-measure']['notation'] or '-'
             ))
 
             year = point['time-period']['notation']
