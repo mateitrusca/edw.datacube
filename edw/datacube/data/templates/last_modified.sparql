@@ -4,5 +4,5 @@ SELECT * WHERE {
   ?uri dcterms:modified ?modified .
 
 }
-ORDER BY DESC(?modified)
+ORDER BY DESC(str(?modified))
 LIMIT 1
