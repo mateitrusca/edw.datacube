@@ -48,10 +48,28 @@ data_cache = DataCache()
 
 class NotationMap(object):
 
+    NAMESPACES = [
+        ('breakdown', 'http://semantic.digital-agenda-data.eu/'
+                      'codelist/breakdown/'),
+        ('indicator', 'http://semantic.digital-agenda-data.eu/'
+                      'codelist/indicator/'),
+        ('breakdown-group', 'http://semantic.digital-agenda-data.eu/'
+                            'codelist/breakdown-group/'),
+        ('time-period', 'http://reference.data.gov.uk/id/gregorian-year/'),
+        ('flag', 'http://eurostat.linked-statistics.org/dic/flags#'),
+        ('indicator-group', 'http://semantic.digital-agenda-data.eu/'
+                            'codelist/indicator-group/'),
+        ('unit-measure', 'http://semantic.digital-agenda-data.eu/'
+                         'codelist/unit-measure/'),
+        ('ref-area', 'http://eurostat.linked-statistics.org/dic/geo#'),
+    ]
+
     def __init__(self, cube):
         self.cube = cube
 
     def update(self):
+        t0 = time.time()
+        logger.info('loading notation cache')
         query = sparql_env.get_template('notations.sparql').render(**{
             'dataset': self.cube.dataset,
         })
@@ -60,6 +78,7 @@ class NotationMap(object):
         for row in self.cube._execute(query):
             by_notation[row['namespace']][row['notation']] = row
             by_uri[row['uri']] = row
+        logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
             'by_notation': dict(by_notation),
             'by_uri': by_uri,
@@ -71,14 +90,34 @@ class NotationMap(object):
 
     def lookup_notation(self, namespace, notation):
         by_notation = self.get()['by_notation']
-        rv = by_notation.get(namespace, {}).get(notation)
+        ns = by_notation.get(namespace)
+        if ns is None:
+            raise RuntimeError("Unknown namespace %r", namespace)
+        rv = ns.get(notation)
         if rv is None:
-            print 'lookup failure', (namespace, notation)
+            logger.warn('lookup failure %r', (namespace, notation))
         return rv
 
     def lookup_uri(self, uri):
         by_uri = self.get()['by_uri']
         return by_uri.get(uri)
+
+    def touch_uri(self, uri):
+        data = self.get()
+        if uri not in data['by_uri']:
+            for namespace, prefix in self.NAMESPACES:
+                if uri.startswith(prefix):
+                    notation = uri[len(prefix):]
+                    logger.info('patching missing notation %r',
+                                (namespace, notation))
+                    row = {'uri': uri,
+                           'namespace': namespace,
+                           'notation': notation}
+                    data['by_uri'][uri] = row
+                    data['by_notation'][namespace][notation] = row
+                    break
+            else:
+                logger.warn('new unknown uri %r', uri)
 
 
 class Cube(object):
@@ -142,7 +181,10 @@ class Cube(object):
             'group_dimensions': self.get_group_dimensions(),
             'notations': self.notations,
         })
-        return list(self._execute(query))
+        rv = list(self._execute(query))
+        if not rv:
+            rv = [{'label': value, 'short_label': None}]
+        return rv
 
     def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
@@ -166,7 +208,7 @@ class Cube(object):
             'dataset': self.dataset,
         })
         return sorted([r['group_notation'] for r in self._execute(query)])
-    
+
     def get_group_dimensions(self):
         cache_key = (self.endpoint, self.dataset, 'get_group_dimensions')
         return data_cache.get(cache_key, self.load_group_dimensions)
@@ -223,6 +265,8 @@ class Cube(object):
         if len(uri_list) < 1:
             return {}
         tmpl = sparql_env.get_template('labels.sparql')
+        for uri in uri_list:
+            self.notations.touch_uri(uri)
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
@@ -239,7 +283,11 @@ class Cube(object):
 
     def get_dimension_option_metadata(self, dimension, option):
         uri = self.notations.lookup_notation(dimension, option)['uri']
-        return self.get_dimension_option_metadata_list([uri])[0]
+        res = self.get_dimension_option_metadata_list([uri])
+        if res:
+            return res[0]
+        else:
+            return {}
 
     def get_data(self, columns, filters):
         assert columns[-1] == 'value', "Last column must be 'value'"
