@@ -293,9 +293,15 @@ class AjaxDataView(BrowserView):
             #point['rank'] = rank
 
             if val <= medVal:
-                point['value'] = (val - minVal) / (medVal - minVal)
+                if minVal == medVal:
+                    point['value'] = 0
+                else:
+                    point['value'] = (val - minVal) / (medVal - minVal)
             else:
-                point['value'] = 1 + (val - medVal) / (maxVal - medVal)
+                if maxVal == medVal:
+                    point['value'] = 2
+                else:
+                    point['value'] = 1 + (val - medVal) / (maxVal - medVal)
             rows.append(point)
 
         return self.jsonify({'datapoints': rows})
