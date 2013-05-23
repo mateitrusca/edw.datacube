@@ -381,11 +381,13 @@ class AjaxDataView(BrowserView):
 
             table.setdefault(key, {})
             if not table[key].get('name', ''):
-                name = point['indicator']['short-label']
+                name = u'<strong>'
+                name += point['indicator']['short-label'] + u'</strong>'
                 if point['breakdown']['label']:
-                    name += u' by ' + point['breakdown']['label']
+                    name += u' - ' + point['breakdown']['short-label']
                 if point['unit-measure']['label']:
-                    name += u' in ' + point['unit-measure']['label']
+                    name += u' (in ' + point['unit-measure']['short-label']
+                    name += u')'
                 table[key]['name'] = name
 
             year = point['time-period']['notation']
