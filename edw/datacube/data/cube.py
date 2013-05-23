@@ -181,7 +181,10 @@ class Cube(object):
             'group_dimensions': self.get_group_dimensions(),
             'notations': self.notations,
         })
-        return list(self._execute(query))
+        rv = list(self._execute(query))
+        if not rv:
+            rv = [{'label': value, 'short_label': None}]
+        return rv
 
     def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
@@ -280,7 +283,11 @@ class Cube(object):
 
     def get_dimension_option_metadata(self, dimension, option):
         uri = self.notations.lookup_notation(dimension, option)['uri']
-        return self.get_dimension_option_metadata_list([uri])[0]
+        res = self.get_dimension_option_metadata_list([uri])
+        if res:
+            return res[0]
+        else:
+            return {}
 
     def get_data(self, columns, filters):
         assert columns[-1] == 'value', "Last column must be 'value'"
