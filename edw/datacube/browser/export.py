@@ -39,3 +39,40 @@ class ExportCSV(BrowserView):
             return formatter(points)
 
         return ""
+
+class ExportRDF(BrowserView):
+    """ Export to RDF
+    """
+    def datapoints(self, points):
+        """ xxx
+        """
+        return "Not implemented error"
+
+    def datapoints_xy(self, points):
+        """
+        """
+        return "Not implemented error"
+
+    def export(self):
+        """ Export to csv
+        """
+        options = self.request.form.get('options', "{}")
+        method = self.request.form.get('method', 'datapoints')
+        formatter = getattr(self, method, None)
+
+        self.request.form = json.loads(options)
+        points = queryMultiAdapter((self.context, self.request), name=method)
+
+        self.request.response.setHeader(
+            'Content-Type', 'application/rdf+xml')
+        self.request.response.setHeader(
+            'Content-Disposition',
+            'attachment; filename="%s.rdf"' % self.context.getId())
+
+        if not points:
+            return ""
+
+        if formatter:
+            return formatter(points)
+
+        return ""

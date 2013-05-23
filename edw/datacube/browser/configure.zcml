@@ -165,4 +165,12 @@
     permission="zope2.View"
     />
 
+  <browser:page
+    name="export.rdf"
+    for="..interfaces.IDataCube"
+    class=".export.ExportRDF"
+    attribute="export"
+    permission="zope2.View"
+    />
+
 </configure>
