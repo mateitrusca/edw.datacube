@@ -52,6 +52,8 @@ class NotationMap(object):
         self.cube = cube
 
     def update(self):
+        t0 = time.time()
+        logger.info('loading notation cache')
         query = sparql_env.get_template('notations.sparql').render(**{
             'dataset': self.cube.dataset,
         })
@@ -60,6 +62,7 @@ class NotationMap(object):
         for row in self.cube._execute(query):
             by_notation[row['namespace']][row['notation']] = row
             by_uri[row['uri']] = row
+        logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
             'by_notation': dict(by_notation),
             'by_uri': by_uri,
