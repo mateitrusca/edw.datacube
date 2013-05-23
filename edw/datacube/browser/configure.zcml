@@ -157,4 +157,12 @@
     permission="zope2.View"
     />
 
+  <browser:page
+    name="export.csv"
+    for="..interfaces.IDataCube"
+    class=".export.ExportCSV"
+    attribute="export"
+    permission="zope2.View"
+    />
+
 </configure>
