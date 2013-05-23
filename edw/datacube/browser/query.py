@@ -155,18 +155,18 @@ class AjaxDataView(BrowserView):
                     return res
         return 0
 
-    def blacklisted(self, point, blacklist):
+    def blacklisted(self, point, whitelist):
         """ Check to see if point is blacklisted
         """
-        for black in blacklist:
+        for white in whitelist:
             match = True
-            for key, value in black.items():
+            for key, value in white.items():
                 if point.get(key, {}).get('notation', u'') != value:
                     match = False
                     break
             if match:
-                return True
-        return False
+                return False
+        return True
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints(self):
@@ -196,10 +196,10 @@ class AjaxDataView(BrowserView):
                                  name=u'european-union.json')
         eu = view.eu if view else {}
 
-        # Get blacklisted items
+        # Get whitelisted items
         view = queryMultiAdapter((self.context, self.request),
-                                 name=u'blacklist.json')
-        blacklist = view.blacklist if view else []
+                                 name=u'whitelist.json')
+        whitelist = view.whitelist if view else []
 
         # Get all datapoints
         countryName = self.request.form.pop('ref-area', '')
@@ -208,7 +208,7 @@ class AjaxDataView(BrowserView):
         # Compute new values
         mapping = {}
         for point in all_datapoints['datapoints']:
-            if self.blacklisted(point, blacklist):
+            if self.blacklisted(point, whitelist):
                 continue
 
             key = (
@@ -267,7 +267,7 @@ class AjaxDataView(BrowserView):
         # Update points
         rows = []
         for point in datapoints['datapoints']:
-            if self.blacklisted(point, blacklist):
+            if self.blacklisted(point, whitelist):
                 continue
 
             key =  (
