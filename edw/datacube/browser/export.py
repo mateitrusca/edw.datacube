@@ -1,4 +1,5 @@
 import json
+import csv
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 
@@ -6,10 +7,17 @@ class ExportCSV(BrowserView):
     """ Export to CSV
     """
 
-    def datapoints(self, points):
-        """ xxx
+    def datapoints(self, writer, chart_data):
+        """ Export single dimension series to CSV
         """
-        return "Not implemented error"
+        for series in chart_data:
+            for point in series['data']:
+                encoded = {}
+                encoded['series'] = series['name']
+                for key in ['code', 'y']:
+                    encoded[key] = unicode(point[key]).encode('utf-8')
+                writer.writerow(encoded)
+
 
     def datapoints_xy(self, points):
         """
@@ -19,12 +27,6 @@ class ExportCSV(BrowserView):
     def export(self):
         """ Export to csv
         """
-        options = self.request.form.get('options', "{}")
-        method = self.request.form.get('method', 'datapoints')
-        formatter = getattr(self, method, None)
-
-        self.request.form = json.loads(options)
-        points = queryMultiAdapter((self.context, self.request), name=method)
 
         self.request.response.setHeader(
             'Content-Type', 'application/csv')
@@ -32,13 +34,17 @@ class ExportCSV(BrowserView):
             'Content-Disposition',
             'attachment; filename="%s.csv"' % self.context.getId())
 
-        if not points:
-            return ""
+        chart_data = json.loads(self.request.form.pop('chart_data'))
 
-        if formatter:
-            return formatter(points)
+        headers = ['series', 'code', 'y'];
+        writer = csv.DictWriter(self.request.response, headers, restval='')
+        writer.writeheader()
 
-        return ""
+        formatter = self.datapoints
+
+        formatter(writer, chart_data)
+
+        return self.request.response
 
 class ExportRDF(BrowserView):
     """ Export to RDF
