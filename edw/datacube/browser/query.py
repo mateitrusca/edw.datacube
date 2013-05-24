@@ -129,6 +129,7 @@ class AjaxDataView(BrowserView):
         return self.jsonify({'options': rows})
 
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_value_metadata(self):
         dimension = self.request.form['dimension']
         value = self.request.form['value']
