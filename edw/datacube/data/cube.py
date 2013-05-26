@@ -161,7 +161,7 @@ class Cube(object):
         })
         res = list(self._execute(query))
         res_by_uri = {row['indicator']: row for row in res}
-        meta_list = self.get_dimension_option_metadata_list(list(res_by_uri))
+        meta_list = self.get_dimension_option_metadata_list('indicator', list(res_by_uri))
         for meta in meta_list:
             uri = meta.pop('uri')
             meta['altlabel'] = meta.pop('short_label', None)
@@ -272,18 +272,19 @@ class Cube(object):
         })
         return {row['uri']: row for row in self._execute(query)}
 
-    def get_dimension_option_metadata_list(self, uri_list):
+    def get_dimension_option_metadata_list(self, dimension, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
         query = tmpl.render(**{
             'dataset': self.dataset,
             'uri_list': uri_list,
+            'dimension': dimension
         })
         res = list(self._execute(query))
         return [{k: row[k] for k in row if row[k] is not None} for row in res]
 
     def get_dimension_option_metadata(self, dimension, option):
         uri = self.notations.lookup_notation(dimension, option)['uri']
-        res = self.get_dimension_option_metadata_list([uri])
+        res = self.get_dimension_option_metadata_list(dimension, [uri])
         if res:
             return res[0]
         else:
