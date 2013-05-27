@@ -7,22 +7,60 @@ class ExportCSV(BrowserView):
     """ Export to CSV
     """
 
-    def datapoints(self, writer, chart_data):
+    def datapoints(self, response, chart_data):
         """ Export single dimension series to CSV
         """
+        try:
+            if len(chart_data) < 1:
+                return ""
+        except:
+            return ""
+
+        headers = ['series', 'code', 'y']
+
+        keys = chart_data[0].get('data', [{}])[0].keys()
+
+        writer = csv.DictWriter(response, headers, restval='')
+        writer.writeheader()
+
         for series in chart_data:
             for point in series['data']:
                 encoded = {}
                 encoded['series'] = series['name']
-                for key in ['code', 'y']:
+                for key in headers[1:]:
                     encoded[key] = unicode(point[key]).encode('utf-8')
                 writer.writerow(encoded)
 
 
-    def datapoints_xy(self, points):
+    def datapoints_n(self, response, chart_data):
+        """ Export single dimension series to CSV
         """
-        """
-        return "Not implemented error"
+        try:
+            if len(chart_data) < 1:
+                return ""
+        except:
+            return ""
+
+        coords = set(['x', 'y', 'z'])
+        keys = set(chart_data[0][0].get('data', [{}])[0].keys())
+
+        headers = ['series', 'name', 'x', 'y', 'z']
+
+        if keys.intersection(coords) != coords:
+            headers = ['series', 'name', 'x', 'y']
+
+        writer = csv.DictWriter(response, headers, restval='')
+        writer.writeheader()
+
+        for series in chart_data:
+            for point in series:
+                encoded = {}
+                encoded['series'] = point['name']
+                for data in point['data']:
+                    for key in headers[1:]:
+                        encoded[key] = unicode(data[key]).encode('utf-8')
+                    writer.writerow(encoded)
+
 
     def export(self):
         """ Export to csv
@@ -36,13 +74,16 @@ class ExportCSV(BrowserView):
 
         chart_data = json.loads(self.request.form.pop('chart_data'))
 
-        headers = ['series', 'code', 'y'];
-        writer = csv.DictWriter(self.request.response, headers, restval='')
-        writer.writeheader()
+        chart_type = self.request.form.pop('chart_type')
 
-        formatter = self.datapoints
+        formatters = {
+            'scatter': self.datapoints_n,
+            'bubbles': self.datapoints_n,
+        }
 
-        formatter(writer, chart_data)
+        formatter = formatters.get(chart_type, self.datapoints)
+
+        formatter(self.request.response, chart_data)
 
         return self.request.response
 
