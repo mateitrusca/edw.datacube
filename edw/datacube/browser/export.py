@@ -33,7 +33,7 @@ class ExportCSV(BrowserView):
 
 
     def datapoints_n(self, response, chart_data):
-        """ Export single dimension series to CSV
+        """ Export multiple dimension series to CSV
         """
         try:
             if len(chart_data) < 1:
@@ -62,6 +62,25 @@ class ExportCSV(BrowserView):
                     writer.writerow(encoded)
 
 
+    def datapoints_profile(self, response, chart_data):
+        headers = ['name', 'eu', 'original']
+        extra_headers = ['period']
+
+        keys = chart_data[0].get('data', [{}])[0].keys()
+
+        writer = csv.DictWriter(response, extra_headers + headers, restval='')
+        writer.writeheader()
+
+        for series in chart_data:
+            for point in series['data']:
+                encoded = {}
+                for key in headers:
+                    encoded[key] = unicode(point[key]).encode('utf-8')
+                period = point['attributes']['time-period']['notation']
+                encoded['period'] = unicode(period).encode('utf-8')
+                writer.writerow(encoded)
+
+
     def export(self):
         """ Export to csv
         """
@@ -79,6 +98,7 @@ class ExportCSV(BrowserView):
         formatters = {
             'scatter': self.datapoints_n,
             'bubbles': self.datapoints_n,
+            'country_profile_bar': self.datapoints_profile,
         }
 
         formatter = formatters.get(chart_type, self.datapoints)

@@ -139,6 +139,38 @@ def test_bubbles_csv_export():
     assert csv_output[1].split(',') == ['Austria', 'AT', '1', '1', '1']
 
 
+def test_bar_profile_csv_export():
+    exporter = ExportCSV(MagicMock(), MagicMock())
+    out = StringIO()
+    series = [
+        {
+            'data': [
+                {
+                    'attributes': {
+                        'time-period': {
+                            'notation': '2000'
+                        }
+                    },
+                    'code': 'notation',
+                    'name': 'long_label',
+                    'eu': 0.5,
+                    'original': 0.9,
+                    'y': 2,
+
+                }
+            ],
+            'name': 'Austria'
+        },
+    ]
+    exporter.datapoints_profile(out, series)
+    out.seek(0)
+    csv_output = out.read().split('\r\n')
+    assert csv_output[0].split(',') == [
+            'period', 'name', 'eu', 'original']
+    assert csv_output[1].split(',') == [
+            '2000', 'long_label', '0.5', '0.9']
+
+
 def test_formatter_decision():
     exporter = ExportCSV(MagicMock(), MagicMock())
     series = [
