@@ -171,6 +171,45 @@ def test_bar_profile_csv_export():
             '2000', 'long_label', '0.5', '0.9']
 
 
+def test_table_profile_csv_export():
+    exporter = ExportCSV(MagicMock(), MagicMock())
+    out = StringIO()
+    series = [
+        {
+            'data': {
+                'latest': 2010,
+                'ref-area': {
+                    'label': 'Austria'
+                },
+                'table':{
+                    'some-key': {
+                        '2009': 0.8,
+                        '2010': 0.9,
+                        'eu': 52,
+                        'name': 'long-label',
+                        'rank': 15
+                    },
+                    'some-other-key': {
+                        '2009': 0.8,
+                        'eu': 52,
+                        'name': 'other-long-label',
+                        'rank': 15
+                    }
+                }
+            }
+        }
+    ]
+    exporter.datapoints_profile_table(out, series)
+    out.seek(0)
+    csv_output = out.read().split('\r\n')
+    assert csv_output[0].split(',') == [
+            'country', 'indicator', '2009', '2010', 'EU27 value 2010', 'rank']
+    assert csv_output[1].split(',') == [
+            'Austria', 'long-label', '0.8', '0.9', '52', '15']
+    assert csv_output[2].split(',') == [
+            'Austria', 'other-long-label', '0.8', '-', '52', '15']
+
+
 def test_formatter_decision():
     exporter = ExportCSV(MagicMock(), MagicMock())
     series = [

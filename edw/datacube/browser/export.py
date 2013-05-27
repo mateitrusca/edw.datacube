@@ -66,8 +66,6 @@ class ExportCSV(BrowserView):
         headers = ['name', 'eu', 'original']
         extra_headers = ['period']
 
-        keys = chart_data[0].get('data', [{}])[0].keys()
-
         writer = csv.DictWriter(response, extra_headers + headers, restval='')
         writer.writeheader()
 
@@ -78,6 +76,30 @@ class ExportCSV(BrowserView):
                     encoded[key] = unicode(point[key]).encode('utf-8')
                 period = point['attributes']['time-period']['notation']
                 encoded['period'] = unicode(period).encode('utf-8')
+                writer.writerow(encoded)
+
+
+    def datapoints_profile_table(self, response, chart_data):
+        for series in chart_data:
+            encoded = {}
+            latest = series['data']['latest']
+
+            years = sorted(series['data']['table'].values()[0].keys())[:-3]
+
+            headers = (['country', 'indicator'] + years +
+                       ['EU27 value %s' %latest, 'rank'])
+            writer = csv.DictWriter(response, headers, restval='')
+            writer.writeheader()
+
+            encoded['country'] = series['data']['ref-area']['label']
+            for ind in series['data']['table'].values():
+                encoded['indicator'] = unicode(ind['name']).encode('utf-8')
+                for year in years[:-1]:
+                    encoded[year] = unicode(ind.get(year, '-')).encode('utf-8')
+                encoded['%s' %latest] = unicode(ind.get('%s' %latest, '-')).encode('utf-8')
+                encoded['EU27 value %s' %latest] = unicode(
+                        ind.get('eu', '-')).encode('utf-8')
+                encoded['rank'] = unicode(ind.get('rank', '-')).encode('utf-8')
                 writer.writerow(encoded)
 
 
@@ -99,6 +121,7 @@ class ExportCSV(BrowserView):
             'scatter': self.datapoints_n,
             'bubbles': self.datapoints_n,
             'country_profile_bar': self.datapoints_profile,
+            'country_profile_table': self.datapoints_profile_table
         }
 
         formatter = formatters.get(chart_type, self.datapoints)
