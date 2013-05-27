@@ -167,7 +167,7 @@ class AjaxDataView(BrowserView):
         for white in whitelist:
             match = True
             for key, value in white.items():
-                if point.get(key, {}).get('notation', u'') != value:
+                if point.get(key, {}).get('notation', u'').lower() != value.lower():
                     match = False
                     break
             if match:
@@ -395,10 +395,15 @@ class AjaxDataView(BrowserView):
             if not table[key].get('name', ''):
                 name = u'<strong>'
                 name += point['indicator']['short-label'] + u'</strong>'
-                if point['breakdown']['label']:
+                if point['breakdown']['short-label']:
                     name += u' - ' + point['breakdown']['short-label']
-                if point['unit-measure']['label']:
+                elif point['breakdown']['label']:
+                    name += u' - ' + point['breakdown']['label']
+                if point['unit-measure']['short-label']:
                     name += u' (in ' + point['unit-measure']['short-label']
+                    name += u')'
+                elif point['unit-measure']['label']:
+                    name += u' (in ' + point['unit-measure']['label']
                     name += u')'
                 table[key]['name'] = name
 
