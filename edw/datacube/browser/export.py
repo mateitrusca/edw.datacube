@@ -1,4 +1,5 @@
 import json
+import csv
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 
@@ -6,25 +7,105 @@ class ExportCSV(BrowserView):
     """ Export to CSV
     """
 
-    def datapoints(self, points):
-        """ xxx
+    def datapoints(self, response, chart_data):
+        """ Export single dimension series to CSV
         """
-        return "Not implemented error"
+        try:
+            if len(chart_data) < 1:
+                return ""
+        except:
+            return ""
 
-    def datapoints_xy(self, points):
+        headers = ['series', 'code', 'y']
+
+        keys = chart_data[0].get('data', [{}])[0].keys()
+
+        writer = csv.DictWriter(response, headers, restval='')
+        writer.writeheader()
+
+        for series in chart_data:
+            for point in series['data']:
+                encoded = {}
+                encoded['series'] = series['name']
+                for key in headers[1:]:
+                    encoded[key] = unicode(point[key]).encode('utf-8')
+                writer.writerow(encoded)
+
+
+    def datapoints_n(self, response, chart_data):
+        """ Export multiple dimension series to CSV
         """
-        """
-        return "Not implemented error"
+        try:
+            if len(chart_data) < 1:
+                return ""
+        except:
+            return ""
+
+        coords = set(['x', 'y', 'z'])
+        keys = set(chart_data[0][0].get('data', [{}])[0].keys())
+
+        headers = ['series', 'name', 'x', 'y', 'z']
+
+        if keys.intersection(coords) != coords:
+            headers = ['series', 'name', 'x', 'y']
+
+        writer = csv.DictWriter(response, headers, restval='')
+        writer.writeheader()
+
+        for series in chart_data:
+            for point in series:
+                encoded = {}
+                encoded['series'] = point['name']
+                for data in point['data']:
+                    for key in headers[1:]:
+                        encoded[key] = unicode(data[key]).encode('utf-8')
+                    writer.writerow(encoded)
+
+
+    def datapoints_profile(self, response, chart_data):
+        headers = ['name', 'eu', 'original']
+        extra_headers = ['period']
+
+        writer = csv.DictWriter(response, extra_headers + headers, restval='')
+        writer.writeheader()
+
+        for series in chart_data:
+            for point in series['data']:
+                encoded = {}
+                for key in headers:
+                    encoded[key] = unicode(point[key]).encode('utf-8')
+                period = point['attributes']['time-period']['notation']
+                encoded['period'] = unicode(period).encode('utf-8')
+                writer.writerow(encoded)
+
+
+    def datapoints_profile_table(self, response, chart_data):
+        for series in chart_data:
+            encoded = {}
+            latest = series['data']['latest']
+
+            years = sorted(series['data']['table'].values()[0].keys())[:-3]
+
+            headers = (['country', 'indicator'] + years +
+                       ['EU27 value %s' %latest, 'rank'])
+            writer = csv.DictWriter(response, headers, restval='')
+            writer.writeheader()
+
+            encoded['country'] = series['data']['ref-area']['label']
+            for ind in series['data']['table'].values():
+                encoded['indicator'] = unicode(ind['name']).encode('utf-8')
+                for year in years[:-1]:
+                    encoded[year] = unicode(ind.get(year, '-')).encode('utf-8')
+                encoded['%s' %latest] = unicode(ind.get('%s' %latest, '-')).encode('utf-8')
+                encoded['EU27 value %s' %latest] = unicode(
+                        ind.get('eu', '-')).encode('utf-8')
+                encoded['rank'] = unicode(ind.get('rank', '-')).encode('utf-8')
+                writer.writerow(encoded)
+
 
     def export(self):
         """ Export to csv
         """
-        options = self.request.form.get('options', "{}")
-        method = self.request.form.get('method', 'datapoints')
-        formatter = getattr(self, method, None)
-
-        self.request.form = json.loads(options)
-        points = queryMultiAdapter((self.context, self.request), name=method)
 
         self.request.response.setHeader(
             'Content-Type', 'application/csv')
@@ -32,13 +113,22 @@ class ExportCSV(BrowserView):
             'Content-Disposition',
             'attachment; filename="%s.csv"' % self.context.getId())
 
-        if not points:
-            return ""
+        chart_data = json.loads(self.request.form.pop('chart_data'))
 
-        if formatter:
-            return formatter(points)
+        chart_type = self.request.form.pop('chart_type')
 
-        return ""
+        formatters = {
+            'scatter': self.datapoints_n,
+            'bubbles': self.datapoints_n,
+            'country_profile_bar': self.datapoints_profile,
+            'country_profile_table': self.datapoints_profile_table
+        }
+
+        formatter = formatters.get(chart_type, self.datapoints)
+
+        formatter(self.request.response, chart_data)
+
+        return self.request.response
 
 class ExportRDF(BrowserView):
     """ Export to RDF
