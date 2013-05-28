@@ -26,9 +26,9 @@ class ExportCSV(BrowserView):
         for series in chart_data:
             for point in series['data']:
                 encoded = {}
-                encoded['series'] = series['name']
+                encoded['series'] = series.get('name', '-')
                 for key in headers[1:]:
-                    encoded[key] = unicode(point[key]).encode('utf-8')
+                    encoded[key] = unicode(point.get(key, '-')).encode('utf-8')
                 writer.writerow(encoded)
 
 
