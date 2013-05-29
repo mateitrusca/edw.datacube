@@ -374,7 +374,14 @@ class AjaxDataView(BrowserView):
         }
         table = mapping['table']
 
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'whitelist.json')
+        whitelist = view.whitelist if view else []
+
         for point in datapoints['datapoints']:
+            if self.blacklisted(point, whitelist):
+                continue
+
             # Selected country
             mapping['ref-area'].update(point['ref-area'])
 
@@ -429,6 +436,10 @@ class AjaxDataView(BrowserView):
 
         # Compute rank amoung EU27 countries
         for point in all_datapoints['datapoints']:
+
+            if self.blacklisted(point, whitelist):
+                continue
+
             key = u','.join((
                 point['indicator']['notation'] or '-',
                 point['breakdown']['notation'] or '-',

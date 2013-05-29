@@ -1,4 +1,4 @@
-from mock import Mock, MagicMock, call
+from mock import Mock, MagicMock, call, patch
 import simplejson as json
 import pytest
 from edw.datacube.browser.query import AjaxDataView
@@ -189,3 +189,67 @@ def test_data_xy_query_sends_filters(mock_cube):
                              x_filters=[('indicator', 'i_iuse')],
                              y_filters=[('indicator', 'i_iu3g')])
     assert res == {'datapoints': ['something']}
+
+
+from edw.datacube.browser import query
+@patch.object(query, 'queryMultiAdapter')
+def test_datapoints_cpt_blacklist_filtering(mock_adapter, mock_cube):
+    datapoints = {
+        "datapoints": [{
+            "breakdown": {
+                "short-label": "All enterprises", 
+                "notation": "ent_all_xfin", 
+                "label": "All enterprises"
+            }, 
+            "indicator": {
+                "short-label": "Use of eGovernment services - enterprises", 
+                "notation": "e_igov", 
+                "label": "Enterprises interacting online with public authorities"
+            }, 
+            "time-period": {
+                "short-label": "2004", 
+                "notation": "2004", 
+                "label": "Year:2004"
+            }, 
+            "value": 0.8388, 
+            "note": None, 
+            "flag": None, 
+            "unit-measure": {
+                "short-label": "% of enterprises", 
+                "notation": "pc_ent", 
+                "label": "Percentage of enterprises"
+            }, 
+            "ref-area": {
+                "short-label": None, 
+                "notation": "EE", 
+                "label": "Estonia"
+            }
+        }]
+    }
+
+    form = {
+        'indicator-group': 'egovernment',
+        'ref-area': 'EE',
+        'time-period': '2012',
+        'indicator': ["e_igov","e_igov2pr","e_igovrt","i_igov12rt","i_iugov12"]
+    }
+
+    from edw.datacube.browser.query import AjaxDataView
+    datasource = Mock(get_cube=Mock(return_value=mock_cube))
+    view = AjaxDataView(datasource, Mock(form=form))
+    view.datapoints = Mock(return_value=json.dumps(datapoints))
+    mock_adapter.return_value = Mock(
+        whitelist=[
+            {'breakdown': 'ent_all_xfin',
+             'indicator': 'e_igov',
+             'unit-measure': 'pc_ent'}],
+        eu = {'EE': 'Estonia'}
+    )
+
+    res = json.loads(view.datapoints_cpt())
+    assert 'e_igov,ent_all_xfin,pc_ent' in res['datapoints']['table'].keys()
+
+    datapoints['datapoints'][0]['breakdown']['notation'] = 'blacklisted'
+    view.datapoints = Mock(return_value=json.dumps(datapoints))
+    res = json.loads(view.datapoints_cpt())
+    assert 'e_igov,blacklisted,pc_ent' not in res['datapoints']['table'].keys()
