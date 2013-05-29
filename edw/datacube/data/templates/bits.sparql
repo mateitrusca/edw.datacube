@@ -10,6 +10,16 @@
     dad-prop:membership [
       dad-prop:member-of {{ option_uri|uri_n3 }} ] .
 
+  {%- elif dimension_code == 'time-period' %}
+  {
+    ?{{ observation }}
+      dad-prop:time-period {{ option_uri|uri_n3 }} .
+  } UNION {
+    ?{{ observation }}
+      dad-prop:time-period [
+        time:intervalDuring {{ option_uri|uri_n3 }} ] .
+  }
+
   {%- else %}
   ?{{ observation }}
     dad-prop:{{ dimension_code }} {{ option_uri|uri_n3 }} .

@@ -3,6 +3,7 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+PREFIX time: <http://www.w3.org/2006/time#>
 SELECT DISTINCT {% for f in columns %} {%- set n = loop.index -%}
                 ?col{{n}}, {% endfor -%} ?value
 WHERE {

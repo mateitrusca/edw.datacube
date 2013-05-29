@@ -243,6 +243,7 @@ class Cube(object):
 
     def get_dimension_options_n(self, dimension, filters, n_filters):
         uris = None
+        result_sets = []
         for extra_filters in n_filters:
             query = sparql_env.get_template('dimension_options.sparql').render(**{
                 'dataset': self.dataset,
@@ -251,11 +252,27 @@ class Cube(object):
                 'group_dimensions': self.get_group_dimensions(),
                 'notations': self.notations,
             })
-            result = set([item['uri'] for item in self._execute(query)])
+            result_sets.append(list(self._execute(query)))
+
+        interval_types = set(item['interval_type']
+                             for res in result_sets for item in res)
+
+        if len(interval_types) > 1:
+            # normalize to years
+            def options(res):
+                return set(item['parent_year'] or item['uri'] for item in res)
+
+        else:
+            def options(res):
+                return set(item['uri'] for item in res)
+
+        for res in result_sets:
+            res = options(res)
             if uris is None:
-                uris = result
+                uris = res
             else:
-                uris = uris & result
+                uris = uris & res
+
         labels = self.get_labels(uris)
         rv = [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
         rv.sort(key=lambda item: int(item.pop('order') or '0'))
@@ -368,6 +385,15 @@ class Cube(object):
             for item in data:
                 dict_data.append(
                         dict(zip(columns_names, item)))
+
+            # only keep the entry with largest time_period value
+            time_periods = {}
+            for row in dict_data:
+                join_vaule = row[join_by]
+                time_periods[join_vaule] = max([time_periods.get(join_vaule),
+                                                row['time-period']])
+            dict_data = [row for row in dict_data
+                         if time_periods[row[join_by]] == row['time-period']]
             raw_data.append(dict_data)
 
         # JOIN DATA
