@@ -36,15 +36,6 @@ def run_benchmarks():
             ('indicator', 'e_adesucu'),
         ]))
 
-    with measure('datapoints'):
-        list(cube.get_data(['ref-area', 'value'], [
-            ('indicator', 'AAAA_cov'),
-            ('time-period', '2012'),
-            ('breakdown-group', 'total'),
-            ('breakdown', 'TOTAL'),
-            ('unit-measure', 'pc_websites'),
-        ]))
-
     with measure('dimension_values_xy (years)'):
         list(cube.get_dimension_options_xy('time-period', [
         ], [

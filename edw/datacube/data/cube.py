@@ -290,22 +290,6 @@ class Cube(object):
         else:
             return {}
 
-    def get_data(self, columns, filters):
-        assert columns[-1] == 'value', "Last column must be 'value'"
-        query = sparql_env.get_template('data.sparql').render(**{
-            'dataset': self.dataset,
-            'columns': columns[:-1],
-            'filters': filters,
-            'group_dimensions': self.get_group_dimensions(),
-            'notations': self.notations,
-        })
-
-        result_columns = []
-        for f in columns:
-            result_columns.extend([f, '%s-label' %f, '%s-short-label' %f])
-        for row in self._execute(query, as_dict=False):
-            yield dict(zip(result_columns, row))
-
     def get_columns(self):
         def mapper(item):
             if not item['type_label'] in ['measure', 'dimension group']:
