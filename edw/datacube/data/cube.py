@@ -8,6 +8,8 @@ import threading
 import jinja2
 import sparql
 
+from decimal import Decimal
+
 SPARQL_DEBUG = bool(os.environ.get('SPARQL_DEBUG') == 'on')
 
 logger = logging.getLogger(__name__)
@@ -351,6 +353,8 @@ class Cube(object):
                          'label': labels.get(item, {}).get('label', None),
                          'short-label': labels.get(item, {}).get('short_label', None)}
                     )
+            if type(value) == type(Decimal()):
+                value = float(value)
             result_row.append(value)
             yield dict(zip(result_columns, result_row))
 
@@ -383,6 +387,8 @@ class Cube(object):
             data = self._execute(query, as_dict=False)
             dict_data = []
             for item in data:
+                if type(item[-1]) == type(Decimal()):
+                    item[-1] = float(item[-1])
                 dict_data.append(
                         dict(zip(columns_names, item)))
 
