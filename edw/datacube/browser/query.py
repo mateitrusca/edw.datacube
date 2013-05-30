@@ -414,7 +414,7 @@ class AjaxDataView(BrowserView):
                     name += u')'
                 table[key]['name'] = name
 
-            year = point['time-period']['notation']
+            year = point['time-period']['notation'].split('-')[0]
             try:
                 year = int(year)
             except Exception, err:
@@ -446,7 +446,7 @@ class AjaxDataView(BrowserView):
                 point['unit-measure']['notation'] or '-'
             ))
 
-            year = point['time-period']['notation']
+            year = point['time-period']['notation'].split('-')[0]
             try:
                 year = int(year)
             except Exception, err:
