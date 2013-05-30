@@ -204,7 +204,8 @@ def test_datapoints_cpt_blacklist_filtering(mock_adapter, mock_cube):
             "indicator": {
                 "short-label": "Use of eGovernment services - enterprises", 
                 "notation": "e_igov", 
-                "label": "Enterprises interacting online with public authorities"
+                "label": "Enterprises interacting online with public authorities",
+                "inner_order": 1
             }, 
             "time-period": {
                 "short-label": "2004", 

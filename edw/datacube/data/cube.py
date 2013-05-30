@@ -350,6 +350,7 @@ class Cube(object):
                 else:
                     result_row.append(
                         {'notation': labels.get(item, {}).get('notation', None),
+                         'inner_order': labels.get(item, {}).get('inner_order', None),
                          'label': labels.get(item, {}).get('label', None),
                          'short-label': labels.get(item, {}).get('short_label', None)}
                     )

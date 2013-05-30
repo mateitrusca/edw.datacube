@@ -414,7 +414,11 @@ class AjaxDataView(BrowserView):
                     name += u')'
                 table[key]['name'] = name
 
+            if not table[key].get('inner_order'):
+                table[key]['inner_order'] = point['indicator']['inner_order']
+
             year = point['time-period']['notation'].split('-')[0]
+
             try:
                 year = int(year)
             except Exception, err:
