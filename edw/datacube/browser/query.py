@@ -418,6 +418,9 @@ class AjaxDataView(BrowserView):
             if not table[key].get('inner_order'):
                 table[key]['inner_order'] = point['indicator']['inner_order']
 
+            if not table[key].get('unit'):
+                table[key]['unit'] = point['unit-measure']['notation']
+
             year = point['time-period']['notation'].split('-')[0]
 
             try:
