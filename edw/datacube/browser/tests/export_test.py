@@ -187,7 +187,9 @@ def test_table_profile_csv_export():
                         '2010': 0.9,
                         'eu': 52,
                         'name': 'long-label',
-                        'rank': 15
+                        'rank': 15,
+                        'inner_order': 5,
+                        'unit': 'pc_ent'
                     },
                     'some-other-key': {
                         '2009': 0.8,
