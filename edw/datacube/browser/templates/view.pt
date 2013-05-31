@@ -91,14 +91,17 @@
     <h2 id="download">Download Data</h2>
     <strong>Formats suitable for human consumption</strong>
     <ul>
-      <li><a href="@@html">HTML</a></li>
+      <li><a tal:attributes="href python:here.getField('dataset').getAccessor(here)()">HTML</a></li>
       <li><a href="@@csv">CSV</a></li>
       <li><a href="@@tsv">TSV</a></li>
     </ul>
     <strong>Formats suitable for machine-to-machine communication</strong>
     <ul>
       <li>Data: <a href="@@data-rdf">RDF</a></li>
-      <li>Metadata and codelists: <a href="@@metadata-rdf">CSV</a></li>
+      <li>Codelists: <a href="http://semantic.digital-agenda-data.eu/codelist.rdf">RDF</a></li>
+      <li>Objects in scheme: <a href="http://semantic.digital-agenda-data.eu/def/scheme.rdf">RDF</a></li>
+      <li>Available data models: <a href="http://semantic.digital-agenda-data.eu/def/dsd.rdf">RDF</a></li>
+      <li>Observations from datasets: <a href="http://semantic.digital-agenda-data.eu/data.rdf">RDF</a></li>
     </ul>
     <div id="dataset-navigation" class="navigation-widget"></div>
   </div>
