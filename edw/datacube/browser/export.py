@@ -84,7 +84,7 @@ class ExportCSV(BrowserView):
             encoded = {}
             latest = series['data']['latest']
 
-            years = sorted(series['data']['table'].values()[0].keys())[:-3]
+            years = sorted(series['data']['table'].values()[0].keys())[:-5]
 
             headers = (['country', 'indicator'] + years +
                        ['EU27 value %s' %latest, 'rank'])
