@@ -149,7 +149,8 @@ class AjaxDataView(BrowserView):
             key = (
                 point['indicator']['notation'],
                 point['breakdown']['notation'],
-                point['unit-measure']['notation']
+                point['unit-measure']['notation'],
+                point['time-period']['notation']
             )
             if uid == key:
                 res = point['value']
@@ -211,19 +212,26 @@ class AjaxDataView(BrowserView):
 
         # Get all datapoints
         countryName = self.request.form.pop('ref-area', '')
-        all_datapoints = json.loads(self.datapoints())
+        all_datapoints = sorted(json.loads(self.datapoints())['datapoints'],
+                                key=lambda k: k['time-period']['notation'])
 
         # Compute new values
         mapping = {}
-        for point in all_datapoints['datapoints']:
+        latest = {}
+        for point in all_datapoints:
             if self.blacklisted(point, whitelist):
                 continue
 
             key = (
                 point['indicator']['notation'],
                 point['breakdown']['notation'],
-                point['unit-measure']['notation']
+                point['unit-measure']['notation'],
+                point['time-period']['notation']
             )
+
+            # latest is a mapping for
+            # indicator,breakdown,unit-measure to latest time-period
+            latest[key[:-1]] = key[-1]
 
             try:
                 point['value'] = float(point['value'])
@@ -236,8 +244,7 @@ class AjaxDataView(BrowserView):
                 mapping[key] = {
                     'min': {'value': countryValue, 'ref-area': countryName},
                     'max': {'value': countryValue, 'ref-area': countryName},
-                    'med': {'value': countryValue, 'ref-area': countryName},
-                    #'rank': {'value': 0, 'ref-area': countryName}
+                    'med': {'value': countryValue, 'ref-area': countryName}
             }
 
             # Update med
@@ -263,15 +270,6 @@ class AjaxDataView(BrowserView):
                 mapping[key]['max']['value'] = newValue
                 mapping[key]['max']['ref-area'] = point['ref-area']['notation'];
 
-            ## Update rank only for EU27 countries
-            #if countryName not in eu:
-                #continue
-
-            #if not mapping[key]['rank']['value']:
-                #mapping[key]['rank']['value'] = 1
-            #if point['value'] > countryValue:
-                #mapping[key]['rank']['value'] += 1
-
         # Update points
         rows = []
         for point in datapoints['datapoints']:
@@ -281,8 +279,13 @@ class AjaxDataView(BrowserView):
             key =  (
                 point['indicator']['notation'],
                 point['breakdown']['notation'],
-                point['unit-measure']['notation']
+                point['unit-measure']['notation'],
+                point['time-period']['notation']
             )
+
+            # if not latest: continue
+            if latest.get(key[:-1]) != key[-1]:
+                continue
 
             try:
                 point['value'] = float(point['value'])
