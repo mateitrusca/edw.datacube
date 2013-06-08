@@ -83,23 +83,27 @@ class ExportCSV(BrowserView):
         for series in chart_data:
             encoded = {}
             latest = series['data']['latest']
+            years = ['%s' % (latest-3), '%s' % (latest-2), '%s' % (latest-1), '%s' % (latest)]
 
-            years = sorted(series['data']['table'].values()[0].keys())[:-5]
-
-            headers = (['country', 'indicator'] + years +
+            headers = (['country', 'indicator', 'breakdown', 'unit'] + years +
                        ['EU27 value %s' %latest, 'rank'])
             writer = csv.DictWriter(response, headers, restval='')
             writer.writeheader()
 
             encoded['country'] = series['data']['ref-area']['label']
             for ind in series['data']['table'].values():
-                encoded['indicator'] = unicode(ind['name']).encode('utf-8')
-                for year in years[:-1]:
+                encoded['indicator'] = unicode(ind['indicator']).encode('utf-8')
+                encoded['breakdown'] = unicode(ind['breakdown']).encode('utf-8')
+                encoded['unit'] = unicode(ind['unit-measure']).encode('utf-8')
+                for year in years:
                     encoded[year] = unicode(ind.get(year, '-')).encode('utf-8')
-                encoded['%s' %latest] = unicode(ind.get('%s' %latest, '-')).encode('utf-8')
+                #encoded['%s' %latest] = unicode(ind.get('%s' %latest, '-')).encode('utf-8')
                 encoded['EU27 value %s' %latest] = unicode(
                         ind.get('eu', '-')).encode('utf-8')
-                encoded['rank'] = unicode(ind.get('rank', '-')).encode('utf-8')
+                rank = ind.get('rank', '-')
+                if rank == 0:
+                    rank = '-'
+                encoded['rank'] = unicode(rank).encode('utf-8')
                 writer.writerow(encoded)
 
 

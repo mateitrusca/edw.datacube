@@ -404,20 +404,21 @@ class AjaxDataView(BrowserView):
                 continue
 
             table.setdefault(key, {})
-            if not table[key].get('name', ''):
-                name = u''
-                name += point['indicator']['short-label']
-                if point['breakdown']['short-label']:
-                    name += u' - ' + point['breakdown']['short-label']
-                elif point['breakdown']['label']:
-                    name += u' - ' + point['breakdown']['label']
-                if point['unit-measure']['short-label']:
-                    name += u' (in ' + point['unit-measure']['short-label']
-                    name += u')'
-                elif point['unit-measure']['label']:
-                    name += u' (in ' + point['unit-measure']['label']
-                    name += u')'
-                table[key]['name'] = name
+            if not table[key].get('indicator'):
+                table[key]['indicator'] = (
+                    point['indicator']['short-label']
+                    or point['indicator']['label']
+                    or point['indicator']['notation'])
+            if not table[key].get('breakdown'):
+                table[key]['breakdown'] = (
+                    point['breakdown']['short-label']
+                    or point['breakdown']['label']
+                    or point['breakdown']['notation'])
+            if not table[key].get('unit-measure'):
+                table[key]['unit-measure'] = (
+                    point['unit-measure']['short-label']
+                    or point['unit-measure']['label']
+                    or point['unit-measure']['notation'])
 
             if not table[key].get('inner_order'):
                 table[key]['inner_order'] = point['indicator']['inner_order']
