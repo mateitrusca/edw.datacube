@@ -405,8 +405,8 @@ class AjaxDataView(BrowserView):
 
             table.setdefault(key, {})
             if not table[key].get('name', ''):
-                name = u'<strong>'
-                name += point['indicator']['short-label'] + u'</strong>'
+                name = u''
+                name += point['indicator']['short-label']
                 if point['breakdown']['short-label']:
                     name += u' - ' + point['breakdown']['short-label']
                 elif point['breakdown']['label']:
