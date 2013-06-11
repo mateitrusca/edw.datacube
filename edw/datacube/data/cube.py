@@ -342,9 +342,11 @@ class Cube(object):
                     return True if uri.startswith('http://') else False
             return memo.union(set(filter(uri_filter, item[:-1])))
         uris = reduce(reducer, result, set())
-        labels = self.get_labels(uris)
+        column_names = [item['notation'] for item in columns] + ['value']
+        return self._format_observations_result(result, column_names, uris)
 
-        result_columns = [item['notation'] for item in columns] + ['value']
+    def _format_observations_result(self, result, columns, uris):
+        labels = self.get_labels(uris)
 
         for row in result:
             result_row = []
@@ -362,7 +364,7 @@ class Cube(object):
             if type(value) == type(Decimal()):
                 value = float(value)
             result_row.append(value)
-            yield dict(zip(result_columns, result_row))
+            yield dict(zip(columns, result_row))
 
     def get_data_xy(self, join_by, filters, x_filters, y_filters):
         n_filters = [x_filters, y_filters]
