@@ -91,13 +91,18 @@ class NotationMap(object):
         return data_cache.get(cache_key, self.update)
 
     def lookup_notation(self, namespace, notation):
-        by_notation = self.get()['by_notation']
+        data = self.get()
+        by_notation = data['by_notation']
         ns = by_notation.get(namespace)
         if ns is None:
             raise RuntimeError("Unknown namespace %r", namespace)
         rv = ns.get(notation)
         if rv is None:
-            logger.warn('lookup failure %r', (namespace, notation))
+            if namespace in ['unit-measure', 'breakdown', 'indicator']:
+                uri = dict(self.NAMESPACES)[namespace] + notation,
+                rv = self._add_item(data, uri, namespace, notation)
+            else:
+                logger.warn('lookup failure %r', (namespace, notation))
         return rv
 
     def lookup_uri(self, uri):
@@ -112,6 +117,7 @@ class NotationMap(object):
                'notation': notation}
         data['by_uri'][uri] = row
         data['by_notation'][namespace][notation] = row
+        return row
 
     def touch_uri(self, uri):
         data = self.get()
