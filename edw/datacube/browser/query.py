@@ -456,11 +456,12 @@ class AjaxDataView(BrowserView):
         eu = view.eu if view else {}
 
         # Get all datapoints
-        self.request.form['time-period'] = unicode(latestYear)
-        all_datapoints = json.loads(self.datapoints())
+        all_datapoint_rows = list(self.cube.get_observations_cp([
+            ('time-period', unicode(latestYear)),
+            ('indicator-group', self.request.form['indicator-group'])]))
 
         # Compute rank amoung EU27 countries
-        for point in all_datapoints['datapoints']:
+        for point in all_datapoint_rows:
 
             if self.blacklisted(point, whitelist):
                 continue
