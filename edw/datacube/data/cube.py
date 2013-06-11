@@ -366,6 +366,25 @@ class Cube(object):
             result_row.append(value)
             yield dict(zip(columns, result_row))
 
+    def get_observations_cp(self, filters):
+        columns = self.get_columns()
+        query = sparql_env.get_template('data_and_attributes.sparql').render(**{
+            'dataset': self.dataset,
+            'columns': columns,
+            'filters': filters,
+            'group_dimensions': self.get_group_dimensions(),
+            'notations': self.notations,
+        })
+        result = list(self._execute(query, as_dict=False))
+        def reducer(memo, item):
+            def uri_filter(uri):
+                if uri:
+                    return True if uri.startswith('http://') else False
+            return memo.union(set(filter(uri_filter, item[:-1])))
+        uris = reduce(reducer, result, set())
+        column_names = [item['notation'] for item in columns] + ['value']
+        return self._format_observations_result(result, column_names, uris)
+
     def get_data_xy(self, join_by, filters, x_filters, y_filters):
         n_filters = [x_filters, y_filters]
         return self.get_data_n(join_by, filters, n_filters)
