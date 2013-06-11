@@ -373,8 +373,12 @@ class AjaxDataView(BrowserView):
             latestYear = datetime.now().year - 1
 
         # Get datapoints
-        datapoints = json.loads(self.datapoints())
         countryName = self.request.form.pop('ref-area', '')
+        filters = [('indicator-group', self.request.form['indicator-group'])]
+        if countryName:
+            filters.append(('ref-area', countryName))
+        datapoint_rows = list(self.cube.get_observations_cp(filters))
+
         mapping = {
             'latest': latestYear,
             'has-rank': False,
@@ -391,7 +395,7 @@ class AjaxDataView(BrowserView):
                                  name=u'whitelist.json')
         whitelist = view.whitelist if view else []
 
-        for point in datapoints['datapoints']:
+        for point in datapoint_rows:
             if self.blacklisted(point, whitelist):
                 continue
 
