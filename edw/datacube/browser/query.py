@@ -217,14 +217,16 @@ class AjaxDataView(BrowserView):
         whitelist = view.whitelist if view else []
 
         # Get all datapoints
-        countryName = self.request.form.pop('ref-area', '')
-        all_datapoints = sorted(json.loads(self.datapoints())['datapoints'],
-                                key=lambda k: k['time-period']['notation'])
+        all_datapoint_rows = list(self.cube.get_observations_cp([
+            ('time-period', self.request.form['time-period']),
+            ('indicator-group', self.request.form['indicator-group'])]))
+
+        all_datapoint_rows.sort(key=lambda k: k['time-period']['notation'])
 
         # Compute new values
         mapping = {}
         latest = {}
-        for point in all_datapoints:
+        for point in all_datapoint_rows:
             if self.blacklisted(point, whitelist):
                 continue
 
