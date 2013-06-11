@@ -163,22 +163,6 @@ class AjaxDataView(BrowserView):
                     return res
         return 0
 
-    def blacklisted(self, point, whitelist):
-        """ Check to see if point is blacklisted
-        """
-        for white in whitelist:
-            match = True
-            for key, value in white.items():
-                if key == 'indicator-group':
-                    continue
-                notation = point.get(key, {}).get('notation', u'')
-                if notation is not None and notation.lower() != value.lower():
-                    match = False
-                    break
-            if match:
-                return False
-        return True
-
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints(self):
         form = dict(self.request.form)
@@ -199,27 +183,28 @@ class AjaxDataView(BrowserView):
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints_cpc(self):
+        # Get whitelisted items
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'whitelist.json')
+
+        whitelist = view.whitelist if view else []
         # Get datapoints
         countryName = self.request.form.pop('ref-area', '')
         filters = [('indicator-group', self.request.form['indicator-group'])]
         if countryName:
             filters.append(('ref-area', countryName))
-        datapoint_rows = list(self.cube.get_observations_cp(filters))
+        datapoint_rows = list(self.cube.get_observations_cp(filters, whitelist))
 
         # Get EU countries
         view = queryMultiAdapter((self.context, self.request),
                                  name=u'european-union.json')
         eu = view.eu if view else {}
 
-        # Get whitelisted items
-        view = queryMultiAdapter((self.context, self.request),
-                                 name=u'whitelist.json')
-        whitelist = view.whitelist if view else []
-
         # Get all datapoints
         all_datapoint_rows = list(self.cube.get_observations_cp([
             ('time-period', self.request.form['time-period']),
-            ('indicator-group', self.request.form['indicator-group'])]))
+            ('indicator-group', self.request.form['indicator-group'])],
+            whitelist))
 
         all_datapoint_rows.sort(key=lambda k: k['time-period']['notation'])
 
@@ -227,9 +212,6 @@ class AjaxDataView(BrowserView):
         mapping = {}
         latest = {}
         for point in all_datapoint_rows:
-            if self.blacklisted(point, whitelist):
-                continue
-
             key = (
                 point['indicator']['notation'],
                 point['breakdown']['notation'],
@@ -281,9 +263,6 @@ class AjaxDataView(BrowserView):
         # Update points
         rows = []
         for point in datapoint_rows:
-            if self.blacklisted(point, whitelist):
-                continue
-
             key =  (
                 point['indicator']['notation'],
                 point['breakdown']['notation'],
@@ -365,6 +344,11 @@ class AjaxDataView(BrowserView):
           }
         }
         """
+
+        view = queryMultiAdapter((self.context, self.request),
+                                 name=u'whitelist.json')
+        whitelist = view.whitelist if view else []
+
         latestYear = self.request.form.pop('time-period',
                                            datetime.now().year - 1)
         try:
@@ -377,7 +361,7 @@ class AjaxDataView(BrowserView):
         filters = [('indicator-group', self.request.form['indicator-group'])]
         if countryName:
             filters.append(('ref-area', countryName))
-        datapoint_rows = list(self.cube.get_observations_cp(filters))
+        datapoint_rows = list(self.cube.get_observations_cp(filters, whitelist))
 
         mapping = {
             'latest': latestYear,
@@ -391,14 +375,7 @@ class AjaxDataView(BrowserView):
         }
         table = mapping['table']
 
-        view = queryMultiAdapter((self.context, self.request),
-                                 name=u'whitelist.json')
-        whitelist = view.whitelist if view else []
-
         for point in datapoint_rows:
-            if self.blacklisted(point, whitelist):
-                continue
-
             # Selected country
             mapping['ref-area'].update(point['ref-area'])
 
@@ -458,14 +435,11 @@ class AjaxDataView(BrowserView):
         # Get all datapoints
         all_datapoint_rows = list(self.cube.get_observations_cp([
             ('time-period', unicode(latestYear)),
-            ('indicator-group', self.request.form['indicator-group'])]))
+            ('indicator-group', self.request.form['indicator-group'])],
+            whitelist))
 
         # Compute rank amoung EU27 countries
         for point in all_datapoint_rows:
-
-            if self.blacklisted(point, whitelist):
-                continue
-
             key = u','.join((
                 point['indicator']['notation'] or '-',
                 point['breakdown']['notation'] or '-',

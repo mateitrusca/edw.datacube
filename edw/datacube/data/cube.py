@@ -380,14 +380,27 @@ class Cube(object):
             result_row.append(value)
             yield dict(zip(columns, result_row))
 
-    def get_observations_cp(self, filters):
+    def get_observations_cp(self, filters, whitelist_items):
         columns = self.get_columns()
-        query = sparql_env.get_template('data_and_attributes.sparql').render(**{
+
+        whitelist = []
+        for item in whitelist_items:
+            mapped_item = {}
+            if item['indicator-group'] == indicator_group:
+                for n, col in enumerate(columns, 1):
+                    name = col['notation']
+                    if name in ['indicator', 'breakdown', 'unit-measure']:
+                        mapped_item[n] = self.notations.lookup_notation(
+                                            name, item[name])['uri']
+                whitelist.append(mapped_item)
+
+        query = sparql_env.get_template('data_and_attributes_cp.sparql').render(**{
             'dataset': self.dataset,
             'columns': columns,
             'filters': filters,
             'group_dimensions': self.get_group_dimensions(),
             'notations': self.notations,
+            'whitelist': whitelist,
         })
         result = list(self._execute(query, as_dict=False))
         def reducer(memo, item):
