@@ -104,19 +104,22 @@ class NotationMap(object):
         by_uri = self.get()['by_uri']
         return by_uri.get(uri)
 
+    @staticmethod
+    def _add_item(data, uri, namespace, notation):
+        logger.info('patching missing notation %r', (namespace, notation))
+        row = {'uri': uri,
+               'namespace': namespace,
+               'notation': notation}
+        data['by_uri'][uri] = row
+        data['by_notation'][namespace][notation] = row
+
     def touch_uri(self, uri):
         data = self.get()
         if uri not in data['by_uri']:
             for namespace, prefix in self.NAMESPACES:
                 if uri.startswith(prefix):
                     notation = uri[len(prefix):]
-                    logger.info('patching missing notation %r',
-                                (namespace, notation))
-                    row = {'uri': uri,
-                           'namespace': namespace,
-                           'notation': notation}
-                    data['by_uri'][uri] = row
-                    data['by_notation'][namespace][notation] = row
+                    self._add_item(data, uri, namespace, notation)
                     break
             else:
                 logger.warn('new unknown uri %r', uri)
