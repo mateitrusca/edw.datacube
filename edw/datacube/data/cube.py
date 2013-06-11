@@ -130,6 +130,7 @@ class Cube(object):
         self.notations = NotationMap(self)
 
     def _execute(self, query, as_dict=True):
+        t0 = time.time()
         if SPARQL_DEBUG:
             logger.info('Running query: \n%s', query)
         try:
@@ -137,10 +138,14 @@ class Cube(object):
             query_object.method = 'POST'
             res = query_object.query(query)
         except urllib2.HTTPError, e:
+            if SPARQL_DEBUG:
+                logger.info('Query failed')
             if 400 <= e.code < 600:
                 raise QueryError(e.fp.read())
             else:
                 raise
+        if SPARQL_DEBUG:
+            logger.info('Query took %.2f seconds.', time.time() - t0)
         rv = (sparql.unpack_row(r) for r in res)
         if as_dict:
             return (dict(zip(res.variables, r)) for r in rv)
