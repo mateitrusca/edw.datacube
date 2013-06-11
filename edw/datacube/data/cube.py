@@ -315,16 +315,21 @@ class Cube(object):
             return {}
 
     def get_columns(self):
-        def mapper(item):
-            if not item['type_label'] in ['measure', 'dimension group']:
-                is_attr = True if item['type_label'] == 'attribute' else False
-                return { "uri": item['dimension'],
-                         "optional": is_attr,
-                         "notation": item['notation'],
-                         "name": item['notation']}
-        columns = filter(lambda item: True if item else False,
-                         map(mapper, self.get_dimensions(flat=True)))
-        return columns
+        columns_map = {}
+        for item in self.get_dimensions(flat=True):
+            if item['type_label'] in ['measure', 'dimension group']:
+                continue
+            name = item['notation']
+            if name not in columns_map:
+                columns_map[name] = {
+                    "uri": item['dimension'],
+                    "optional": True,
+                    "notation": item['notation'],
+                    "name": name,
+                }
+            if item['type_label'] != 'attribute':
+                columns_map[name]['optional'] = False
+        return columns_map.values()
 
     def get_observations(self, filters):
         columns = self.get_columns()
