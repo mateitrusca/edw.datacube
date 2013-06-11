@@ -169,6 +169,8 @@ class AjaxDataView(BrowserView):
         for white in whitelist:
             match = True
             for key, value in white.items():
+                if key == 'indicator-group':
+                    continue
                 notation = point.get(key, {}).get('notation', u'')
                 if notation is not None and notation.lower() != value.lower():
                     match = False
