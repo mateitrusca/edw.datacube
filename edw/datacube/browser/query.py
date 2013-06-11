@@ -200,7 +200,11 @@ class AjaxDataView(BrowserView):
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def datapoints_cpc(self):
         # Get datapoints
-        datapoints = json.loads(self.datapoints())
+        countryName = self.request.form.pop('ref-area', '')
+        filters = [('indicator-group', self.request.form['indicator-group'])]
+        if countryName:
+            filters.append(('ref-area', countryName))
+        datapoint_rows = list(self.cube.get_observations_cp(filters))
 
         # Get EU countries
         view = queryMultiAdapter((self.context, self.request),
@@ -241,7 +245,7 @@ class AjaxDataView(BrowserView):
                 logger.exception(err)
                 continue
 
-            countryValue = self.country_value(key, datapoints['datapoints'])
+            countryValue = self.country_value(key, datapoint_rows)
             if not mapping.get(key):
                 mapping[key] = {
                     'min': {'value': countryValue, 'ref-area': countryName},
@@ -274,7 +278,7 @@ class AjaxDataView(BrowserView):
 
         # Update points
         rows = []
-        for point in datapoints['datapoints']:
+        for point in datapoint_rows:
             if self.blacklisted(point, whitelist):
                 continue
 
