@@ -383,6 +383,7 @@ class Cube(object):
     def get_observations_cp(self, filters, whitelist_items):
         columns = self.get_columns()
 
+        indicator_group = dict(filters)['indicator-group']
         whitelist = []
         for item in whitelist_items:
             mapped_item = {}
