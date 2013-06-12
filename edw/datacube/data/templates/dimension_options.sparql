@@ -12,7 +12,6 @@ SELECT DISTINCT ?uri, ?interval_type, ?parent_year WHERE {
     else '?uri' %}
 
   ?observation
-    a qb:Observation ;
     qb:dataSet {{ dataset|uri_n3 }} ;
     ?dimension {{ variable }} .
 
@@ -23,6 +22,7 @@ SELECT DISTINCT ?uri, ?interval_type, ?parent_year WHERE {
 
 {{ one_dimension(dimension_code) }}
 
+{% if dimension_code == 'time-period' %}
 OPTIONAL {
     ?uri a ?interval_type .
     ?interval_type rdfs:subClassOf interval:CalendarInterval .
@@ -32,6 +32,7 @@ OPTIONAL {
     ?uri time:intervalDuring ?parent_year .
     ?parent_year a interval:Year .
 }
+{% endif %}
 
 }
 LIMIT 1000
