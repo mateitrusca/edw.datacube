@@ -102,7 +102,8 @@ class NotationMap(object):
                 uri = dict(self.NAMESPACES)[namespace] + notation,
                 rv = self._add_item(data, uri, namespace, notation)
             else:
-                logger.warn('lookup failure %r', (namespace, notation))
+                raise RuntimeError("notation lookup failure: %r %r"
+                                   % (namespace, notation))
         return rv
 
     def lookup_uri(self, uri):
@@ -128,7 +129,7 @@ class NotationMap(object):
                     self._add_item(data, uri, namespace, notation)
                     break
             else:
-                logger.warn('new unknown uri %r', uri)
+                raise RuntimeError('new unknown uri %r' % uri)
 
 
 class Cube(object):
