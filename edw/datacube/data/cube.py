@@ -126,7 +126,7 @@ class NotationMap(object):
             for namespace, prefix in self.NAMESPACES:
                 if uri.startswith(prefix):
                     notation = uri[len(prefix):]
-                    self._add_item(data, uri, namespace, notation)
+                    self._add_item(data, uri, namespace, notation.lower())
                     break
             else:
                 logger.warn('new unknown uri %r', uri)
@@ -370,10 +370,15 @@ class Cube(object):
                 if item not in uris:
                     result_row.append(item)
                 else:
+                    notation = labels.get(item, {}).get('notation', None)
+                    label = labels.get(item, {}).get('label', None)
+                    if notation is None:
+                        notation = self.get_other_labels(item).get('notation', None)
+                        label = self.get_other_labels(item).get('label', None)
                     result_row.append(
-                        {'notation': labels.get(item, {}).get('notation', None),
+                        {'notation': notation,
                          'inner_order': labels.get(item, {}).get('inner_order', None),
-                         'label': labels.get(item, {}).get('label', None),
+                         'label': label,
                          'short-label': labels.get(item, {}).get('short_label', None)}
                     )
             if type(value) == type(Decimal()):
