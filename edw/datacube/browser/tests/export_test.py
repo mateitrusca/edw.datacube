@@ -186,7 +186,9 @@ def test_table_profile_csv_export():
                         '2009': 0.8,
                         '2010': 0.9,
                         'eu': 52,
-                        'name': 'long-label',
+                        'breakdown': 'All individuals',
+                        'indicator': 'Telephoning or video calls',
+                        'unit-measure': '% of internet users (last 3 months)',
                         'rank': 15,
                         'inner_order': 5,
                         'unit': 'pc_ent'
@@ -194,7 +196,9 @@ def test_table_profile_csv_export():
                     'some-other-key': {
                         '2009': 0.8,
                         'eu': 52,
-                        'name': 'other-long-label',
+                        'breakdown': 'ex breakdown',
+                        'indicator': 'ex indicator',
+                        'unit-measure': 'ex unit',
                         'rank': 15
                     }
                 }
@@ -205,11 +209,11 @@ def test_table_profile_csv_export():
     out.seek(0)
     csv_output = out.read().split('\r\n')
     assert csv_output[0].split(',') == [
-            'country', 'indicator', '2009', '2010', 'EU27 value 2010', 'rank']
+            'country', 'indicator', 'breakdown', 'unit', '2007', '2008', '2009', '2010', 'EU27 value 2010', 'rank']
     assert csv_output[1].split(',') == [
-            'Austria', 'long-label', '0.8', '0.9', '52', '15']
+            'Austria', 'Telephoning or video calls', 'All individuals', '% of internet users (last 3 months)', '-', '-', '0.8', '0.9', '52', '15']
     assert csv_output[2].split(',') == [
-            'Austria', 'other-long-label', '0.8', '-', '52', '15']
+            'Austria', 'ex indicator', 'ex breakdown', 'ex unit', '-', '-', '0.8', '-', '52', '15']
 
 
 def test_formatter_decision():
