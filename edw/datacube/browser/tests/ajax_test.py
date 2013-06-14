@@ -193,39 +193,39 @@ def test_data_xy_query_sends_filters(mock_cube):
 from edw.datacube.browser import query
 @patch.object(query, 'queryMultiAdapter')
 def test_datapoints_cpt_blacklist_filtering(mock_adapter, mock_cube):
-    datapoints = {
-        "datapoints": [{
+    datapoints = [
+        {
             "breakdown": {
-                "short-label": "All enterprises", 
-                "notation": "ent_all_xfin", 
+                "short-label": "All enterprises",
+                "notation": "ent_all_xfin",
                 "label": "All enterprises"
-            }, 
+            },
             "indicator": {
-                "short-label": "Use of eGovernment services - enterprises", 
-                "notation": "e_igov", 
+                "short-label": "Use of eGovernment services - enterprises",
+                "notation": "e_igov",
                 "label": "Enterprises interacting online with public authorities",
                 "inner_order": 1
-            }, 
+            },
             "time-period": {
-                "short-label": "2004", 
-                "notation": "2004", 
+                "short-label": "2004",
+                "notation": "2004",
                 "label": "Year:2004"
-            }, 
-            "value": 0.8388, 
-            "note": None, 
-            "flag": None, 
+            },
+            "value": 0.8388,
+            "note": None,
+            "flag": None,
             "unit-measure": {
-                "short-label": "% of enterprises", 
-                "notation": "pc_ent", 
+                "short-label": "% of enterprises",
+                "notation": "pc_ent",
                 "label": "Percentage of enterprises"
-            }, 
+            },
             "ref-area": {
-                "short-label": None, 
-                "notation": "EE", 
+                "short-label": None,
+                "notation": "EE",
                 "label": "Estonia"
             }
-        }]
-    }
+        }
+    ]
 
     form = {
         'indicator-group': 'egovernment',
@@ -237,10 +237,11 @@ def test_datapoints_cpt_blacklist_filtering(mock_adapter, mock_cube):
     from edw.datacube.browser.query import AjaxDataView
     datasource = Mock(get_cube=Mock(return_value=mock_cube))
     view = AjaxDataView(datasource, Mock(form=form))
-    view.datapoints = Mock(return_value=json.dumps(datapoints))
+    mock_cube.get_observations_cp = Mock(return_value=datapoints)
     mock_adapter.return_value = Mock(
         whitelist=[
-            {'breakdown': 'ent_all_xfin',
+            {'indicator-group': 'egovernment',
+             'breakdown': 'ent_all_xfin',
              'indicator': 'e_igov',
              'unit-measure': 'pc_ent'}],
         eu = {'EE': 'Estonia'}
@@ -249,109 +250,79 @@ def test_datapoints_cpt_blacklist_filtering(mock_adapter, mock_cube):
     res = json.loads(view.datapoints_cpt())
     assert 'e_igov,ent_all_xfin,pc_ent' in res['datapoints']['table'].keys()
 
-    datapoints['datapoints'][0]['breakdown']['notation'] = 'blacklisted'
-    view.datapoints = Mock(return_value=json.dumps(datapoints))
-    res = json.loads(view.datapoints_cpt())
-    assert 'e_igov,blacklisted,pc_ent' not in res['datapoints']['table'].keys()
+    #whitelist filtering is now done in sparql
+    #datapoints[0]['breakdown']['notation'] = 'blacklisted'
+    #view.datapoints = Mock(return_value=json.dumps(datapoints))
+    #res = json.loads(view.datapoints_cpt())
+    #assert 'e_igov,blacklisted,pc_ent' not in res['datapoints']['table'].keys()
 
 
 from edw.datacube.browser import query
 @patch.object(query, 'queryMultiAdapter')
 def test_datapoints_cpc_latest(mock_adapter, mock_cube):
-    datapoints = {
-        "datapoints": [{
-                "breakdown": {
-                    "short-label": "All enterprises", 
-                    "notation": "ent_all_xfin", 
-                    "label": "All enterprises"
-                }, 
-                "indicator": {
-                    "short-label": "Use of eGovernment services - enterprises", 
-                    "notation": "e_igov", 
-                    "label": "Enterprises interacting online with public authorities",
-                    "inner_order": 1
-                }, 
-                "time-period": {
-                    "short-label": "2013-Q4",
-                    "notation": "2013-Q4",
-                    "label": "Quarter:2013-Q4"
-                }, 
-                "value": 0.8388, 
-                "note": None, 
-                "flag": None, 
-                "unit-measure": {
-                    "short-label": "% of enterprises", 
-                    "notation": "pc_ent", 
-                    "label": "Percentage of enterprises"
-                }, 
-                "ref-area": {
-                    "short-label": None, 
-                    "notation": "EE", 
-                    "label": "Estonia"
-                }
-            },{
-                "breakdown": {
-                    "short-label": "All enterprises", 
-                    "notation": "ent_all_xfin", 
-                    "label": "All enterprises"
-                }, 
-                "indicator": {
-                    "short-label": "Use of eGovernment services - enterprises", 
-                    "notation": "e_igov", 
-                    "label": "Enterprises interacting online with public authorities",
-                    "inner_order": 1
-                }, 
-                "time-period": {
-                    "short-label": "2013-Q2",
-                    "notation": "2013-Q2",
-                    "label": "Quarter:2013-Q2"
-                }, 
-                "value": 0.8388, 
-                "note": None, 
-                "flag": None, 
-                "unit-measure": {
-                    "short-label": "% of enterprises", 
-                    "notation": "pc_ent", 
-                    "label": "Percentage of enterprises"
-                }, 
-                "ref-area": {
-                    "short-label": None, 
-                    "notation": "EE", 
-                    "label": "Estonia"
-                }
-            },{
-                "breakdown": {
-                    "short-label": "All enterprises", 
-                    "notation": "ent_all_xfin", 
-                    "label": "All enterprises"
-                }, 
-                "indicator": {
-                    "short-label": "Use of eGovernment services - enterprises", 
-                    "notation": "e_other", 
-                    "label": "Enterprises interacting online with public authorities",
-                    "inner_order": 1
-                }, 
-                "time-period": {
-                    "short-label": "2013-Q4",
-                    "notation": "2013-Q4",
-                    "label": "Quarter:2013-Q4"
-                }, 
-                "value": 0.8388, 
-                "note": None, 
-                "flag": None, 
-                "unit-measure": {
-                    "short-label": "% of enterprises", 
-                    "notation": "pc_ent", 
-                    "label": "Percentage of enterprises"
-                }, 
-                "ref-area": {
-                    "short-label": None, 
-                    "notation": "EE", 
-                    "label": "Estonia"
-                }
+    datapoints = [
+        {
+            "breakdown": {
+                "short-label": "All enterprises",
+                "notation": "ent_all_xfin",
+                "label": "All enterprises"
+            },
+            "indicator": {
+                "short-label": "Use of eGovernment services - enterprises",
+                "notation": "e_igov",
+                "label": "Enterprises interacting online with public authorities",
+                "inner_order": 1
+            },
+            "time-period": {
+                "short-label": "2013-Q4",
+                "notation": "2013-Q4",
+                "label": "Quarter:2013-Q4"
+            },
+            "value": 0.8388,
+            "note": None,
+            "flag": None,
+            "unit-measure": {
+                "short-label": "% of enterprises",
+                "notation": "pc_ent",
+                "label": "Percentage of enterprises"
+            },
+            "ref-area": {
+                "short-label": None,
+                "notation": "EE",
+                "label": "Estonia"
             }
-        ]
-    }
+        },{
+            "breakdown": {
+                "short-label": "All enterprises",
+                "notation": "ent_all_xfin",
+                "label": "All enterprises"
+            },
+            "indicator": {
+                "short-label": "Use of eGovernment services - enterprises",
+                "notation": "e_igov",
+                "label": "Enterprises interacting online with public authorities",
+                "inner_order": 1
+            },
+            "time-period": {
+                "short-label": "2013-Q2",
+                "notation": "2013-Q2",
+                "label": "Quarter:2013-Q2"
+            },
+            "value": 0.8388,
+            "note": None,
+            "flag": None,
+            "unit-measure": {
+                "short-label": "% of enterprises",
+                "notation": "pc_ent",
+                "label": "Percentage of enterprises"
+            },
+            "ref-area": {
+                "short-label": None,
+                "notation": "EE",
+                "label": "Estonia"
+            }
+        }
+    ]
 
     form = {
         'indicator-group': 'egovernment',
@@ -363,15 +334,15 @@ def test_datapoints_cpc_latest(mock_adapter, mock_cube):
     from edw.datacube.browser.query import AjaxDataView
     datasource = Mock(get_cube=Mock(return_value=mock_cube))
     view = AjaxDataView(datasource, Mock(form=form))
-    view.datapoints = Mock(return_value=json.dumps(datapoints))
+    mock_cube.get_observations_cp = Mock(return_value=datapoints)
     mock_adapter.return_value = Mock(
         whitelist=[
-            {'breakdown': 'ent_all_xfin',
+            {'indicator-group': 'egovernment',
+             'breakdown': 'ent_all_xfin',
              'indicator': 'e_igov',
              'unit-measure': 'pc_ent'}],
         eu = {'EE': 'Estonia'}
     )
-
     res = json.loads(view.datapoints_cpc())
     assert len(res['datapoints']) == 1
     assert res['datapoints'][0]['time-period']['notation'] == "2013-Q4"
