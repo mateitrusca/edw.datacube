@@ -78,7 +78,7 @@ class NotationMap(object):
         by_notation = defaultdict(dict)
         by_uri = {}
         for row in self.cube._execute(query):
-            by_notation[row['namespace']][row['notation']] = row
+            by_notation[row['namespace']][row['notation'].lower()] = row
             by_uri[row['uri']] = row
         logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
@@ -93,6 +93,7 @@ class NotationMap(object):
     def lookup_notation(self, namespace, notation):
         data = self.get()
         by_notation = data['by_notation']
+        notation = notation.lower()
         ns = by_notation.get(namespace)
         if ns is None:
             raise RuntimeError("Unknown namespace %r", namespace)
@@ -111,7 +112,7 @@ class NotationMap(object):
 
     @staticmethod
     def _add_item(data, uri, namespace, notation):
-        logger.info('patching missing notation %r', (namespace, notation))
+        logger.warn('patching missing notation %r', (namespace, notation))
         row = {'uri': uri,
                'namespace': namespace,
                'notation': notation}
@@ -387,14 +388,15 @@ class Cube(object):
         whitelist = []
         for item in whitelist_items:
             mapped_item = {}
-            if item['indicator-group'] == indicator_group:
+            if item['indicator-group'].lower() == indicator_group.lower():
                 for n, col in enumerate(columns, 1):
                     name = col['notation']
                     if name in ['indicator', 'breakdown', 'unit-measure']:
                         mapped_item[n] = self.notations.lookup_notation(
                                             name, item[name])['uri']
                 whitelist.append(mapped_item)
-
+        if not whitelist:
+            return []
         query = sparql_env.get_template('data_and_attributes_cp.sparql').render(**{
             'dataset': self.dataset,
             'columns': columns,
