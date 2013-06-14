@@ -42,7 +42,7 @@ def test_get_all_country_options():
     cube = create_cube()
     items = cube.get_dimension_options('ref-area')
     codes = [y['notation'] for y in items]
-    assert len(codes) == 45
+    assert len(codes) == 47
     assert 'DE' in codes
     assert 'ES' in codes
     assert 'BG' in codes
@@ -53,14 +53,15 @@ def test_get_all_country_options():
 def test_get_available_country_options_for_year():
     cube = create_cube()
     items = cube.get_dimension_options('ref-area', [
-        ('time-period', '2002'),
+        ('time-period', '2006'),
+        ('indicator', 'e_igovrt'),
     ])
     codes = [y['notation'] for y in items]
-    assert len(codes) == 25
-    assert 'DE' in codes
-    assert 'ES' in codes
-    assert 'BG' not in codes
-    assert 'EU27' not in codes
+    print codes
+    assert len(codes) == 30
+    assert 'EL' in codes
+    assert 'EU27' in codes
+    assert 'HR' not in codes
 
 
 @sparql_test
@@ -92,7 +93,7 @@ def test_get_available_indicator_group_options():
     cube = create_cube()
     items = cube.get_dimension_options('indicator-group')
     codes = [y['notation'] for y in items]
-    assert len(codes) == 10
+    assert len(codes) == 14
     assert 'internet-usage' in codes
     assert 'ebusiness' in codes
 
@@ -105,7 +106,7 @@ def test_get_available_indicator_group_options_for_year_and_country():
         ('ref-area', 'DK'),
     ])
     codes = [y['notation'] for y in items]
-    assert len(codes) == 4
+    assert len(codes) == 6
     assert 'internet-usage' in codes
     assert 'ebusiness' not in codes
 
@@ -117,8 +118,8 @@ def test_get_available_year_options_for_indicator_group():
         ('indicator-group', 'mobile'),
     ])
     years = [y['notation'] for y in items]
-    assert len(years) == 6
-    assert '2010' in years
+    assert len(years) == 7
+    assert '2012' in years
     assert '2002' not in years
 
 
@@ -129,8 +130,9 @@ def test_get_indicators_in_group():
         ('indicator-group', 'ict-skills'),
     ])
     indicators = [i['notation'] for i in items]
-    assert len(indicators) == 6
+    assert len(indicators) == 11
     assert 'i_skedu' in indicators
+    assert 'P_IUSE' in indicators
     assert 'e_broad' not in indicators
 
 
@@ -163,8 +165,9 @@ def test_get_years_for_xy_indicators():
         [('indicator', 'i_iu3g')],
     )
     years = [i['notation'] for i in items]
-    assert len(years) == 5
+    assert len(years) == 6
     assert '2010' in years
+    assert '2012' in years
     assert '2006' not in years
     assert '2004' not in years
 
@@ -179,8 +182,9 @@ def test_get_years_for_xyz_indicators():
         [('indicator', 'bb_ne')]
     )
     years = [i['notation'] for i in items]
-    assert len(years) == 8
-    assert '2007' in years
+    assert len(years) == 17
+    assert '2007-12' in years
+    assert '2012-06' in years
     assert '2012' not in years
 
 
@@ -198,7 +202,7 @@ def test_get_indicator_metadata():
 def test_get_breakdown_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
-    assert res['label'] == "All individuals (aged 16-74)"
+    assert res['label'] == "All Individuals (aged 16-74)"
     assert res['short_label'] == "All individuals"
     assert 'definition' not in res
     assert 'note' not in res
@@ -258,6 +262,6 @@ def test_indicator_groups_are_sorted():
     cube = create_cube()
     res = cube.get_dimension_options(dimension='indicator-group')
     codes = [y['notation'] for y in res]
-    assert codes == ['telecom', 'broadband', 'mobile', 'internet-usage',
+    assert codes == ['broadband', 'mobile', 'bbquality', 'internet-usage',
                      'internet-services', 'egovernment', 'ecommerce',
-                     'ebusiness', 'ict-skills', 'research-and-development']
+                     'ebusiness', 'ict-skills', 'ict-edu', 'eHealth', 'research-and-development', 'ict-sector', 'back']
