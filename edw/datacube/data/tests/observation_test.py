@@ -32,33 +32,33 @@ def test_get_observations_with_labels_xy():
 @sparql_test
 def test_get_observations_with_notes_single_dimension():
     filters = [
-        ('indicator-group', 'broadband'),
-        ('indicator', 'bb_dsl'),
+        ('indicator-group', 'ecommerce'),
+        ('indicator', 'i_bgoodo'),
         ('breakdown-group', 'total'),
-        ('breakdown', 'TOTAL',),
-        ('unit-measure', 'pc_lines'),
-        ('time-period', '2004'),
+        ('breakdown', 'IND_TOTAL',),
+        ('unit-measure', 'pc_ind'),
+        ('time-period', '2006'),
     ]
     cube = create_cube()
     points = list(cube.get_observations(filters))
-    assert points[18]['note'] == 'BG and RO not included'
+    assert points[4]['note'] == 'Estimation - based on results of 2007 HH survey'
 
 
 @sparql_test
 def test_get_observations_with_notes_multidimension():
     filters = [
-        ('indicator-group', 'broadband'),
-        ('indicator', 'bb_dsl'),
+        ('indicator-group', 'ecommerce'),
+        ('indicator', 'i_bgoodo'),
         ('breakdown-group', 'total'),
-        ('breakdown', 'TOTAL',),
-        ('unit-measure', 'pc_lines'),
-        ('time-period', '2004'),
+        ('breakdown', 'IND_TOTAL',),
+        ('unit-measure', 'pc_ind'),
+        ('time-period', '2006'),
     ]
     cube = create_cube()
     points = list(cube.get_data_xyz('ref-area', filters, [], [], []))
-    assert points[7]['note']['x'] == 'BG and RO not included'
-    assert points[7]['note']['y'] == 'BG and RO not included'
-    assert points[7]['note']['z'] == 'BG and RO not included'
+    assert points[7]['note']['x'] == 'CZ: Estimation - based on results of 2007 HH survey'
+    assert points[7]['note']['y'] == 'CZ: Estimation - based on results of 2007 HH survey'
+    assert points[7]['note']['z'] == 'CZ: Estimation - based on results of 2007 HH survey'
 
 
 @sparql_test
@@ -136,13 +136,13 @@ def test_get_xyz_observations_for_3_countries_all_years():
 @sparql_test
 def test_get_observations_with_all_attributes():
     cube = create_cube()
-    filters = [ ('breakdown', 'TOTAL'),
+    filters = [ ('breakdown', 'TOTAL_FBB'),
                 ('indicator', 'bb_dsl'),
                 ('indicator-group', 'broadband'),
                 ('ref-area', 'EU27'),
                 ('unit-measure', 'pc_lines')]
     result = list(cube.get_observations(filters))
-    assert len(result) == 8
-    assert result[0]['value'] == 0.7706
-    assert result[0]['indicator']['label'].startswith('Broadband take-up')
-    assert result[0]['indicator']['short-label'].startswith('DSL lines')
+    assert len(result) == 17
+    assert result[0]['value'] == 0.7661
+    assert result[0]['indicator']['label'].startswith('DSL subscriptions share in fixed broadband')
+    assert result[0]['indicator']['short-label'].startswith('DSL subscr')
