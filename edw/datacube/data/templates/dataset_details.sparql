@@ -2,7 +2,7 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
-SELECT DISTINCT ?groupName ?indicator
+SELECT DISTINCT ?groupName ?indicator ?order ?inner_order
 WHERE {
   ?obs
     a qb:Observation ;
@@ -10,5 +10,8 @@ WHERE {
     dad-prop:indicator ?indicator .
   ?indicator dad-prop:membership ?x.
   ?x dad-prop:member-of ?indicatorgroup.
-  ?indicatorgroup skos:prefLabel ?groupName
+  ?indicatorgroup skos:prefLabel ?groupName.
+  ?indicatorgroup dad-prop:order ?order.
+  ?x dad-prop:order ?inner_order
 }
+ORDER BY ?order ?inner_order
