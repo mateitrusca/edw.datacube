@@ -1,4 +1,4 @@
-{%- from 'bits.sparql' import one_filter, one_dimension with context -%}
+{%- from 'bits.sparql' import one_filter, one_dimension, group_dimension with context -%}
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -20,7 +20,11 @@ SELECT DISTINCT ?uri, ?interval_type, ?parent_year WHERE {
                 f_dimension_code, f_option_code) }}
 {%- endfor %}
 
-{{ one_dimension(dimension_code) }}
+{% if dimension_code in group_dimensions %}
+  {{ group_dimension(dimension_code) }}
+{%- else %}
+  ?observation dad-prop:{{ dimension_code }} ?uri.
+{% endif %}
 
 {% if dimension_code == 'time-period' %}
 OPTIONAL {
