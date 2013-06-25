@@ -317,11 +317,13 @@ class AjaxDataView(BrowserView):
               'short-label': null,
               'notation': 'RO'
             },
-           'table': {
+            'table': {
              'indicator-1,breakdown-1,unit-measure-1': {
-               'name': ('Indicator-1-short-label by '
-                        'breakdown-1-label in '
-                        'unit-measure-1-label'),
+               'indicator': 'Indicator-1-short-label',
+               'breakdown': 'breakdown-1-label',
+               'unit-measure': 'unit-measure-1-short-label',
+               'unit': 'unit-measure-1-notation',
+               'inner_order': 'order of the indicator in the group'
                'rank': 15,
                'eu': 0.67,
                '2012': 0.55,
@@ -329,18 +331,8 @@ class AjaxDataView(BrowserView):
                '2010': 0.33,
                '2009': 0.09,
                '2008': 0.01
-             },
-             'indicator-2,breakdown-2,unit-measure-2': {
-               'name': ('Indicator-2-short-label by '
-                        'breakdown-2-label in '
-                        'unit-measure-2-label'),
-               'rank': 2,
-               'eu': 0.78,
-               '2012': 0.15,
-               '2011': 0.46,
-               '2010': 0.89
-             }
-           }
+              }
+            }
           }
         }
         """
@@ -362,6 +354,8 @@ class AjaxDataView(BrowserView):
         if countryName:
             filters.append(('ref-area', countryName))
         datapoint_rows = list(self.cube.get_observations_cp(filters, whitelist))
+        # sort by time-period
+        datapoint_rows.sort(key=lambda k: k['time-period']['notation'])
 
         mapping = {
             'latest': latestYear,
@@ -374,17 +368,16 @@ class AjaxDataView(BrowserView):
             'table': {}
         }
         table = mapping['table']
-
         for point in datapoint_rows:
             # Selected country
             mapping['ref-area'].update(point['ref-area'])
 
             # Indicator unique identifier
-            key = u','.join((
-                point['indicator']['notation'] or '-',
-                point['breakdown']['notation'] or '-',
-                point['unit-measure']['notation'] or '-'
-            ))
+            key = (
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation']
+            )
 
             try:
                 point['value'] = float(point['value'])
@@ -437,48 +430,48 @@ class AjaxDataView(BrowserView):
             ('time-period', unicode(latestYear)),
             ('indicator-group', self.request.form['indicator-group'])],
             whitelist))
+        # sort by time-period
+        all_datapoint_rows.sort(key=lambda k: k['time-period']['notation'])
+        # collapse multiple time periods within the same year
+        datapoint_rows = {}
+        for point in all_datapoint_rows:
+            key = (
+                point['indicator']['notation'],
+                point['breakdown']['notation'],
+                point['unit-measure']['notation'],
+                point['ref-area']['notation']
+            )
+            try:
+                datapoint_rows[key] = float(point['value'])
+            except Exception, err:
+                logger.exception(err)
+                continue
 
         # Compute rank amoung EU27 countries
-        for point in all_datapoint_rows:
-            key = u','.join((
-                point['indicator']['notation'] or '-',
-                point['breakdown']['notation'] or '-',
-                point['unit-measure']['notation'] or '-'
-            ))
-
-            year = point['time-period']['notation'].split('-')[0]
-            try:
-                year = int(year)
-            except Exception, err:
-                logger.exception(err)
-                continue
-
-            try:
-                point['value'] = float(point['value'])
-            except Exception, err:
-                logger.exception(err)
-                continue
-
-            if point['ref-area']['notation'] == 'EU27':
+        for key, value in datapoint_rows.items():
+            country = key[-1]
+            key = key[:-1]
+            if country == 'EU27':
                 if table.get(key):
-                    table[key]['eu'] = point['value']
-
-            # Update rank only for EU27 countries
-            if countryName not in eu:
-                continue
+                    table[key]['eu'] = value
 
             # Skip non-EU countries from rank computation
-            if point['ref-area']['notation'] not in eu:
+            if country not in eu:
                 continue
-
-            myValue = table.get(key, {}).get(year, None)
+            myValue = table.get(key, {}).get(latestYear, None)
             if myValue is not None:
                 mapping['has-rank'] = True
                 if not table[key].get('rank'):
                     table[key]['rank'] = 1
-                if point['value'] > myValue:
+                if value > myValue:
                     table[key]['rank'] += 1
 
+        # convert table.keys from object to string
+        table_new = {}
+        for key in table.keys():
+            key_new = u','.join((key[0], key[1], key[2]))
+            table_new[key_new] = table[key]
+        mapping['table'] = table_new
         return self.jsonify({'datapoints': mapping})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
