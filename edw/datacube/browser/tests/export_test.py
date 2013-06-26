@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from mock import Mock, MagicMock, call
 import csv
 import simplejson as json
@@ -27,6 +28,61 @@ def test_columns_csv_export():
     assert csv_output[0].split(',') == ['series', 'code', 'y'];
     assert csv_output[1].split(',') == ['series1', 'SK', '1']
 
+
+def test_csv_metadata():
+    exporter = ExportCSV(MagicMock(), MagicMock())
+    out = StringIO()
+    metadata = {
+        'chart-title': 'Number of households',
+        'source-dataset': 'Digital-Agenda',
+        'chart-url': 'http://url.to/chart#table',
+        'filters-applied': [
+            ['indicator', 'Internet Usage'],
+            ['breakdown', 'by age'],
+            ['time-period', '2012']
+        ],
+    }
+    exporter.write_metadata(out, metadata)
+    out.seek(0)
+    output = out.read().split('\r\n')
+    from datetime import datetime
+    assert output[0] == 'Chart title:,Number of households'
+    assert output[1] == 'Source dataset:,Digital-Agenda'
+    assert output[2] == 'Extraction-Date:,' + datetime.now().strftime('%d %b %Y')
+    assert output[3] == 'Link to the chart/table:,http://url.to/chart#table'
+    assert output[4] == 'Selection of filters applied'
+    assert output[5] == 'indicator,Internet Usage'
+    assert output[6] == 'breakdown,by age'
+    assert output[7] == 'time-period,2012'
+
+def test_csv_annotations():
+    exporter = ExportCSV(MagicMock(), MagicMock())
+    out = StringIO()
+    metadata = {
+        "description": "description text",
+        "section_title": "Definition and scopes:",
+        "indicators_details_url": "http://url.to/indicators",
+        "blocks": [
+            {
+            "definition": "dèfinitioñ ţext",
+            "filter_label": "Indicator",
+            "label": "long label text",
+            "source_label": "source label text",
+            "source_url": "http://url.to/source",
+            "source_definition": "source definition text",
+            "note": "note text"
+            }
+        ],
+    }
+    exporter.write_annotations(out, metadata)
+    out.seek(0)
+    output = out.read().split('\r\n')
+    assert output[0] == 'Definition and scopes:'
+    assert output[1] == 'Indicator:,long label text'
+    assert output[2] == 'Definition:,dèfinitioñ ţext'
+    assert output[3] == 'Notes:,note text'
+    assert output[4] == 'Source:,source definition text'
+    assert output[5] == 'List of available indicators:,http://url.to/indicators'
 
 def test_columns_csv_export_multiseries():
     exporter = ExportCSV(MagicMock(), MagicMock())

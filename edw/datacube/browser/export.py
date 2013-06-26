@@ -1,5 +1,6 @@
 import json
 import csv
+import datetime
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 
@@ -105,6 +106,43 @@ class ExportCSV(BrowserView):
                     rank = '-'
                 encoded['rank'] = unicode(rank).encode('utf-8')
                 writer.writerow(encoded)
+
+
+    def write_metadata(self, response, metadata):
+        writer = csv.writer(response)
+        writer.writerow(['Chart title:', metadata['chart-title']])
+        writer.writerow(['Source dataset:', metadata['source-dataset']])
+        writer.writerow([
+            'Extraction-Date:',
+            datetime.datetime.now().strftime('%d %b %Y')
+        ])
+        writer.writerow([
+            'Link to the chart/table:',
+            metadata['chart-url']
+        ])
+        writer.writerow(['Selection of filters applied'])
+        for item in metadata['filters-applied']:
+            writer.writerow(item)
+
+
+    def write_annotations(self, response, annotations):
+        writer = csv.writer(response)
+        writer.writerow([annotations['section_title']])
+        for item in annotations['blocks']:
+            writer.writerow([
+                item['filter_label'] + ':',
+                item['label']
+            ])
+            if item['definition']:
+                writer.writerow(['Definition:', item['definition']])
+            if item['note']:
+                writer.writerow(['Notes:', item['note']])
+            if item['source_definition']:
+                writer.writerow(['Source:', item['source_definition']])
+        writer.writerow([
+            'List of available indicators:',
+            annotations['indicators_details_url']
+        ])
 
 
     def export(self):
