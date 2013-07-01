@@ -456,7 +456,7 @@ class AjaxDataView(BrowserView):
                     table[key]['eu'] = value
 
             # Skip non-EU countries from rank computation
-            if country not in eu:
+            if country not in eu or countryName not in eu:
                 continue
             myValue = table.get(key, {}).get(latestYear, None)
             if myValue is not None:
@@ -467,6 +467,7 @@ class AjaxDataView(BrowserView):
                     table[key]['rank'] += 1
 
         # convert table.keys from object to string
+
         table_new = {}
         for key in table.keys():
             key_new = u','.join((key[0], key[1], key[2]))
