@@ -293,22 +293,28 @@ def test_formatter_decision():
     exporter.datapoints_n = Mock()
 
     exporter.request.form = {
+        'metadata': json.dumps({}),
         'chart_data': json.dumps(series),
-        'chart_type': 'columns'
+        'chart_type': 'columns',
+        'annotations': json.dumps({})
     }
     exporter.export()
     assert(exporter.datapoints.call_count == 1)
 
     exporter.request.form = {
+        'metadata': json.dumps({}),
         'chart_data': json.dumps(series),
-        'chart_type': 'bubbles'
+        'chart_type': 'bubbles',
+        'annotations': json.dumps({})
     }
     exporter.export()
     assert(exporter.datapoints_n.call_count == 1)
 
     exporter.request.form = {
+        'metadata': json.dumps({}),
         'chart_data': json.dumps(series),
-        'chart_type': 'scatter'
+        'chart_type': 'scatter',
+        'annotations': json.dumps({})
     }
     exporter.export()
     assert(exporter.datapoints_n.call_count == 2)

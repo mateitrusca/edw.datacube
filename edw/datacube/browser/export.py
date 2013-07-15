@@ -112,38 +112,38 @@ class ExportCSV(BrowserView):
 
     def write_metadata(self, response, metadata):
         writer = csv.writer(response)
-        writer.writerow(['Chart title:', metadata['chart-title']])
-        writer.writerow(['Source dataset:', metadata['source-dataset']])
+        writer.writerow(['Chart title:', metadata.get('chart-title', '-')])
+        writer.writerow(['Source dataset:', metadata.get('source-dataset', '-')])
         writer.writerow([
             'Extraction-Date:',
             datetime.datetime.now().strftime('%d %b %Y')
         ])
         writer.writerow([
             'Link to the chart/table:',
-            metadata['chart-url']
+            metadata.get('chart-url', '-')
         ])
         writer.writerow(['Selection of filters applied'])
-        for item in metadata['filters-applied']:
+        for item in metadata.get('filters-applied', []):
             writer.writerow(item)
 
 
     def write_annotations(self, response, annotations):
         writer = csv.writer(response)
-        writer.writerow([annotations['section_title']])
-        for item in annotations['blocks']:
+        writer.writerow([annotations.get('section_title', '-')])
+        for item in annotations.get('blocks', []):
             writer.writerow([
-                item['filter_label'] + ':',
-                item['label']
+                item.get('filter_label', '-') + ':',
+                item.get('label', '-')
             ])
-            if item['definition']:
+            if item.get('definition'):
                 writer.writerow(['Definition:', item['definition']])
-            if item['note']:
+            if item.get('note'):
                 writer.writerow(['Notes:', item['note']])
-            if item['source_definition']:
+            if item.get('source_definition'):
                 writer.writerow(['Source:', item['source_definition']])
         writer.writerow([
             'List of available indicators:',
-            annotations['indicators_details_url']
+            annotations.get('indicators_details_url')
         ])
 
 
@@ -161,6 +161,9 @@ class ExportCSV(BrowserView):
 
         chart_type = self.request.form.pop('chart_type')
 
+        metadata = json.loads(self.request.form.pop('metadata'))
+        annotations = json.loads(self.request.form.pop('annotations'))
+
         formatters = {
             'scatter': self.datapoints_n,
             'bubbles': self.datapoints_n,
@@ -168,9 +171,12 @@ class ExportCSV(BrowserView):
             'country_profile_table': self.datapoints_profile_table
         }
 
-        formatter = formatters.get(chart_type, self.datapoints)
+        self.write_metadata(self.request.response, metadata)
 
+        formatter = formatters.get(chart_type, self.datapoints)
         formatter(self.request.response, chart_data)
+
+        self.write_annotations(self.request.response, annotations)
 
         return self.request.response
 
