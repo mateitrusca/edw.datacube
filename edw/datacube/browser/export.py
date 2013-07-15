@@ -17,10 +17,11 @@ class ExportCSV(BrowserView):
         except:
             return ""
 
-        headers = ['series', 'code', 'y']
+        headers = ['series', 'name', 'code', 'y']
 
         keys = chart_data[0].get('data', [{}])[0].keys()
 
+        response.write('Data extracted:\r\n')
         writer = csv.DictWriter(response, headers, restval='')
         writer.writeheader()
 
@@ -28,6 +29,7 @@ class ExportCSV(BrowserView):
             for point in series['data']:
                 encoded = {}
                 encoded['series'] = series.get('name', '-')
+                encoded['name'] = point.get('name', '-')
                 for key in headers[1:]:
                     encoded[key] = unicode(point.get(key, '-')).encode('utf-8')
                 writer.writerow(encoded)

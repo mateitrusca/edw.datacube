@@ -25,8 +25,9 @@ def test_columns_csv_export():
     exporter.datapoints(out, series)
     out.seek(0)
     csv_output = out.read().split('\r\n')
-    assert csv_output[0].split(',') == ['series', 'code', 'y'];
-    assert csv_output[1].split(',') == ['series1', 'SK', '1']
+    assert csv_output[0] == 'Data extracted:';
+    assert csv_output[1].split(',') == ['series', 'name', 'code', 'y'];
+    assert csv_output[2].split(',') == ['series1', 'Slovakia', 'SK', '1']
 
 
 def test_csv_metadata():
@@ -86,7 +87,7 @@ def test_csv_annotations():
 
 def test_columns_csv_export_multiseries():
     exporter = ExportCSV(MagicMock(), MagicMock())
-    headers = ['series', 'code', 'y'];
+    headers = ['series', 'name', 'code', 'y'];
     out = StringIO()
     series = [
         {
@@ -117,8 +118,8 @@ def test_columns_csv_export_multiseries():
     exporter.datapoints(out, series)
     out.seek(0)
     csv_output = out.read().split('\r\n')
-    assert csv_output[1].split(',') == ['series1', 'SK', '1']
-    assert csv_output[2].split(',') == ['series2', 'AB', '2']
+    assert csv_output[2].split(',') == ['series1', 'Slovakia', 'SK', '1']
+    assert csv_output[3].split(',') == ['series2', 'ABCD', 'AB', '2']
 
 
 def test_lines_csv_export():
@@ -141,7 +142,7 @@ def test_lines_csv_export():
     exporter.datapoints(out, series)
     out.seek(0)
     csv_output = out.read().split('\r\n')
-    assert csv_output[1].split(',') == ['series1', '2000', '1']
+    assert csv_output[2].split(',') == ['series1', 'Year:2000', '2000', '1']
 
 
 def test_scatter_csv_export():
