@@ -1,5 +1,6 @@
 import json
 import csv
+import datetime
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 
@@ -16,10 +17,11 @@ class ExportCSV(BrowserView):
         except:
             return ""
 
-        headers = ['series', 'code', 'y']
+        headers = ['series', 'name', 'code', 'y']
 
         keys = chart_data[0].get('data', [{}])[0].keys()
 
+        response.write('Data extracted:\r\n')
         writer = csv.DictWriter(response, headers, restval='')
         writer.writeheader()
 
@@ -27,6 +29,7 @@ class ExportCSV(BrowserView):
             for point in series['data']:
                 encoded = {}
                 encoded['series'] = series.get('name', '-')
+                encoded['name'] = point.get('name', '-')
                 for key in headers[1:]:
                     encoded[key] = unicode(point.get(key, '-')).encode('utf-8')
                 writer.writerow(encoded)
@@ -107,6 +110,43 @@ class ExportCSV(BrowserView):
                 writer.writerow(encoded)
 
 
+    def write_metadata(self, response, metadata):
+        writer = csv.writer(response)
+        writer.writerow(['Chart title:', metadata.get('chart-title', '-')])
+        writer.writerow(['Source dataset:', metadata.get('source-dataset', '-')])
+        writer.writerow([
+            'Extraction-Date:',
+            datetime.datetime.now().strftime('%d %b %Y')
+        ])
+        writer.writerow([
+            'Link to the chart/table:',
+            metadata.get('chart-url', '-')
+        ])
+        writer.writerow(['Selection of filters applied'])
+        for item in metadata.get('filters-applied', []):
+            writer.writerow(item)
+
+
+    def write_annotations(self, response, annotations):
+        writer = csv.writer(response)
+        writer.writerow([annotations.get('section_title', '-')])
+        for item in annotations.get('blocks', []):
+            writer.writerow([
+                item.get('filter_label', '-') + ':',
+                item.get('label', '-')
+            ])
+            if item.get('definition'):
+                writer.writerow(['Definition:', item['definition']])
+            if item.get('note'):
+                writer.writerow(['Notes:', item['note']])
+            if item.get('source_definition'):
+                writer.writerow(['Source:', item['source_definition']])
+        writer.writerow([
+            'List of available indicators:',
+            annotations.get('indicators_details_url')
+        ])
+
+
     def export(self):
         """ Export to csv
         """
@@ -120,6 +160,13 @@ class ExportCSV(BrowserView):
         chart_data = json.loads(self.request.form.pop('chart_data'))
 
         chart_type = self.request.form.pop('chart_type')
+        metadata = {}
+        if self.request.form.get('metadata'):
+            metadata = json.loads(self.request.form.pop('metadata'))
+
+        annotations = []
+        if self.request.form.get('annotations'):
+            annotations = json.loads(self.request.form.pop('annotations'))
 
         formatters = {
             'scatter': self.datapoints_n,
@@ -128,9 +175,12 @@ class ExportCSV(BrowserView):
             'country_profile_table': self.datapoints_profile_table
         }
 
-        formatter = formatters.get(chart_type, self.datapoints)
+        self.write_metadata(self.request.response, metadata)
 
+        formatter = formatters.get(chart_type, self.datapoints)
         formatter(self.request.response, chart_data)
+
+        self.write_annotations(self.request.response, annotations)
 
         return self.request.response
 
