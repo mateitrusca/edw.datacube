@@ -160,9 +160,13 @@ class ExportCSV(BrowserView):
         chart_data = json.loads(self.request.form.pop('chart_data'))
 
         chart_type = self.request.form.pop('chart_type')
+        metadata = {}
+        if self.request.form.get('metadata'):
+            metadata = json.loads(self.request.form.pop('metadata'))
 
-        metadata = json.loads(self.request.form.pop('metadata'))
-        annotations = json.loads(self.request.form.pop('annotations'))
+        annotations = []
+        if self.request.form.get('annotations'):
+            annotations = json.loads(self.request.form.pop('annotations'))
 
         formatters = {
             'scatter': self.datapoints_n,
