@@ -39,6 +39,7 @@ setup(name=NAME,
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'xlutils',
       ],
       extras_require={
           'test': [
