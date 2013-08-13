@@ -1,6 +1,8 @@
 import json
 import csv
 import datetime
+import xlwt
+from StringIO import StringIO
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 
@@ -90,7 +92,7 @@ class ExportCSV(BrowserView):
 
             headers = (['country', 'indicator', 'breakdown', 'unit'] + years +
                        ['EU27 value %s' %latest, 'rank'])
-            writer = csv.DictWriter(response, headers, restval='')
+            writer = csv.DictWriter(response, headers, restval='', dialect=csv.excel)
             writer.writeheader()
 
             encoded['country'] = series['data']['ref-area']['label']
@@ -111,7 +113,7 @@ class ExportCSV(BrowserView):
 
 
     def write_metadata(self, response, metadata):
-        writer = csv.writer(response)
+        writer = csv.writer(response, dialect=csv.excel)
         writer.writerow(['Chart title:', metadata.get('chart-title', '-')])
         writer.writerow(['Source dataset:', metadata.get('source-dataset', '-')])
         writer.writerow([
@@ -128,7 +130,7 @@ class ExportCSV(BrowserView):
 
 
     def write_annotations(self, response, annotations):
-        writer = csv.writer(response)
+        writer = csv.writer(response, dialect=csv.excel)
         writer.writerow([annotations.get('section_title', '-')])
         for item in annotations.get('blocks', []):
             writer.writerow([
@@ -151,15 +153,25 @@ class ExportCSV(BrowserView):
         """ Export to csv
         """
 
-        self.request.response.setHeader(
-            'Content-Type', 'application/csv')
-        self.request.response.setHeader(
-            'Content-Disposition',
-            'attachment; filename="%s.csv"' % self.context.getId())
+        to_xls = self.request.form.get('format')=='xls'
+
+        if to_xls:
+            self.request.response.setHeader(
+                'Content-Type', 'application/vnd.ms-excel')
+            self.request.response.setHeader(
+                'Content-Disposition',
+                'attachment; filename="%s.xls"' % self.context.getId())
+        else:
+            self.request.response.setHeader(
+                'Content-Type', 'application/csv')
+            self.request.response.setHeader(
+                'Content-Disposition',
+                'attachment; filename="%s.csv"' % self.context.getId())
 
         chart_data = json.loads(self.request.form.pop('chart_data'))
 
         chart_type = self.request.form.pop('chart_type')
+
         metadata = {}
         if self.request.form.get('metadata'):
             metadata = json.loads(self.request.form.pop('metadata'))
@@ -175,13 +187,38 @@ class ExportCSV(BrowserView):
             'country_profile_table': self.datapoints_profile_table
         }
 
-        self.write_metadata(self.request.response, metadata)
+        output_stream = self.request.response
+
+        if to_xls:
+            output_stream = StringIO()
+
+        self.write_metadata(output_stream, metadata)
 
         formatter = formatters.get(chart_type, self.datapoints)
-        formatter(self.request.response, chart_data)
+        formatter(output_stream, chart_data)
 
-        self.write_annotations(self.request.response, annotations)
+        self.write_annotations(output_stream, annotations)
 
+        workbook = xlwt.Workbook()
+        sheet = workbook.add_sheet('chart data')
+
+        if to_xls:
+            output_stream.flush()
+            output_stream.seek(0)
+            source_csv = csv.reader(output_stream, delimiter=",")
+
+            for rowi, row in enumerate(source_csv):
+                for coli, value in enumerate(row):
+                    sheet.write(rowi, coli, value)
+            import tempfile
+            with tempfile.TemporaryFile(mode='w+b') as f_temp:
+                workbook.save(f_temp)
+                f_temp.flush()
+                f_temp.seek(0)
+                chunk = True
+                while chunk:
+                    chunk = f_temp.read(64*1024)
+                    self.request.response.write(chunk)
         return self.request.response
 
 class ExportRDF(BrowserView):
