@@ -2,6 +2,7 @@ import json
 import csv
 import datetime
 import xlwt
+import tempfile
 from StringIO import StringIO
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
@@ -210,7 +211,6 @@ class ExportCSV(BrowserView):
             for rowi, row in enumerate(source_csv):
                 for coli, value in enumerate(row):
                     sheet.write(rowi, coli, value)
-            import tempfile
             with tempfile.TemporaryFile(mode='w+b') as f_temp:
                 workbook.save(f_temp)
                 f_temp.flush()
