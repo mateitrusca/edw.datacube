@@ -5,7 +5,8 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
 SELECT DISTINCT ?uri, ?notation, ?definition, ?label, ?short_label, ?note,
-                ?source_label, ?source_definition, ?source_notes, ?source_url
+                ?source_label, ?source_definition, ?source_notes, ?source_url,
+                ?parentName, ?parentOrder, ?innerOrder
 WHERE {
 
   OPTIONAL { ?uri skos:notation ?notation }
@@ -20,6 +21,13 @@ WHERE {
                foaf:page ?source_url ] }
     OPTIONAL {?uri dc:source [skos:notes ?source_notes] }
   {% endif %}
+  OPTIONAL {
+    ?uri dad-prop:membership ?parentNode.
+    OPTIONAL {?parentNode dad-prop:order ?innerOrder} .
+    ?parentNode dad-prop:member-of ?parentUri.
+    ?parentUri skos:prefLabel ?parentName.
+    OPTIONAL {?parentUri dad-prop:order ?parentOrder}.
+  }
 
 FILTER (
 {%- for uri in uri_list %}
