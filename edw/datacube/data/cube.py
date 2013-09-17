@@ -181,7 +181,7 @@ class Cube(object):
         meta_list = self.get_dimension_option_metadata_list('indicator', list(res_by_uri))
         for meta in meta_list:
             uri = meta.pop('uri')
-            meta['altlabel'] = meta.pop('short_label', None)
+            #meta['altlabel'] = meta.pop('short_label', None)
             meta['sourcelabel'] = meta.pop('source_label', None)
             meta['sourcelink'] = meta.pop('source_url', None)
             meta['sourcenotes'] = meta.pop('source_notes', None)
