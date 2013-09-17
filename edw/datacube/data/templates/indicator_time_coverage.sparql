@@ -1,0 +1,16 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+PREFIX time: <http://www.w3.org/2006/time#>
+PREFIX interval: <http://reference.data.gov.uk/def/intervals/>
+
+SELECT DISTINCT ?indicator min(?year) as ?minYear max(?year) as ?maxYear
+WHERE {
+  ?obs
+    a qb:Observation ;
+    qb:dataSet {{ dataset|uri_n3 }} ;
+    dad-prop:indicator ?indicator ;
+    dad-prop:time-period ?time .
+    ?time interval:ordinalYear ?year
+}
+GROUP BY ?indicator
