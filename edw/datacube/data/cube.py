@@ -197,7 +197,17 @@ class Cube(object):
             meta['longlabel'] = meta.pop('label', None)
             res_by_uri[uri].update(meta)
 
-        return res
+
+        def _sort_key(item):
+            try:
+                parent = int(item.get('parentOrder', None))
+                inner = int(item.get('innerOrder', None))
+            except (ValueError, TypeError):
+                parent = None
+                inner = None
+            return (parent, inner,)
+            
+        return sorted(res, key=_sort_key)
 
     def get_dimension_labels(self, dimension, value):
         query = sparql_env.get_template('dimension_label.sparql').render(**{
