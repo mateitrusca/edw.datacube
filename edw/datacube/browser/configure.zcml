@@ -189,4 +189,12 @@
     permission="zope2.View"
     />
 
+  <browser:page
+    name="svg2png"
+    for="..interfaces.IDataCube"
+    class=".export.SvgToPng"
+    attribute="convert"
+    permission="zope2.View"
+    />
+
 </configure>

@@ -1,6 +1,7 @@
 import json
 import csv
 import datetime
+import os
 import xlwt
 import tempfile
 from StringIO import StringIO
@@ -257,3 +258,35 @@ class ExportRDF(BrowserView):
             return formatter(points)
 
         return ""
+
+
+class SvgToPng(BrowserView):
+    def convert(self):
+        """
+        Converts a svg to png and http returns the png.
+        """
+        svg_file = '/tmp/temporary_map.svg'
+        png_file = '/tmp/map.png'
+
+        # write the svg to file so we can convert it to png
+        svg = self.request.get('svg')
+        with open(svg_file, 'w') as f:
+            f.write(svg)
+
+        # convert the svg fiel to png using imagemagick
+        os.system('convert %s %s' % (svg_file, png_file))
+        
+        self.request.response.setHeader(
+            'Content-Type', 'image/png')
+        self.request.response.setHeader(
+            'Content-Disposition',
+            'attachment; filename="map.png"')
+
+        png = open(png_file, 'rb').read()
+        self.request.response.write(png)
+
+        # remove files on disk
+        os.remove(svg_file)
+        os.remove(png_file)
+
+        return self.request.response
