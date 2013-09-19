@@ -1,12 +1,14 @@
-import json
+import cairosvg
 import csv
 import datetime
+import json
 import os
-import xlwt
 import tempfile
+import xlwt
+
+from Products.Five.browser import BrowserView
 from StringIO import StringIO
 from zope.component import queryMultiAdapter
-from Products.Five.browser import BrowserView
 
 class ExportCSV(BrowserView):
     """ Export to CSV
