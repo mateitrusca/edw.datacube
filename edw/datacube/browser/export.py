@@ -265,16 +265,10 @@ class SvgToPng(BrowserView):
         """
         Converts a svg to png and http returns the png.
         """
-        svg_file = '/tmp/temporary_map.svg'
-        png_file = '/tmp/map.png'
-
-        # write the svg to file so we can convert it to png
         svg = self.request.get('svg')
-        with open(svg_file, 'w') as f:
-            f.write(svg)
+        png_file = tempfile.TemporaryFile(mode='w+b')
 
-        # convert the svg fiel to png using imagemagick
-        os.system('convert %s %s' % (svg_file, png_file))
+        cairosvg.svg2png(bytestring=svg, write_to=png_file)
         
         self.request.response.setHeader(
             'Content-Type', 'image/png')
@@ -282,11 +276,9 @@ class SvgToPng(BrowserView):
             'Content-Disposition',
             'attachment; filename="map.png"')
 
-        png = open(png_file, 'rb').read()
-        self.request.response.write(png)
+        png_file.flush()
+        png_file.seek(0)
 
-        # remove files on disk
-        os.remove(svg_file)
-        os.remove(png_file)
+        self.request.response.write(png_file.read())
 
         return self.request.response
