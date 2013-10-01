@@ -63,7 +63,7 @@ def test_get_dataset_details():
     res = cube.get_dataset_details()
     by_notation = {r['notation']: r for r in res}
     i_iusell = by_notation['i_iusell']
-    assert "Selling online" in i_iusell['altlabel']
+    assert "selling online" in i_iusell.get('short_label', '').lower()
     assert "in the last 3 months" in i_iusell['definition']
     assert i_iusell['groupName'] == "eCommerce"
     assert i_iusell['sourcelabel'] == "Eurostat - ICT Households survey"
